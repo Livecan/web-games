@@ -32,6 +32,6 @@ class Game extends Entity
         'type' => true,
         'dr_turns' => true,
         'dr_tokens' => true,
-        'players' => true,
+        'users' => true,
     ];
 }
