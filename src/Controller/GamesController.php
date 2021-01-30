@@ -19,6 +19,7 @@ class GamesController extends AppController
     public function index()
     {
         $games = $this->paginate($this->Games);
+        $this->Authorization->skipAuthorization();
 
         $this->set(compact('games'));
     }
@@ -33,8 +34,9 @@ class GamesController extends AppController
     public function view($id = null)
     {
         $game = $this->Games->get($id, [
-            'contain' => ['DrTokens', 'Players', 'DrTurns'],
+            'contain' => ['DrTokens', 'Users', 'DrTurns'],
         ]);
+        $this->Authorization->skipAuthorization();
 
         $this->set(compact('game'));
     }
@@ -47,6 +49,7 @@ class GamesController extends AppController
     public function add()
     {
         $game = $this->Games->newEmptyEntity();
+        $this->Authorization->authorize($game);
         if ($this->request->is('post')) {
             $game = $this->Games->patchEntity($game, $this->request->getData());
             if ($this->Games->save($game)) {
@@ -57,8 +60,8 @@ class GamesController extends AppController
             $this->Flash->error(__('The game could not be saved. Please, try again.'));
         }
         $drTokens = $this->Games->DrTokens->find('list', ['limit' => 200]);
-        $players = $this->Games->Players->find('list', ['limit' => 200]);
-        $this->set(compact('game', 'drTokens', 'players'));
+        $users = $this->Games->Users->find('list', ['limit' => 200]);
+        $this->set(compact('game', 'drTokens', 'users'));
     }
 
     /**
@@ -71,8 +74,9 @@ class GamesController extends AppController
     public function edit($id = null)
     {
         $game = $this->Games->get($id, [
-            'contain' => ['DrTokens', 'Players'],
+            'contain' => ['DrTokens', 'Users'],
         ]);
+        $this->Authorization->authorize($game);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $game = $this->Games->patchEntity($game, $this->request->getData());
             if ($this->Games->save($game)) {
@@ -83,8 +87,8 @@ class GamesController extends AppController
             $this->Flash->error(__('The game could not be saved. Please, try again.'));
         }
         $drTokens = $this->Games->DrTokens->find('list', ['limit' => 200]);
-        $players = $this->Games->Players->find('list', ['limit' => 200]);
-        $this->set(compact('game', 'drTokens', 'players'));
+        $users = $this->Games->Users->find('list', ['limit' => 200]);
+        $this->set(compact('game', 'drTokens', 'users'));
     }
 
     /**
@@ -98,6 +102,8 @@ class GamesController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $game = $this->Games->get($id);
+        $this->Authorization->authorize($game);
+        $this->Authorization->authorize($article);
         if ($this->Games->delete($game)) {
             $this->Flash->success(__('The game has been deleted.'));
         } else {
