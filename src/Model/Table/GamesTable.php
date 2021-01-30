@@ -43,7 +43,11 @@ class GamesTable extends Table
         $this->setTable('games');
         $this->setDisplayField('id');
         $this->setPrimaryKey('id');
-
+        
+        $this->belongsTo('GameStates', [
+            'foreignKey' => 'game_state_id',
+            'joinType' => 'INNER',
+        ]);
         $this->hasMany('DrTurns', [
             'foreignKey' => 'game_id',
         ]);

@@ -34,7 +34,7 @@ class GamesController extends AppController
     public function view($id = null)
     {
         $game = $this->Games->get($id, [
-            'contain' => ['DrTokens', 'Users', 'DrTurns'],
+            'contain' => ['GameStates','DrTokens', 'Users', 'DrTurns'],
         ]);
         $this->Authorization->skipAuthorization();
 
@@ -52,6 +52,11 @@ class GamesController extends AppController
         $this->Authorization->authorize($game);
         if ($this->request->is('post')) {
             $game = $this->Games->patchEntity($game, $this->request->getData());
+            $loggedInUser = $this->getTableLocator()->get('Users')->find()
+                    ->where(['id' => $this->request->getAttribute('identity')->getIdentifier()])
+                    ->toList();
+            $game->users = $loggedInUser;
+            debug($game);
             if ($this->Games->save($game)) {
                 $this->Flash->success(__('The game has been saved.'));
 
@@ -103,7 +108,6 @@ class GamesController extends AppController
         $this->request->allowMethod(['post', 'delete']);
         $game = $this->Games->get($id);
         $this->Authorization->authorize($game);
-        $this->Authorization->authorize($article);
         if ($this->Games->delete($game)) {
             $this->Flash->success(__('The game has been deleted.'));
         } else {
@@ -111,5 +115,18 @@ class GamesController extends AppController
         }
 
         return $this->redirect(['action' => 'index']);
+    }
+    
+    /**
+     * List new games
+     * 
+     * @return \Cake\Http\Response|null|void Renders view
+     */
+    public function newGames()
+    {
+        $games = $this->paginate($this->Games->find()->where([ 'game_state_id' => 1 ])->contain([ 'Users' ]));
+        $this->Authorization->skipAuthorization();
+//debug($games);
+        $this->set(compact('games'));
     }
 }

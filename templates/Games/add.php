@@ -19,7 +19,6 @@
                 <?php
                     echo $this->Form->control('name');
                     echo $this->Form->control('type');
-                    echo $this->Form->control('dr_tokens._ids', ['options' => $drTokens]);
                 ?>
             </fieldset>
             <?= $this->Form->button(__('Submit')) ?>
