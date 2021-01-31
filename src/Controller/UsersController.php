@@ -18,8 +18,10 @@ class UsersController extends AppController
      */
     public function index()
     {
+        $this->Authorization->authorize($this->Users);
+        
         $users = $this->paginate($this->Users);
-
+        
         $this->set(compact('users'));
     }
 
@@ -35,6 +37,7 @@ class UsersController extends AppController
         $user = $this->Users->get($id, [
             'contain' => ['Games', 'DrTokensGames', 'DrTurns'],
         ]);
+        $this->Authorization->authorize($user);
 
         $this->set(compact('user'));
     }
@@ -73,6 +76,7 @@ class UsersController extends AppController
         $user = $this->Users->get($id, [
             'contain' => ['Games'],
         ]);
+        $this->Authorization->authorize($user);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $user = $this->Users->patchEntity($user, $this->request->getData());
             if ($this->Users->save($user)) {
