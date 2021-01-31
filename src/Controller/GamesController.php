@@ -56,7 +56,6 @@ class GamesController extends AppController
                     ->where(['id' => $this->request->getAttribute('identity')->getIdentifier()])
                     ->toList();
             $game->users = $loggedInUser;
-            debug($game);
             if ($this->Games->save($game)) {
                 $this->Flash->success(__('The game has been saved.'));
 
@@ -106,7 +105,8 @@ class GamesController extends AppController
     public function delete($id = null)
     {
         $this->request->allowMethod(['post', 'delete']);
-        $game = $this->Games->get($id);
+        $game = $this->Games->get($id, [
+            'contain' => ['Users']]);
         $this->Authorization->authorize($game);
         if ($this->Games->delete($game)) {
             $this->Flash->success(__('The game has been deleted.'));
@@ -126,7 +126,6 @@ class GamesController extends AppController
     {
         $games = $this->paginate($this->Games->find()->where([ 'game_state_id' => 1 ])->contain([ 'Users' ]));
         $this->Authorization->skipAuthorization();
-//debug($games);
         $this->set(compact('games'));
     }
 }

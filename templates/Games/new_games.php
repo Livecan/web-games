@@ -22,7 +22,7 @@
                 <tr>
                     <td><?= $this->Number->format($game->id) ?></td>
                     <td><?= h($game->name) ?></td>
-                    <td><?= count($game->Users) ?></td>
+                    <td><?= count($game->users) ?></td>
                     <td class="actions">
                         <?= $this->Html->link(__('View'), ['action' => 'view', $game->id]) ?>
                     </td>
