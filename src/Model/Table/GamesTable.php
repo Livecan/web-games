@@ -90,4 +90,20 @@ class GamesTable extends Table
 
         return $validator;
     }
+    
+    public function addGame($data, $user) {
+        if (!$data) {
+            return false;
+        }
+        
+        $game = $this->newEntity($data);
+        $this->users = [$user];
+        $result = $this->save($game);
+        
+        if (!$result) {
+            return false;
+        }
+        
+        return true;
+    }
 }

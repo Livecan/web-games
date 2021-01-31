@@ -14,7 +14,7 @@ use Cake\ORM\Entity;
  *
  * @property \App\Model\Entity\DrTurn[] $dr_turns
  * @property \App\Model\Entity\DrToken[] $dr_tokens
- * @property \App\Model\Entity\Player[] $players
+ * @property \App\Model\Entity\User[] $users
  */
 class Game extends Entity
 {

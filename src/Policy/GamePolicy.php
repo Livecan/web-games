@@ -12,18 +12,6 @@ use Authorization\IdentityInterface;
 class GamePolicy
 {
     /**
-     * Check if $user can add Game
-     *
-     * @param \Authorization\IdentityInterface $user The user.
-     * @param \App\Model\Entity\Game $game
-     * @return bool
-     */
-    public function canAdd(IdentityInterface $user, Game $game)
-    {
-        return true;
-    }
-
-    /**
      * Check if $user can edit Game
      *
      * @param \Authorization\IdentityInterface $user The user.
