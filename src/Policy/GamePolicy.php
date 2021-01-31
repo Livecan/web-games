@@ -32,7 +32,7 @@ class GamePolicy
      */
     public function canEdit(IdentityInterface $user, Game $game)
     {
-        return $this->isPlayer($user, $game) || $this->isAdmin($user);
+        return $this->isPlayer($user, $game) || $user->getOriginalData()->is_admin;
     }
 
     /**
@@ -44,7 +44,7 @@ class GamePolicy
      */
     public function canDelete(IdentityInterface $user, Game $game)
     {
-        return $this->isPlayer($user, $game) || $this->isAdmin($user);
+        return $this->isPlayer($user, $game) || $user->getOriginalData()->is_admin;
     }
 
     /**
@@ -66,9 +66,5 @@ class GamePolicy
             }
         }
         return false;
-    }
-    
-    protected function isAdmin(IdentityInterface $user) {
-        return $user->getIdentifier() == 1; //TODO: admin
     }
 }
