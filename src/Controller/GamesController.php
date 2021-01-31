@@ -52,10 +52,8 @@ class GamesController extends AppController
         $this->Authorization->authorize($game);
         if ($this->request->is('post')) {
             $game = $this->Games->patchEntity($game, $this->request->getData());
-            $loggedInUser = $this->getTableLocator()->get('Users')->find()
-                    ->where(['id' => $this->request->getAttribute('identity')->getIdentifier()])
-                    ->toList();
-            $game->users = $loggedInUser;
+            $loggedInUser = $this->request->getAttribute('identity')->getOriginalData();
+            $game->users = [$loggedInUser];
             if ($this->Games->save($game)) {
                 $this->Flash->success(__('The game has been saved.'));
 
