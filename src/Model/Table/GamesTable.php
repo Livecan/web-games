@@ -96,9 +96,10 @@ class GamesTable extends Table
             return false;
         }
         
-        $game = $this->newEntity($data);
-        $this->users = [$user];
-        $result = $this->save($game);
+        $game = $this->newEntity($data, ['associated' => ['Users']]);
+        $game->users = [$user];
+        debug($game);
+        $result = $this->save($game, ['associated' => ['Users']]);
         
         if (!$result) {
             return false;
