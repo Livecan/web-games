@@ -25,6 +25,7 @@
                     <td><?= count($game->users) ?></td>
                     <td class="actions">
                         <?= $this->Html->link(__('View'), ['action' => 'view', $game->id]) ?>
+                        <?= $this->Form->postLink(__('Join'), ['action' => 'waitingRoom', $game->id]) ?>
                     </td>
                 </tr>
                 <?php endforeach; ?>

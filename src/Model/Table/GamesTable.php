@@ -107,4 +107,24 @@ class GamesTable extends Table
         
         return true;
     }
+    
+    public function addUser($game, $user) {
+        //$game->users[] = $user;
+        $game->name = $game->name . '1';
+        debug($user);
+        //$currentUser = $this->Users->newEmptyEntity();
+        //$this->Users->patchEntity($currentUser, $user);
+        //$game->users = [];
+        $game->setDirty('users',true);
+        $game->users[] = $user;
+        
+        //array_push($game->users, $user);
+        debug($game);
+        debug($user);
+        $result = $this->save($game, ['associated' => ['Users']]);
+        if (!$result) {
+            return false;
+        }
+        return true;
+    }
 }

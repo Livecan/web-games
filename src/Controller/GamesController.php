@@ -124,4 +124,26 @@ class GamesController extends AppController
         $this->Authorization->skipAuthorization();
         $this->set(compact('games'));
     }
+    
+    /**
+     * Join an existing game
+     * 
+     * @return \Cake\Http\Response|null|void Renders view
+     */
+    public function waitingRoom($id)
+    {
+        $game = $this->Games->get($id, [
+            'contain' => ['Users'],
+        ]);
+        $this->Authorization->skipAuthorization();
+        
+        if ($this->request->is('post')) {
+            if ($this->Games->addUser($game, $this->request->getAttribute('identity')->getOriginalData())) {
+                $this->Flash->success(__('You joined the game.'));
+            } else {
+                $this->Flash->error(__('You can\'t join the game. Please, try again.'));
+            }
+        }
+        $this->set(compact('game'));
+    }
 }
