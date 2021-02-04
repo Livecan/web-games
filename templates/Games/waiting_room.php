@@ -30,6 +30,9 @@
                     <th><?= __('Id') ?></th>
                     <td><?= $this->Number->format($game->id) ?></td>
                 </tr>
+                <tr>
+                    <td><?= $this->Form->postLink(__('Start'), ['controller' => 'DrowningGames', 'action' => 'start', $game->id]) ?></td>
+                </tr>
             </table>
             <div class="text">
                 <strong><?= __('Type') ?></strong>
