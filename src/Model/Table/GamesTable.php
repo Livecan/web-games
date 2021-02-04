@@ -43,20 +43,12 @@ class GamesTable extends Table
         $this->addBehavior('Timestamp');
 
         $this->setTable('games');
-        $this->setDisplayField('id');
+        $this->setDisplayField('name');
         $this->setPrimaryKey('id');
         
         $this->belongsTo('GameStates', [
             'foreignKey' => 'game_state_id',
             'joinType' => 'INNER',
-        ]);
-        $this->hasMany('DrTurns', [
-            'foreignKey' => 'game_id',
-        ]);
-        $this->belongsToMany('DrTokens', [
-            'foreignKey' => 'game_id',
-            'targetForeignKey' => 'dr_token_id',
-            'joinTable' => 'dr_tokens_games',
         ]);
         $this->belongsToMany('Users', [
             'foreignKey' => 'game_id',
@@ -98,7 +90,6 @@ class GamesTable extends Table
         
         $game = $this->newEntity($data);
         $game->users = [$user];
-        debug($game);
         $result = $this->save($game);
         
         if (!$result) {
@@ -109,18 +100,10 @@ class GamesTable extends Table
     }
     
     public function addUser($game, $user) {
-        //$game->users[] = $user;
-        $game->name = $game->name . '1';
-        debug($user);
-        //$currentUser = $this->Users->newEmptyEntity();
-        //$this->Users->patchEntity($currentUser, $user);
-        //$game->users = [];
-        $game->setDirty('users',true);
+        //add a new $user to $game and setDirty to upload when ->save
         $game->users[] = $user;
+        $game->setDirty('users',true);
         
-        //array_push($game->users, $user);
-        debug($game);
-        debug($user);
         $result = $this->save($game, ['associated' => ['Users']]);
         if (!$result) {
             return false;

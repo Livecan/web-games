@@ -26,6 +26,7 @@
                     <td class="actions">
                         <?= $this->Html->link(__('View'), ['action' => 'view', $game->id]) ?>
                         <?= $this->Form->postLink(__('Join'), ['action' => 'waitingRoom', $game->id]) ?>
+                        <?= $this->Form->postLink(__('Start'), ['controller' => 'DrowningGames', 'action' => 'start', $game->id]) ?>
                     </td>
                 </tr>
                 <?php endforeach; ?>
