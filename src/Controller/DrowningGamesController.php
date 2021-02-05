@@ -24,17 +24,18 @@ class DrowningGamesController extends AppController
      */
     public function start($id = null)
     {
-        $drowningGame = $this->DrowningGames->get($id, [
+        $game = $this->DrowningGames->get($id, [
             'contain' => ['Users'],
         ]);
+        $this->Authorization->authorize($game);
         if ($this->request->is(['post'])) {
-            if ($this->DrowningGames->start($drowningGame)) {
+            if ($this->DrowningGames->start($game)) {
                 $this->Flash->success(__('The drowning game has been initialized.'));
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'board']);
             }
             $this->Flash->error(__('The drowning game could not be initialized. Please, try again.'));
         }
-        $this->set(compact('drowningGame'));
+        $this->set(compact('game'));
     }
 }

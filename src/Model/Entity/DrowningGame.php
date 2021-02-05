@@ -12,9 +12,11 @@ use Cake\ORM\Entity;
  * @property string $name
  * @property string $type
  *
+ * @property \App\Model\Entity\DrTurn[] $dr_turns
+ * @property \App\Model\Entity\DrToken[] $dr_tokens
  * @property \App\Model\Entity\User[] $users
  */
-class Game extends Entity
+class DrowningGame extends Game
 {
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
@@ -29,6 +31,8 @@ class Game extends Entity
         'name' => true,
         'type' => true,
         'game_states' => true,
+        'dr_turns' => true,
+        'dr_tokens' => true,
         'users' => true,
     ];
 }

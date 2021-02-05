@@ -9,6 +9,7 @@
 namespace App\Model\Table;
 
 use App\Model\Table\GamesTable;
+use Cake\ORM\Locator\LocatorAwareTrait;
 
 /**
  * Description of DrowningGame
@@ -16,6 +17,7 @@ use App\Model\Table\GamesTable;
  * @author roman
  */
 class DrowningGamesTable extends GamesTable {
+    use LocatorAwareTrait;
     
     /**
      * Initialize method
@@ -37,7 +39,38 @@ class DrowningGamesTable extends GamesTable {
         ]);
     }
     
-    public function start($drowningGame) {
+    public function start($game) {
+        
+        //firstly randomize player order
+        usort($game->users, function($_a, $_b) { return rand(-1, 1); });
+        for ($i = 0; $i < count($game->users); $i++) {
+            $game->users[$i]->_joinData->order_number = $i;
+        }
+        $game->setDirty('users', true);
+        //debug($game->users);
+        
+        //secondly randomly deal tokens
+        $tokens = $this->DrTokens->find('all')->toArray();
+        usort($tokens,
+                function($_a, $_b) {
+                    return $_a->type == $_b->type ? rand(-1, 1) : $_a->type > $_b->type;
+                });
+        $game->dr_tokens = $tokens;
+        $drTokensGames = $this->getTableLocator()->get('DrTokensGames');
+        for ($i = 0; $i < count($tokens); $i++) {
+            $game->dr_tokens[$i]->_joinData = $drTokensGames->newEntity(['position' => $i]);
+        }
+        
+        //thirdly change game state to started
+        $game->game_state_id = 2;
+        //debug($game);
+        
+        $result = $this->save($game, ['associated' => ['Users', 'DrTokens']]);
+        
+        if (!$result) {
+            return false;
+        }
+        
         return true;
     }
 }
