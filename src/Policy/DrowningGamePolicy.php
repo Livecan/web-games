@@ -22,4 +22,18 @@ class DrowningGamePolicy
     {
         return $drowningGame->users[0]->id == $user->id or $user->getOriginalData()->is_admin;
     }
+    
+    /**
+     * Check if $user can open board of Drowning Game
+     *
+     * @param \Authorization\IdentityInterface $user The user.
+     * @param \App\Model\Entity\DrowningGame $drowningGame
+     * @return bool
+     */
+    public function canOpenBoard(IdentityInterface $user, DrowningGame $drowningGame)
+    {
+        return $drowningGame->users[0]->id == $user->id or $user->getOriginalData()->is_admin;
+    }
+    
+    
 }

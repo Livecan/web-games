@@ -22,7 +22,7 @@ class DrowningGamesController extends AppController
      * @return \Cake\Http\Response|null|void Redirects on successful edit, renders view otherwise.
      * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
      */
-    public function start($id = null)
+    public function start($id)
     {
         $game = $this->DrowningGames->get($id, [
             'contain' => ['Users'],
@@ -32,10 +32,18 @@ class DrowningGamesController extends AppController
             if ($this->DrowningGames->start($game)) {
                 $this->Flash->success(__('The drowning game has been initialized.'));
 
-                return $this->redirect(['action' => 'board']);
+                return $this->redirect(['action' => 'openBoard', $id = $id]);
             }
             $this->Flash->error(__('The drowning game could not be initialized. Please, try again.'));
         }
+        $this->set(compact('game'));
+    }
+    
+    public function openBoard($id) {
+        $game = $this->DrowningGames->get($id, [
+            'contain' => ['Users', 'DrTokens', 'DrTurns'],
+        ]);
+        $this->Authorization->authorize($game);
         $this->set(compact('game'));
     }
 }
