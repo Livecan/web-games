@@ -44,6 +44,9 @@ class DrowningGamesController extends AppController
             'contain' => ['Users', 'DrTokens', 'DrTurns'],
         ]);
         $this->Authorization->authorize($game);
-        $this->set(compact('game'));
+        
+        $oceanBoard = $this->DrowningGames->getBoard($game);
+
+        $this->set(compact('oceanBoard'));
     }
 }

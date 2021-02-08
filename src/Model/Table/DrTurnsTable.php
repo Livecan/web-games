@@ -38,6 +38,8 @@ class DrTurnsTable extends Table
     public function initialize(array $config): void
     {
         parent::initialize($config);
+        
+        $this->addBehavior('Timestamp');
 
         $this->setTable('dr_turns');
         $this->setDisplayField('id');

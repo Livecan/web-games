@@ -10,6 +10,7 @@ namespace App\Model\Table;
 
 use App\Model\Table\GamesTable;
 use Cake\ORM\Locator\LocatorAwareTrait;
+use Cake\ORM\Entity;
 
 /**
  * Description of DrowningGame
@@ -72,5 +73,36 @@ class DrowningGamesTable extends GamesTable {
         }
         
         return true;
+    }
+    
+    private $maxDepth = 20; //TODO: refactor
+    
+    public function getBoard($game) {
+        $ocean;
+        for ($depth = 1; $depth <= $this->maxDepth; $depth++) {
+            $ocean[$depth] = new Entity();
+        }
+        
+        //order dr_turns by ->created and then keep only the last for each player
+        usort($game->dr_turns, function($_before, $_after) {
+            return $_before->created < $_after-created ? 1 : -1; });
+        $last_turns = array_slice($game->dr_turns, -count($game->users), count($game->users));
+        foreach ($last_turns as $_turn) {
+            $ocean[$_turn->position]->diver = array_filter($game->users,
+                function($_user) use ($_turn) {
+                    return $_user->id == $_turn->user_id; });
+        }
+
+        //assign tokens to different depths
+        for ($depth = 1; $depth <= $this->maxDepth; $depth++) {
+            $ocean[$depth]->tokens = array_filter($game->dr_tokens,
+                function($_token) use ($depth) {
+                    return $_token->_joinData->position == $depth; });
+        }
+        
+        //TODO: return oxygen level - stored in last turn
+        //TODO: return possible moves for the player - add method parameter
+
+        return $ocean;
     }
 }
