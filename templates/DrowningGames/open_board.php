@@ -4,23 +4,28 @@
  * @var \App\Model\Entity\DrowningGame $game
  */
 ?>
-<div class="row">
-    <div id="ocean">
-        <?php foreach ($oceanBoard as $depth): ?>
-        <div class="depth">
-            <?php if ($depth->diver != null) { ?>
-                <div class="diver">
-                    <img src="img_trans.gif" class="diver-red" /><!--TODO: diver classes-->
-                </div>
-            <?php } ?>
-            <div class="tokens">
-                <?php foreach ($depth->tokens as $token): ?>
-                <div class="token">
-                    <img src="img_trans.gif" class="T1" /><!--TODO: token classes-->
-                </div>
-                <?php endforeach; ?>
+<div id="ocean">
+    <?php foreach ($board->depths as $depth): ?>
+    <div class="depth">
+        <?php if ($depth->diver != null): ?>
+            <div class="diver">
+                <img src="img_trans.gif" class="<?= h('D' . $depth->diver) ?>" /><!--TODO: diver classes-->
             </div>
+        <?php endif; ?>
+        <div class="tokens">
+            <?php foreach ($depth->tokens as $token): ?>
+            <div class="token">
+                <img src="img_trans.gif" class="<?= h('T' . $token->type) ?>" /><!--TODO: token classes-->
+            </div>
+            <?php endforeach; ?>
         </div>
-        <?php endforeach; ?>
     </div>
+    <?php endforeach; ?>
+</div>
+<div id="users">
+    <?php foreach ($board->users as $user): ?>
+    <div class="user <?= h('D' . $user->_joinData->order) ?>">
+        <?= h($user->name) ?>
+    </div>
+    <?php endforeach; ?>
 </div>

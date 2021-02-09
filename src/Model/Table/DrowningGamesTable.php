@@ -54,12 +54,14 @@ class DrowningGamesTable extends GamesTable {
         $tokens = $this->DrTokens->find('all')->toArray();
         usort($tokens,
                 function($_a, $_b) {
-                    return $_a->type == $_b->type ? rand(-1, 1) : $_a->type > $_b->type;
+                    return $_a->type == $_b->type ?
+                        rand(-1, 1) : $_a->type > $_b->type;
                 });
         $game->dr_tokens = $tokens;
         $drTokensGames = $this->getTableLocator()->get('DrTokensGames');
         for ($i = 0; $i < count($tokens); $i++) {
-            $game->dr_tokens[$i]->_joinData = $drTokensGames->newEntity(['position' => $i]);
+            $game->dr_tokens[$i]->_joinData =
+                $drTokensGames->newEntity(['position' => $i]);
         }
         
         //thirdly change game state to started
@@ -76,33 +78,48 @@ class DrowningGamesTable extends GamesTable {
     }
     
     private $maxDepth = 20; //TODO: refactor
+    private $maxOxygen = 25;    //TODO: refactor
     
-    public function getBoard($game) {
-        $ocean;
+    public function getBoard($game, $user = null) {
+        $board = new Entity();
+        
+        $board->depths = [];
+
         for ($depth = 1; $depth <= $this->maxDepth; $depth++) {
-            $ocean[$depth] = new Entity();
+            $board->depths[$depth] = new Entity();
         }
         
         //order dr_turns by ->created and then keep only the last for each player
-        usort($game->dr_turns, function($_before, $_after) {
+        usort($game->dr_turns, function($_before, $_after) {    //TODO: these might be written more nice?
             return $_before->created < $_after-created ? 1 : -1; });
-        $last_turns = array_slice($game->dr_turns, -count($game->users), count($game->users));
+        $last_turns = array_slice($game->dr_turns, -count($game->users),
+            count($game->users));
         foreach ($last_turns as $_turn) {
-            $ocean[$_turn->position]->diver = array_filter($game->users,
+            $board->depths[$_turn->position]->diver = array_filter($game->users,
                 function($_user) use ($_turn) {
-                    return $_user->id == $_turn->user_id; });
+                    return $_user->id == $_turn->user_id; })[0]->
+                        _joinData->order;
         }
 
         //assign tokens to different depths
-        for ($depth = 1; $depth <= $this->maxDepth; $depth++) {
-            $ocean[$depth]->tokens = array_filter($game->dr_tokens,
+        for ($depth = 1; $depth <= $this->maxDepth; $depth++) { //TODO: these might be written more nice?
+            $board->depths[$depth]->tokens = array_filter($game->dr_tokens,
                 function($_token) use ($depth) {
                     return $_token->_joinData->position == $depth; });
         }
         
-        //TODO: return oxygen level - stored in last turn
-        //TODO: return possible moves for the player - add method parameter
+        $board->users = $game->users;
+        usort($board->users, function($_before, $_after) {
+            return $_before->_joinData->order < $_after->_joinData->order ?
+                1 : -1; });
+        
+        if (count($last_turns) > 0) {
+            $last_turns[count($last_turns) - 1];    //TODO: this is the last turn - get oxygen level from it and include it in the return value
+        } else {
+            $board->oxygen = $this->maxOxygen;
+        }
+        //TODO: return possible moves for the player - add method parameter - need to know whether the requesting player is the player whose turn it is
 
-        return $ocean;
+        return $board;
     }
 }
