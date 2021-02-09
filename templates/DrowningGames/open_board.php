@@ -5,6 +5,9 @@
  */
 ?>
 <div id="ocean">
+    <div class="oxygen">
+        <?= h($board->oxygen) ?>
+    </div>
     <?php foreach ($board->depths as $depth): ?>
     <div class="depth">
         <?php if ($depth->diver != null): ?>
@@ -29,3 +32,14 @@
     </div>
     <?php endforeach; ?>
 </div>
+<?php if ($board->nextTurn): ?>
+<div class="nextTurn">
+    <?php if ($board->nextTurn->askReturn): ?>
+        <!--TODO: insert button for return--><p>askReturn</p>
+    <?php endif; ?>
+    <?php if ($board->nextTurn->askTaking): ?>
+        <!--TODO: insert button for taking--><p>askTaking</p>
+    <?php endif; ?>
+    <!--TODO: insert button for finish--><p>askFinish</p>
+</div>
+<?php endif; ?>

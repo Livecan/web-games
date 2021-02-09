@@ -80,7 +80,7 @@ class DrowningGamesTable extends GamesTable {
     private $maxDepth = 20; //TODO: refactor
     private $maxOxygen = 25;    //TODO: refactor
     
-    public function getBoard($game, $user = null) {
+    public function getBoard($game, $currentUser = null) {
         $board = new Entity();
         
         $board->depths = [];
@@ -94,6 +94,7 @@ class DrowningGamesTable extends GamesTable {
             return $_before->created < $_after-created ? 1 : -1; });
         $last_turns = array_slice($game->dr_turns, -count($game->users),
             count($game->users));
+        $last_turn = $last_turns[count($last_turns) - 1];
         foreach ($last_turns as $_turn) {
             $board->depths[$_turn->position]->diver = array_filter($game->users,
                 function($_user) use ($_turn) {
@@ -113,13 +114,20 @@ class DrowningGamesTable extends GamesTable {
             return $_before->_joinData->order < $_after->_joinData->order ?
                 1 : -1; });
         
-        if (count($last_turns) > 0) {
-            $last_turns[count($last_turns) - 1];    //TODO: this is the last turn - get oxygen level from it and include it in the return value
-        } else {
-            $board->oxygen = $this->maxOxygen;
+        $board->oxygen = $last_turn->oxygen;
+        
+        //generate options for the player who's turn it is
+        if ($last_turn->user_id == $currentUser->id) {
+            $board->nextTurn = new Entity();
+            if (!$last_turn->returning) {
+                $board->nextTurn->askReturn = true;
+            }
+            if (!$last_turn->taking) {
+                $board->nextTurn->askTaking = true;
+            }
+            //always ask about turn finish, no need to add it here
         }
-        //TODO: return possible moves for the player - add method parameter - need to know whether the requesting player is the player whose turn it is
-
+        
         return $board;
     }
 }

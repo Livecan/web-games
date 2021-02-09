@@ -45,7 +45,7 @@ class DrowningGamesController extends AppController
         ]);
         $this->Authorization->authorize($game);
         
-        $board = $this->DrowningGames->getBoard($game);
+        $board = $this->DrowningGames->getBoard($game, $this->request->getAttribute('identity')->getOriginalData());
 
         $this->set(compact('board'));
     }
