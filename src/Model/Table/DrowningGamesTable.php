@@ -83,6 +83,8 @@ class DrowningGamesTable extends GamesTable {
     public function getBoard($game, $currentUser = null) {
         $board = new Entity();
         
+        $board->id = $game->id;
+        
         $board->depths = [];
 
         for ($depth = 1; $depth <= $this->maxDepth; $depth++) {
@@ -95,6 +97,7 @@ class DrowningGamesTable extends GamesTable {
         $last_turns = array_slice($game->dr_turns, -count($game->users),
             count($game->users));
         $last_turn = $last_turns[count($last_turns) - 1];
+        $board->last_turn_id = $last_turn->id;
         foreach ($last_turns as $_turn) {
             $board->depths[$_turn->position]->diver = array_filter($game->users,
                 function($_user) use ($_turn) {

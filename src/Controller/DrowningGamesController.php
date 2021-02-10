@@ -49,4 +49,8 @@ class DrowningGamesController extends AppController
 
         $this->set(compact('board'));
     }
+    
+    public function nextTurn($id = null) {
+        debug($this->request->getData());
+    }
 }

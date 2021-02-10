@@ -35,11 +35,26 @@
 <?php if ($board->nextTurn): ?>
 <div class="nextTurn">
     <?php if ($board->nextTurn->askReturn): ?>
-        <!--TODO: insert button for return--><p>askReturn</p>
+    <div class="nextTurnButton">
+        <?= $this->Form->postLink(__('Start returning'),
+            ['controller' => 'DrowningGames', 'action' => 'nextTurn'],
+            ['data' => ['game_id' =>$board->id, 'turn_id' => $board->last_turn_id,
+                'start_returning' => true]]) ?>
+    </div>
     <?php endif; ?>
     <?php if ($board->nextTurn->askTaking): ?>
-        <!--TODO: insert button for taking--><p>askTaking</p>
+    <div class="nextTurnButton">
+        <?= $this->Form->postLink(__('Take treasure'),
+            ['controller' => 'DrowningGames', 'action' => 'nextTurn'],
+            ['data' => ['game_id' =>$board->id, 'turn_id' => $board->last_turn_id,
+                'taking' => true]]) ?>
+    </div>
     <?php endif; ?>
-    <!--TODO: insert button for finish--><p>askFinish</p>
+    <div class="nextTurnButton">
+        <?= $this->Form->postLink(__('Finish turn'),
+            ['controller' => 'DrowningGames', 'action' => 'nextTurn'],
+            ['data' => ['game_id' =>$board->id, 'turn_id' => $board->last_turn_id,
+                'finish' => true]]) ?>
+    </div>
 </div>
 <?php endif; ?>
