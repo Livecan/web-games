@@ -1,0 +1,215 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : Feb 11, 2021, 1:25:44 PM
+    Author     : roman
+*/
+
+#ocean {
+        width: 600px;
+        height: 600px;
+        position: relative;
+        background-image: linear-gradient(lightblue, darkblue 80%, darkgreen 85%, saddlebrown 90%, black 95%);
+}
+
+.depth {
+        width: 15%;
+        height: 15%;
+}
+
+.depth:nth-child(1) {
+        position: absolute;
+        left: 10%;
+        top: 0%;
+}
+
+.depth:nth-child(2) {
+        position: absolute;
+        left: 30%;
+        top: 0%;
+}
+
+.depth:nth-child(3) {
+        position: absolute;
+        left: 50%;
+        top: 0%;
+}
+
+.depth:nth-child(4) {
+        position: absolute;
+        left: 70%;
+        top: 0%;
+}
+
+.depth:nth-child(5) {
+        position: absolute;
+        left: 80%;
+        top: 11%;
+}
+
+.depth:nth-child(6) {
+        position: absolute;
+        left: 70%;
+        top: 22%;
+}
+
+.depth:nth-child(7) {
+        position: absolute;
+        left: 50%;
+        top: 22%;
+}
+
+.depth:nth-child(8) {
+        position: absolute;
+        left: 30%;
+        top: 22%;
+}
+
+.depth:nth-child(9) {
+        position: absolute;
+        left: 10%;
+        top: 22%;
+}
+
+.depth:nth-child(10) {
+        position: absolute;
+        left: 0%;
+        top: 33%;
+}
+
+.depth:nth-child(11) {
+        position: absolute;
+        left: 10%;
+        top: 44%;
+}
+
+.depth:nth-child(12) {
+        position: absolute;
+        left: 30%;
+        top: 44%;
+}
+
+.depth:nth-child(13) {
+        position: absolute;
+        left: 50%;
+        top: 44%;
+}
+
+.depth:nth-child(14) {
+        position: absolute;
+        left: 70%;
+        top: 44%;
+}
+
+.depth:nth-child(15) {
+        position: absolute;
+        left: 80%;
+        top: 55%;
+}
+
+.depth:nth-child(16) {
+        position: absolute;
+        left: 70%;
+        top: 66%;
+}
+
+.depth:nth-child(17) {
+        position: absolute;
+        left: 50%;
+        top: 66%;
+}
+
+.depth:nth-child(18) {
+        position: absolute;
+        left: 30%;
+        top: 66%;
+}
+
+.depth:nth-child(19) {
+        position: absolute;
+        left: 10%;
+        top: 66%;
+}
+
+.depth:nth-child(20) {
+        position: absolute;
+        left: 0%;
+        top: 77%;
+}
+
+.tokens {
+}
+
+.diver {
+        position: absolute;
+        z-index: 1;
+}
+
+.token:nth-child(1) {
+        position: absolute;
+        left: 10%;
+        top: 10%;
+        z-index: 0;
+}
+
+.token:nth-child(2) {
+        position: absolute;
+        left: 20%;
+        top: 20%;
+        z-index: -1;
+}
+
+.token:nth-child(3) {
+        position: absolute;
+        left: 30%;
+        top: 30%;
+        z-index: -2;
+}
+
+.token {
+        width: 30%;
+        height: 30%;
+}
+
+.T1, .T2, .T3, .T4 {
+        width: 100%;
+        height: 100%;
+        background-size: 100% 100%;
+}
+
+.T1 {
+        background-image: url("/css/drowning-game/png/Help (1).png");
+}
+
+.T2 {
+        background-image: url("/css/drowning-game/png/Help (2).png");
+}
+
+.T3 {
+        background-image: url("/css/drowning-game/png/Help (3).png");
+}
+
+.T4 {
+        background-image: url("/css/drowning-game/png/Help (4).png");
+}
+
+.D0, .D1, .D2 {
+        width: 40%;
+        height: 40%;
+        background-size: 100% 100%;
+}
+
+.D0 {
+        background-image: url("/css/drowning-game/png/Profile (1).png")
+}
+
+.D1 {
+        background-image: url("/css/drowning-game/png/Profile (2).png")
+}
+
+.D2 {
+        background-image: url("/css/drowning-game/png/Profile (3).png")
+}
