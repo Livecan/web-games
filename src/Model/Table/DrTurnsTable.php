@@ -144,4 +144,12 @@ class DrTurnsTable extends Table
                 first()->
                 oxygen;
     }
+    
+    public function getCurrentTurnUser($game_id) {
+        return $this->find('all', ['order' => ['created' => 'DESC']])->
+                contain(['Users'])->
+                select($this->Users)->
+                where(['game_id' => $game_id])->
+                first()->user;
+    }
 }
