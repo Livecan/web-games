@@ -39,23 +39,23 @@ $this->Html->css('drowning-game/board', ['block' => true]);
     <?php if ($board->nextTurn->askReturn): ?>
     <div class="nextTurnButton">
         <?= $this->Form->postLink(__('Start returning'),
-            ['controller' => 'DrowningGames', 'action' => 'nextTurn'],
-            ['data' => ['game_id' =>$board->id, 'turn_id' => $board->last_turn_id,
+            ['controller' => 'DrowningGames', 'action' => 'processActions', $board->id],
+            ['data' => ['game_id' =>$board->id, 'turn_id' => $board->last_turn->id,
                 'start_returning' => true]]) ?>
     </div>
     <?php endif; ?>
     <?php if ($board->nextTurn->askTaking): ?>
     <div class="nextTurnButton">
         <?= $this->Form->postLink(__('Take treasure'),
-            ['controller' => 'DrowningGames', 'action' => 'nextTurn'],
-            ['data' => ['game_id' =>$board->id, 'turn_id' => $board->last_turn_id,
+            ['controller' => 'DrowningGames', 'action' => 'processActions', $board->id],
+            ['data' => ['game_id' =>$board->id, 'turn_id' => $board->last_turn->id,
                 'taking' => true]]) ?>
     </div>
     <?php endif; ?>
     <div class="nextTurnButton">
         <?= $this->Form->postLink(__('Finish turn'),
-            ['controller' => 'DrowningGames', 'action' => 'nextTurn'],
-            ['data' => ['game_id' =>$board->id, 'turn_id' => $board->last_turn_id,
+            ['controller' => 'DrowningGames', 'action' => 'processActions', $board->id],
+            ['data' => ['game_id' =>$board->id, 'turn_id' => $board->last_turn->id,
                 'finish' => true]]) ?>
     </div>
 </div>

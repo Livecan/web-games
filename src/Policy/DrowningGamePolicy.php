@@ -20,7 +20,7 @@ class DrowningGamePolicy
      */
     public function canStart(IdentityInterface $user, DrowningGame $drowningGame)
     {
-        return $drowningGame->users[0]->id == $user->id or $user->getOriginalData()->is_admin;
+        return $drowningGame->users[0]->id == $user->id || $user->getOriginalData()->is_admin;
     }
     
     /**
@@ -32,8 +32,11 @@ class DrowningGamePolicy
      */
     public function canOpenBoard(IdentityInterface $user, DrowningGame $drowningGame)
     {
-        return $drowningGame->users[0]->id == $user->id or $user->getOriginalData()->is_admin;
+        return $drowningGame->users[0]->id == $user->id || $user->getOriginalData()->is_admin;
     }
     
-    
+    public function canProcessActions(IdentityInterface $user, DrowningGame $drowningGame)
+    {
+        return $drowningGame->currentTurnPlayer->id == $user->id;
+    }
 }

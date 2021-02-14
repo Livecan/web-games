@@ -152,4 +152,29 @@ class DrTurnsTable extends Table
                 where(['game_id' => $game_id])->
                 first()->user;
     }
+    
+    public function getLastTurn($game_id) {
+        return $this->find('all', ['order' => ['created' => 'DESC']])->
+            where(['game_id' => $game_id])->
+            first();
+    }
+    
+    public function processActions($board, $data) {
+        
+        if (array_key_exists('start_returning', $data)) {
+            $board->last_turn->returning |= $data['start_returning'];
+        }
+        
+        if (array_key_exists('taking', $data) && $data['taking']) {
+            //TODO: take treasure action if the field has treasure!
+        }
+        
+        $this->processTurns($board, array_key_exists('finish', $data) && $data['finish']);
+        
+        return true;    //TODO: don't forget to save the actions!
+    }
+    
+    private function processTurns($board, $finished) {
+        //TODO: process turns until User action required
+    }
 }

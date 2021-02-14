@@ -50,7 +50,21 @@ class DrowningGamesController extends AppController
         $this->set(compact('board'));
     }
     
-    public function nextTurn($id = null) {
-        debug($this->request->getData());
+    public function processActions($id = null) {
+        $this->loadModel('DrTurns');
+        
+        $game = $this->DrowningGames->get($id, [
+            'contain' => ['Users'],
+        ]);
+        $game->currentTurnPlayer = $this->DrTurns->getCurrentTurnUser($id);
+        $this->Authorization->authorize($game);
+        
+        if ($this->request->is(['post'])) {
+            if ($this->DrTurns->processActions($this->DrowningGames->getBoard($game), $this->request->getData())) {
+                $this->Flash->success(__('The action was performed.'));
+                return $this->redirect(['action' => 'openBoard', $id = $id]);
+            }
+            $this->Flash->error(__('The action was not performed. Please, try again.'));
+        }
     }
 }
