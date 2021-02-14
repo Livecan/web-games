@@ -7,6 +7,7 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use Cake\ORM\Locator\LocatorAwareTrait;
 
 /**
  * DrTurns Model
@@ -29,6 +30,7 @@ use Cake\Validation\Validator;
  */
 class DrTurnsTable extends Table
 {
+    use LocatorAwareTrait;
     /**
      * Initialize method
      *
@@ -53,6 +55,8 @@ class DrTurnsTable extends Table
             'foreignKey' => 'user_id',
             'joinType' => 'INNER',
         ]);
+        
+        $this->gamesUsers = $this->getTableLocator()->get('GamesUsers');
     }
 
     /**
@@ -108,5 +112,28 @@ class DrTurnsTable extends Table
         $rules->add($rules->existsIn(['user_id'], 'Users'), ['errorField' => 'user_id']);
 
         return $rules;
+    }
+    
+    public function getPositionPlayer($game_id) {
+        $playerCount = $this->gamesUsers->find()->where(['game_id' => $game_id])->count();
+        $positionPlayers = $this->find('all', ['order' => ['created' => 'DESC']])->
+                contain(['Users' =>
+                    ['Games' =>
+                        function (Query $q) use ($game_id) {
+                            return $q->select(['GamesUsers.order_number'])->where(['game_id' => $game_id]);
+                        }
+                    ]
+                ])->
+                select(['position'])->
+                select($this->Users)->
+                where(['game_id' => $game_id])->
+                limit($playerCount)->
+                all()->
+                toArray();
+        foreach ($positionPlayers as $positionPlayer) {
+            $positionPlayer->user->order_number = $positionPlayer->user->games[0]->_joinData->order_number;
+            $positionPlayer->unset('games');
+        }
+        return $positionPlayers;
     }
 }

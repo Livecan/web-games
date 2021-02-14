@@ -40,6 +40,7 @@ class DrowningGamesTable extends GamesTable {
         ]);
         
         $this->drTokensGames = $this->getTableLocator()->get('DrTokensGames');
+        $this->drTurns = $this->getTableLocator()->get('DrTurns');
     }
     
     public function start($game) {
@@ -100,11 +101,10 @@ class DrowningGamesTable extends GamesTable {
             count($game->users));
         $last_turn = $last_turns[count($last_turns) - 1];
         $board->last_turn_id = $last_turn->id;
-        foreach ($last_turns as $_turn) {
-            $board->depths[$_turn->position]->diver = array_filter($game->users,
-                function($_user) use ($_turn) {
-                    return $_user->id == $_turn->user_id; })[0]->
-                        _joinData->order;
+        
+        $positionPlayers = $this->drTurns->getPositionPlayer($game->id);
+        foreach($positionPlayers as $positionPlayer) {
+            $board->depths[$positionPlayer->position]->diver = $positionPlayer->user;
         }
 
         //get tokens by depth and add to $board

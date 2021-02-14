@@ -13,7 +13,7 @@ $this->Html->css('drowning-game/board', ['block' => true]);
     <?php foreach ($board->depths as $depth): ?>
     <div class="depth">
         <?php if ($depth->diver != null): ?>
-            <div class="diver <?= h('D' . $depth->diver)?>">
+            <div class="diver <?= h('D' . $depth->diver->order_number)?>">
                 <?= $this->Html->image('drowning-game/img_trans.gif', ['alt' => 'diver']); ?>
             </div>
         <?php endif; ?>
