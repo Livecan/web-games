@@ -41,6 +41,7 @@ class DrowningGamesTable extends GamesTable {
         
         $this->drTokensGames = $this->getTableLocator()->get('DrTokensGames');
         $this->drTurns = $this->getTableLocator()->get('DrTurns');
+        $this->gamesUsers = $this->getTableLocator()->get('GamesUsers');
     }
     
     public function start($game) {

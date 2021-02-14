@@ -87,4 +87,14 @@ class GamesUsersTable extends Table
 
         return $rules;
     }
+    
+    public function getNextUser($game_id, $user_id) {
+        $next_user_id = $this->find('all')->
+            select('next_user_id')->
+            where(['game_id' => $game_id, 'user_id' => $user_id])->
+            first()->next_user_id;
+        return $this->Users->find('all')->
+            where(['id' => $next_user_id])->
+            first();
+    }
 }
