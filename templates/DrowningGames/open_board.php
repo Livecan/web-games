@@ -21,7 +21,6 @@ $this->Html->css('drowning-game/board', ['block' => true]);
             <?php foreach ($depth->tokens as $token): ?>
             <div class="token <?= h('T' . $token->type) ?>">
                 <?= $this->Html->image('drowning-game/img_trans.gif', ['alt' => 'token']); ?>
-                <!--img src="img_trans.gif" class="<?= h('T' . $token->type) ?>" /--><!--TODO: token classes-->
             </div>
             <?php endforeach; ?>
         </div>
