@@ -38,6 +38,8 @@ class DrowningGamesTable extends GamesTable {
             'targetForeignKey' => 'dr_token_id',
             'joinTable' => 'dr_tokens_games',
         ]);
+        
+        $this->drTokensGames = $this->getTableLocator()->get('DrTokensGames');
     }
     
     public function start($game) {
@@ -61,7 +63,7 @@ class DrowningGamesTable extends GamesTable {
         $drTokensGames = $this->getTableLocator()->get('DrTokensGames');
         for ($i = 0; $i < count($tokens); $i++) {
             $game->dr_tokens[$i]->_joinData =
-                $drTokensGames->newEntity(['position' => $i]);
+                $drTokensGames->newEntity(['position' => $i + 1]);
         }
         
         //thirdly change game state to started
@@ -105,11 +107,14 @@ class DrowningGamesTable extends GamesTable {
                         _joinData->order;
         }
 
-        //assign tokens to different depths
-        for ($depth = 1; $depth <= $this->maxDepth; $depth++) { //TODO: these might be written more nice?
-            $board->depths[$depth]->tokens = array_filter($game->dr_tokens,
-                function($_token) use ($depth) {
-                    return $_token->_joinData->position == $depth; });
+        //get tokens by depth and add to $board
+        $tokensByPosition = $this->drTokensGames->getTokensByPosition($game->id);
+        for ($depth = 1; $depth <= $this->maxDepth; $depth++) {
+            if (array_key_exists($depth, $tokensByPosition)) {
+                $board->depths[$depth]->tokens = $tokensByPosition[$depth];
+            } else {
+                $board->depths[$depth]->tokens = [];
+            }
         }
         
         $board->users = $game->users;

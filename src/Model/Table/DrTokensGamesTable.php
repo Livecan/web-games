@@ -92,4 +92,22 @@ class DrTokensGamesTable extends Table
 
         return $rules;
     }
+    
+    public function getTokensByPosition($game_id) {
+        $results = $this->find('all', ['order' => ['position' => 'ASC']])->
+                contain(['DrTokens'])->
+                select('position')->
+                select($this->DrTokens)->
+                where(['game_id' => $game_id])->
+                all()->
+                toArray();
+        $tokensByPosition = [];
+        foreach ($results as $result) {
+            if (!array_key_exists($result->position, $tokensByPosition)) {
+                $tokensByPosition[$result->position] = [];
+            }
+            $tokensByPosition[$result->position][] = $result->dr_token;
+        }
+        return $tokensByPosition;
+    }
 }
