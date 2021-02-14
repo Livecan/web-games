@@ -95,16 +95,7 @@ class DrowningGamesTable extends GamesTable {
             $board->depths[$depth] = new Entity();
         }
         
-        //order dr_turns by ->created and then keep only the last for each player
-        usort($game->dr_turns, function($_before, $_after) {    //TODO: these might be written more nice?
-            return $_before->created < $_after-created ? 1 : -1; });
-        $last_turns = array_slice($game->dr_turns, -count($game->users),
-            count($game->users));
-        $last_turn = $last_turns[count($last_turns) - 1];
-        $board->last_turn_id = $last_turn->id;
-        
-        $positionPlayers = $this->drTurns->getPositionPlayer($game->id);
-        foreach($positionPlayers as $positionPlayer) {
+        foreach($this->drTurns->getPositionPlayer($game->id) as $positionPlayer) {
             $board->depths[$positionPlayer->position]->diver = $positionPlayer->user;
         }
 
@@ -125,13 +116,15 @@ class DrowningGamesTable extends GamesTable {
         
         $board->oxygen = $this->drTurns->getOxygenLevel($game->id);
         
+        $board->last_turn = $this->drTurns->getLastTurn($game->id);
+        
         //generate options for the player who's turn it is
-        if ($last_turn->user_id == $currentUser->id) {
+        if ($currentUser!=null && $board->last_turn->user_id == $currentUser->id) {
             $board->nextTurn = new Entity();
-            if (!$last_turn->returning) {
+            if (!$board->last_turn->returning) {
                 $board->nextTurn->askReturn = true;
             }
-            if (!$last_turn->taking) {
+            if (!$board->last_turn->taking) {
                 $board->nextTurn->askTaking = true;
             }
             //always ask about turn finish, no need to add it here
