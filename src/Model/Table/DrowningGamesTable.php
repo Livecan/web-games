@@ -122,7 +122,7 @@ class DrowningGamesTable extends GamesTable {
             return $_before->_joinData->order < $_after->_joinData->order ?
                 1 : -1; });
         
-        $board->oxygen = $last_turn->oxygen;
+        $board->oxygen = $this->drTurns->getOxygenLevel($game->id);
         
         //generate options for the player who's turn it is
         if ($last_turn->user_id == $currentUser->id) {

@@ -136,4 +136,12 @@ class DrTurnsTable extends Table
         }
         return $positionPlayers;
     }
+    
+    public function getOxygenLevel($game_id) {
+        return $this->find('all', ['order' => ['created' => 'DESC']])->
+                select('oxygen')->
+                where(['game_id' => $game_id])->
+                first()->
+                oxygen;
+    }
 }
