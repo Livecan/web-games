@@ -57,6 +57,7 @@ class DrTurnsTable extends Table
         ]);
         
         $this->gamesUsers = $this->getTableLocator()->get('GamesUsers');
+        $this->drTokensGames = $this->getTableLocator()->get('DrTokensGames');
     }
 
     /**
@@ -159,14 +160,27 @@ class DrTurnsTable extends Table
             first();
     }
     
-    public function processActions($board, $data) {
+    private function canTakeTreasure($board) {
+        return $board->depths[$board->last_turn->position]->tokens;
+    }
+    
+    public function processActions($board, $data, $user) {
         
         if (array_key_exists('start_returning', $data)) {
             $board->last_turn->returning |= $data['start_returning'];
         }
         
-        if (array_key_exists('taking', $data) && $data['taking']) {
-            //TODO: take treasure action if the field has treasure!
+        if ($this->canTakeTreasure($board) && array_key_exists('taking', $data) && $data['taking']) {
+            $gameTokens = $this->drTokensGames->find('all')->
+                where(['game_id' => $board->id, 'position' => $board->last_turn->position])->
+                toArray();
+            foreach ($gameTokens as $gameToken) {
+                $gameToken->group_number = $board->last_turn->id;
+                $gameToken->user_id = $user->id;
+                $gameToken->position = null;
+                $gameToken->id_token_state = 2;
+            }
+            $this->drTokensGames->saveMany($gameTokens);
         }
         
         $this->processTurns($board, array_key_exists('finish', $data) && $data['finish']);
@@ -175,6 +189,7 @@ class DrTurnsTable extends Table
     }
     
     private function processTurns($board, $finished) {
+        
         //TODO: process turns until User action required
     }
 }

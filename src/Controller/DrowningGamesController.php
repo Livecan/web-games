@@ -60,7 +60,9 @@ class DrowningGamesController extends AppController
         $this->Authorization->authorize($game);
         
         if ($this->request->is(['post'])) {
-            if ($this->DrTurns->processActions($this->DrowningGames->getBoard($game), $this->request->getData())) {
+            if ($this->DrTurns->processActions($this->DrowningGames->getBoard($game),
+                    $this->request->getData(),
+                    $this->request->getAttribute('identity')->getOriginalData())) {
                 $this->Flash->success(__('The action was performed.'));
                 return $this->redirect(['action' => 'openBoard', $id = $id]);
             }
