@@ -110,4 +110,18 @@ class DrTokensGamesTable extends Table
         }
         return $tokensByPosition;
     }
+    
+    public function getUserTreasures($game_id, $user_id, $token_state_id) {
+        return $this->find('all')->
+                contain(['DrTokens'])->
+                where(['game_id' => $game_id, 'user_id' => $user_id, 'token_state_id' => $token_state_id])->
+                toArray();
+    }
+    
+    public function getUserTakenTreasuresCount($game_id, $user_id) {
+        return $this->find('all')->
+                where(['game_id' => $game_id, 'user_id' => $user_id, 'token_state_id' => 2])->
+                group('group_number')->
+                count();
+    }
 }

@@ -160,7 +160,7 @@ class DrTurnsTable extends Table
             first();
     }
     
-    private function canTakeTreasure($board) {
+    public function canTakeTreasure($board) {
         return $board->depths[$board->last_turn->position]->tokens;
     }
     
@@ -189,7 +189,13 @@ class DrTurnsTable extends Table
     }
     
     private function processTurns($board, $finished) {
-        
-        //TODO: process turns until User action required
+        if ($finished || ($board->last_turn->returning && $board->last_turn->taking)) {  //TOD: add impossible to drop or dropped already
+            $nextUser = $this->gamesUsers->getNextUser($board->id, $board->last_turn->user_id);
+            $roll = [rand(1, 3), rand(1, 3)];
+            $userTakenTreasuresCount = $this->drTokensGames->getUserTakenTreasuresCount($board->id, $nextUser->id);
+            $moveCount = array_sum($roll) - $userTakenTreasuresCount;
+            //TODO: now based on whether player started to return already or not (get from db last turn for the player), move would go up or down
+            //TODO: process turns until User action required
+        }
     }
 }
