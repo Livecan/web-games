@@ -32,7 +32,9 @@ class DrowningGamePolicy
      */
     public function canOpenBoard(IdentityInterface $user, DrowningGame $drowningGame)
     {
-        return $drowningGame->users[0]->id == $user->id || $user->getOriginalData()->is_admin;
+        return array_filter($drowningGame->users,
+                function($_user) use ($user) { return $_user->id == $user->id; }) ||
+                $user->getOriginalData()->is_admin;
     }
     
     public function canProcessActions(IdentityInterface $user, DrowningGame $drowningGame)
