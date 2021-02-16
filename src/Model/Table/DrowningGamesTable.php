@@ -124,9 +124,10 @@ class DrowningGamesTable extends GamesTable {
             if (!$board->last_turn->returning) {
                 $board->nextTurn->askReturn = true;
             }
-            if (!$board->last_turn->taking) {
+            if (!$board->last_turn->taking && $this->drTurns->canTakeTreasure($board)) {
                 $board->nextTurn->askTaking = true;
             }
+            //TODO: allow the player to drop a treasure if possible
             //always ask about turn finish, no need to add it here
         }
         
