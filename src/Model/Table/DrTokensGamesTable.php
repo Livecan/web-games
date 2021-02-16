@@ -56,6 +56,9 @@ class DrTokensGamesTable extends Table
         $this->belongsTo('Users', [
             'foreignKey' => 'user_id',
         ]);
+        $this->belongsTo('DrTokenStates', [
+            'foreignKey' => 'dr_token_state_id',
+        ]);
     }
 
     /**
@@ -111,17 +114,18 @@ class DrTokensGamesTable extends Table
         return $tokensByPosition;
     }
     
-    public function getUserTreasures($game_id, $user_id, $token_state_id) {
+    public function getUserTreasures($game_id, $user_id, $dr_token_state_id) {
         return $this->find('all')->
                 contain(['DrTokens'])->
-                where(['game_id' => $game_id, 'user_id' => $user_id, 'token_state_id' => $token_state_id])->
+                where(['game_id' => $game_id, 'user_id' => $user_id, 'dr_token_state_id' => $dr_token_state_id])->
                 toArray();
     }
     
     public function getUserTakenTreasuresCount($game_id, $user_id) {
         return $this->find('all')->
-                where(['game_id' => $game_id, 'user_id' => $user_id, 'token_state_id' => 2])->
+                where(['game_id' => $game_id, 'user_id' => $user_id, 'dr_token_state_id' => 2])->
                 group('group_number')->
                 count();
+        
     }
 }

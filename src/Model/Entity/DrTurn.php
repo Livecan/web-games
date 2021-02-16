@@ -39,7 +39,8 @@ class DrTurn extends Entity
         'roll' => true,
         'returning' => true,
         'taking' => true,
+        'oxygen' => true,
         'game' => true,
-        'player' => true,
+        'user' => true,
     ];
 }

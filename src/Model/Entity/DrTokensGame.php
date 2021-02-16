@@ -37,5 +37,6 @@ class DrTokensGame extends Entity
         'game' => true,
         'dr_token' => true,
         'user' => true,
+        'dr_token_state_id' => true,
     ];
 }

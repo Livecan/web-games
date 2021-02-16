@@ -83,19 +83,20 @@ class DrTurnsTable extends Table
             ->notEmptyString('round');
 
         $validator
-            ->integer('roll')
+            ->maxLength('roll', 3)
             ->requirePresence('roll', 'create')
             ->notEmptyString('roll');
 
         $validator
             ->boolean('returning')
-            ->requirePresence('returning', 'create')
             ->notEmptyString('returning');
 
         $validator
             ->boolean('taking')
-            ->requirePresence('taking', 'create')
             ->notEmptyString('taking');
+        
+        $validator
+            ->integer('oxygen');
 
         return $validator;
     }
@@ -168,6 +169,7 @@ class DrTurnsTable extends Table
         
         if (array_key_exists('start_returning', $data)) {
             $board->last_turn->returning |= $data['start_returning'];
+            $this->save($board->last_turn);
         }
         
         if ($this->canTakeTreasure($board) && array_key_exists('taking', $data) && $data['taking']) {
@@ -178,7 +180,7 @@ class DrTurnsTable extends Table
                 $gameToken->group_number = $board->last_turn->id;
                 $gameToken->user_id = $user->id;
                 $gameToken->position = null;
-                $gameToken->id_token_state = 2;
+                $gameToken->dr_token_state_id = 2;
             }
             $this->drTokensGames->saveMany($gameTokens);
         }
@@ -192,10 +194,41 @@ class DrTurnsTable extends Table
         if ($finished || ($board->last_turn->returning && $board->last_turn->taking)) {  //TOD: add impossible to drop or dropped already
             $nextUser = $this->gamesUsers->getNextUser($board->id, $board->last_turn->user_id);
             $roll = [rand(1, 3), rand(1, 3)];
-            $userTakenTreasuresCount = $this->drTokensGames->getUserTakenTreasuresCount($board->id, $nextUser->id);
-            $moveCount = array_sum($roll) - $userTakenTreasuresCount;
-            //TODO: now based on whether player started to return already or not (get from db last turn for the player), move would go up or down
+            $lastUserTakenTreasuresCount = $this->drTokensGames->getUserTakenTreasuresCount($board->id, $board->last_turn->user_id);
+            $nextUserTakenTreasuresCount = $this->drTokensGames->getUserTakenTreasuresCount($board->id, $nextUser->id);
+            $moveCount = array_sum($roll) - $nextUserTakenTreasuresCount;
+            $nextPlayerLastTurn = $this->find('all')->
+                    where(['game_id' => $board->id, 'user_id' => $nextUser->id])->
+                    order(['created' => 'DESC'])->
+                    first();
+            $nextPlayerLastPosition = $nextPlayerLastTurn ? $nextPlayerLastTurn->position : 0;
+            $nextPlayerReturning = $nextPlayerLastTurn ? $nextPlayerLastTurn->returning : 0;
+            $position = $this->processMove($board, $nextPlayerLastPosition, $moveCount, $nextPlayerReturning);
             //TODO: process turns until User action required
+            $nextTurn = $this->newEntity(['game_id' => $board->id,
+                'user_id' => $nextUser->id,
+                'position' => $position,
+                'round' => $board->last_turn->round,
+                'roll' => $roll[0] . '+' . $roll[1],
+                'returning' => $nextPlayerLastTurn ? $nextPlayerLastTurn->returning : false,
+                'taking' => false,
+                'oxygen' => $board->last_turn->oxygen - $lastUserTakenTreasuresCount,
+                ]);
+            $this->save($nextTurn);
         }
+    }
+    
+    private function processMove($board, $position, $moveCount, $returning) {
+        do {
+            if ($returning) {
+                $position--;
+            } else {
+                $position++;
+            }
+            if ($position > 0 && !$board->depths[$position]->diver) {
+                $moveCount--;
+            }
+        } while ($moveCount > 0 && $position > 0);
+        return $position;
     }
 }
