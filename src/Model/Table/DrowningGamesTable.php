@@ -52,6 +52,21 @@ class DrowningGamesTable extends GamesTable {
         }
     }
     
+    private function getRandomizedTokens() {
+        $tokens = $this->DrTokens->find('all')->toArray();
+        usort($tokens,
+                function($_a, $_b) {
+                    return $_a->type == $_b->type ?
+                        rand(-1, 1) : $_a->type > $_b->type;
+                });
+
+        for ($i = 0; $i < count($tokens); $i++) {
+            $tokens[$i]->_joinData =
+                $this->drTokensGames->newEntity(['position' => $i + 1]);
+        }
+        return $tokens;
+    }
+    
     public function start($game) {
         
         //firstly randomize player order
@@ -59,18 +74,7 @@ class DrowningGamesTable extends GamesTable {
         $game->setDirty('users', true);
         
         //secondly randomly deal tokens
-        $tokens = $this->DrTokens->find('all')->toArray();
-        usort($tokens,
-                function($_a, $_b) {
-                    return $_a->type == $_b->type ?
-                        rand(-1, 1) : $_a->type > $_b->type;
-                });
-        $game->dr_tokens = $tokens;
-        $drTokensGames = $this->getTableLocator()->get('DrTokensGames');
-        for ($i = 0; $i < count($tokens); $i++) {
-            $game->dr_tokens[$i]->_joinData =
-                $drTokensGames->newEntity(['position' => $i + 1]);
-        }
+        $game->dr_tokens = $this->getRandomizedTokens();
         
         //thirdly change game state to started
         $game->game_state_id = 2;
