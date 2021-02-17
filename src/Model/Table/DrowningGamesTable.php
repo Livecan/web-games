@@ -44,15 +44,19 @@ class DrowningGamesTable extends GamesTable {
         $this->gamesUsers = $this->getTableLocator()->get('GamesUsers');
     }
     
+    private function randomizePlayerOrder($users) {
+        usort($users, function($_a, $_b) { return rand(-1, 1); });
+        for ($i = 0; $i < count($users); $i++) {
+            $users[$i]->_joinData->order_number = $i;
+            $users[$i]->_joinData->next_user_id = $users[($i + 1) % count($users)]->id;
+        }
+    }
+    
     public function start($game) {
         
         //firstly randomize player order
-        usort($game->users, function($_a, $_b) { return rand(-1, 1); });
-        for ($i = 0; $i < count($game->users); $i++) {
-            $game->users[$i]->_joinData->order_number = $i;
-        }
+        $this->randomizePlayerOrder($game->users);
         $game->setDirty('users', true);
-        //debug($game->users);
         
         //secondly randomly deal tokens
         $tokens = $this->DrTokens->find('all')->toArray();
@@ -70,7 +74,6 @@ class DrowningGamesTable extends GamesTable {
         
         //thirdly change game state to started
         $game->game_state_id = 2;
-        //debug($game);
         
         $result = $this->save($game, ['associated' => ['Users', 'DrTokens']]);
         
