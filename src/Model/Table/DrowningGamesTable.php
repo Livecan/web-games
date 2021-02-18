@@ -79,7 +79,16 @@ class DrowningGamesTable extends GamesTable {
         //thirdly change game state to started
         $game->game_state_id = 2;
         
-        $result = $this->save($game, ['associated' => ['Users', 'DrTokens']]);
+        $firstRoll = $this->drTurns->getRoll();
+          
+        $firstTurn = $this->drTurns->newEntity(['user_id' => $game->users[0]->id,
+                        'position' => array_sum($firstRoll),
+                        'round' => 1,
+                        'roll' => $firstRoll[0] . '+' . $firstRoll[1],
+                        ]);
+        $game->dr_turns = [$firstTurn];
+
+        $result = $this->save($game, ['associated' => ['Users', 'DrTokens', 'DrTurns']]);
         
         if (!$result) {
             return false;

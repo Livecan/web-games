@@ -190,10 +190,14 @@ class DrTurnsTable extends Table
         return true;    //TODO: don't forget to save the actions!
     }
     
+    public function getRoll() {
+        return [rand(1, 3), rand(1, 3)];
+    }
+    
     private function processTurns($board, $finished) {
         if ($finished || ($board->last_turn->returning && $board->last_turn->taking)) {  //TOD: add impossible to drop or dropped already
             $nextUser = $this->gamesUsers->getNextUser($board->id, $board->last_turn->user_id);
-            $roll = [rand(1, 3), rand(1, 3)];
+            $roll = $this->getRoll();
             $lastUserTakenTreasuresCount = $this->drTokensGames->getUserTakenTreasuresCount($board->id, $board->last_turn->user_id);
             $nextUserTakenTreasuresCount = $this->drTokensGames->getUserTakenTreasuresCount($board->id, $nextUser->id);
             $moveCount = array_sum($roll) - $nextUserTakenTreasuresCount;
