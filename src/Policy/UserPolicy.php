@@ -14,10 +14,7 @@ class UserPolicy implements BeforePolicyInterface
 {
     public function before($user, $resource, $action)
     {
-        if ($user->getOriginalData()->is_admin) {
-            return true;
-        }
-        // fall through
+        return $user->getOriginalData()->is_admin;
     }
     
     /**
@@ -29,6 +26,7 @@ class UserPolicy implements BeforePolicyInterface
      */
     public function canAdd(IdentityInterface $user, User $resource)
     {
+        return $resource->id == $user->getIdentifier() || $user->getOriginalData()->is_admin;
     }
 
     /**
@@ -52,6 +50,7 @@ class UserPolicy implements BeforePolicyInterface
      */
     public function canDelete(IdentityInterface $user, User $resource)
     {
+        return $resource->id == $user->getIdentifier() || $user->getOriginalData()->is_admin;
     }
 
     /**
@@ -63,5 +62,6 @@ class UserPolicy implements BeforePolicyInterface
      */
     public function canView(IdentityInterface $user, User $resource)
     {
+        return $resource->id == $user->getIdentifier() || $user->getOriginalData()->is_admin;
     }
 }
