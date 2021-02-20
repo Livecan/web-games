@@ -200,7 +200,7 @@ class DrTurnsTable extends Table
             $roll = $this->getRoll();
             $lastUserTakenTreasuresCount = $this->drTokensGames->getUserTakenTreasuresCount($board->id, $board->last_turn->user_id);
             $nextUserTakenTreasuresCount = $this->drTokensGames->getUserTakenTreasuresCount($board->id, $nextUser->id);
-            $moveCount = array_sum($roll) - $nextUserTakenTreasuresCount;
+            $moveCount = max(array_sum($roll) - $nextUserTakenTreasuresCount, 0);
             $nextPlayerLastTurn = $this->find('all')->
                     where(['game_id' => $board->id, 'user_id' => $nextUser->id])->
                     order(['created' => 'DESC'])->
@@ -223,7 +223,7 @@ class DrTurnsTable extends Table
     }
     
     private function processMove($board, $position, $moveCount, $returning) {
-        do {
+        while ($moveCount > 0 && $position > 0) {
             if ($returning) {
                 $position--;
             } else {
@@ -232,7 +232,7 @@ class DrTurnsTable extends Table
             if ($position > 0 && !$board->depths[$position]->diver) {
                 $moveCount--;
             }
-        } while ($moveCount > 0 && $position > 0);
+        }
         return $position;
     }
 }

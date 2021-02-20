@@ -111,8 +111,12 @@ class DrowningGamesTable extends GamesTable {
             $board->depths[$depth] = new Entity();
         }
         
+        $currentUserPosition = null;
         foreach($this->drTurns->getPositionPlayer($game->id) as $positionPlayer) {
             $board->depths[$positionPlayer->position]->diver = $positionPlayer->user;
+            if ($positionPlayer->user->id == $currentUser->id) {
+                $currentUserPosition = $positionPlayer->position;
+            }
         }
 
         //get tokens by depth and add to $board
@@ -129,6 +133,12 @@ class DrowningGamesTable extends GamesTable {
         usort($board->users, function($_before, $_after) {
             return $_before->_joinData->order < $_after->_joinData->order ?
                 1 : -1; });
+        $playersTokens = $this->drTokensGames->getPlayersTokens($board->id);
+        foreach ($board->users as $_user) {
+            if (array_key_exists($_user->id, $playersTokens)) {
+                $_user->tokens = $playersTokens[$_user->id];
+            }
+        }
         
         $board->oxygen = $this->drTurns->getOxygenLevel($game->id);
         
@@ -143,8 +153,11 @@ class DrowningGamesTable extends GamesTable {
             if (!$board->last_turn->taking && $this->drTurns->canTakeTreasure($board)) {
                 $board->nextTurn->askTaking = true;
             }
-            //TODO: allow the player to drop a treasure if possible
+            if (!$board->last_turn->dropping && !$board->depths[$currentUserPosition]->tokens &&
+                    array_key_exists($currentUser->id, $playersTokens) && $playersTokens[$currentUser->id][2]) {
+                $board->nextTurn->askDropping = $playersTokens[$currentUser->id][2];
             //always ask about turn finish, no need to add it here
+            }
         }
         
         return $board;

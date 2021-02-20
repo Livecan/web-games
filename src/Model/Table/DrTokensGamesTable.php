@@ -128,4 +128,19 @@ class DrTokensGamesTable extends Table
                 count();
         
     }
+    
+    public function getPlayersTokens($game_id) {
+        $playersTokensResult = $this->find('all')->
+                contain(['DrTokens'])->
+                select(['user_id', 'group_number', 'dr_token_state_id'])->
+                select($this->DrTokens)->
+                where(['game_id' => $game_id])->
+                whereInList('dr_token_state_id', [2, 3])->
+                toArray();
+        $playersTokens = [];
+        foreach ($playersTokensResult as $playerToken) {    //TODO: divide taken and claimed
+            $playersTokens[$playerToken->user_id][$playerToken->dr_token_state_id][$playerToken->group_number][] = $playerToken->dr_token;
+        }
+        return $playersTokens;
+    }
 }
