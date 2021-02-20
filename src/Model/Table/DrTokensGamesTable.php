@@ -138,7 +138,7 @@ class DrTokensGamesTable extends Table
                 whereInList('dr_token_state_id', [2, 3])->
                 toArray();
         $playersTokens = [];
-        foreach ($playersTokensResult as $playerToken) {    //TODO: divide taken and claimed
+        foreach ($playersTokensResult as $playerToken) {
             $playersTokens[$playerToken->user_id][$playerToken->dr_token_state_id][$playerToken->group_number][] = $playerToken->dr_token;
         }
         return $playersTokens;
