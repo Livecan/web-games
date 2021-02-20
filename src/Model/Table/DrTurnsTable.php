@@ -162,11 +162,15 @@ class DrTurnsTable extends Table
     }
     
     public function canTakeTreasure($board) {
-        return $board->depths[$board->last_turn->position]->tokens;
+        return !$board->last_turn->dropping && $board->depths[$board->last_turn->position]->tokens;
+    }
+    
+    public function canDropTreasure($board) {
+        return !$board->depths[$board->last_turn->position]->tokens &&
+                !$board->last_turn->taking;
     }
     
     public function processActions($board, $data, $user) {
-        
         if (array_key_exists('start_returning', $data)) {
             $board->last_turn->returning |= $data['start_returning'];
             $this->save($board->last_turn);
@@ -185,9 +189,21 @@ class DrTurnsTable extends Table
             $this->drTokensGames->saveMany($gameTokens);
         }
         
+        if ($this->canDropTreasure($board) && array_key_exists('dropping', $data) && $data['dropping']) {
+            $gameTokens = $this->drTokensGames->find('all')->
+                    where(['game_id' => $board->id, 'group_number' => $data['group_number']])->
+                    toArray();
+            foreach ($gameTokens as $gameToken) {
+                $gameToken->user_id = null;
+                $gameToken->position = $board->last_turn->position;
+                $gameToken->dr_token_state_id = 1;
+            }
+            $this->drTokensGames->saveMany($gameTokens);
+        }
+        
         $this->processTurns($board, array_key_exists('finish', $data) && $data['finish']);
         
-        return true;    //TODO: don't forget to save the actions!
+        return true;
     }
     
     public function getRoll() {

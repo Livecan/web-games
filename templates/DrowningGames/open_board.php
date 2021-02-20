@@ -53,12 +53,13 @@ $this->Html->css('drowning-game/board', ['block' => true]);
     </div>
     <?php endif; ?>
     <?php if ($board->nextTurn->askDropping): ?>
-    <?php foreach ($board->nextTurn->askDropping as $_droppableTreasure): ?>
+    <?php foreach ($board->nextTurn->askDropping as $groupNumber => $droppableTreasure): ?>
     <div class="nextTurnButton">
-        <?= $this->Form->postLink(__('Drop treasures ') . implode(", ", $_droppableTreasure),   //TODO: display the treasures properly and insert group_number in the output
+        <?= $this->Form->postLink(__('Drop treasures '),
             ['controller' => 'DrowningGames', 'action' => 'processActions', $board->id],
             ['data' => ['game_id' =>$board->id, 'turn_id' => $board->last_turn->id,
-                'dropping' => true]]) ?>
+                'dropping' => true, 'group_number' => $groupNumber]]) ?>
+        <?= $this->Html->nestedList(array_map(function($_droppableTreasure) { return $_droppableTreasure->type; }, $droppableTreasure)); ?>
     </div>
     <?php endforeach; ?>
     <?php endif; ?>
