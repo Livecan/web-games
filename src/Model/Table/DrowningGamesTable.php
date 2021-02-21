@@ -108,6 +108,7 @@ class DrowningGamesTable extends GamesTable {
             $board->depths[$depth] = new Entity();
         }
         
+        $board->outDivers = [];
         foreach($this->drTurns->getPositionPlayer($game->id) as $positionPlayer) {
             if ($positionPlayer->position > 0) {
                 $board->depths[$positionPlayer->position]->diver = $positionPlayer->user;
@@ -158,5 +159,9 @@ class DrowningGamesTable extends GamesTable {
         }
         
         return $board;
+    }
+    
+    private function isEndRound($board) {
+        return $board->last_turn->oxygen <= 0 || is_array($board->outDivers) && count($board->users) == count($board->outDivers);
     }
 }
