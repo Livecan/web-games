@@ -304,15 +304,17 @@ class DrTurnsTable extends Table
      * @return int
      */
     private function processMove($board, $position, $moveCount, $returning) {
-        while ($moveCount > 0 && $position > 0) {
-            if ($returning) {
-                $position--;
-            } else {
-                $position++;
-            }
-            if ($position > 0 && !$board->depths[$position]->diver) {
-                $moveCount--;
-            }
+        if ($moveCount > 0) {
+            do {
+                if ($returning) {
+                    $position--;
+                } else {
+                    $position++;
+                }
+                if ($position > 0 && !$board->depths[$position]->diver) {
+                    $moveCount--;
+                }
+            } while ($moveCount > 0 && $position > 0);
         }
         return $position;
     }
