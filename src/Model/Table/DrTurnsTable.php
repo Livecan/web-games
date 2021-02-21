@@ -116,6 +116,12 @@ class DrTurnsTable extends Table
         return $rules;
     }
     
+    /**
+     * Returns an array of Entities - '->position', '->user' and '->user->order_number'.
+     * 
+     * @param int $game_id
+     * @return array of Entities
+     */
     public function getPositionPlayer($game_id) {
         $playerCount = $this->gamesUsers->find()->where(['game_id' => $game_id])->count();
         $positionPlayers = $this->find('all', ['order' => ['created' => 'DESC']])->
@@ -139,6 +145,12 @@ class DrTurnsTable extends Table
         return $positionPlayers;
     }
     
+    /**
+     * Returns the current oxygen level for $game_id.
+     * 
+     * @param int $game_id
+     * @return int
+     */
     public function getOxygenLevel($game_id) {
         return $this->find('all', ['order' => ['created' => 'DESC']])->
                 select('oxygen')->
@@ -147,6 +159,12 @@ class DrTurnsTable extends Table
                 oxygen;
     }
     
+    /**
+     * Returns User who's turn it is in the $game_id.
+     * 
+     * @param int $game_id
+     * @return App\Model\Entity\User
+     */
     public function getCurrentTurnUser($game_id) {
         return $this->find('all', ['order' => ['created' => 'DESC']])->
                 contain(['Users'])->
@@ -155,21 +173,49 @@ class DrTurnsTable extends Table
                 first()->user;
     }
     
+    /**
+     * Returns the last turn done or being done in the $game_id.
+     * 
+     * @param int $game_id
+     * @return App\Model\Entity\DrTurn
+     */
     public function getLastTurn($game_id) {
         return $this->find('all', ['order' => ['created' => 'DESC']])->
             where(['game_id' => $game_id])->
             first();
     }
     
+    /**
+     * Returns true if the player can take treasure in the last turn according
+     * to the $board parameter.
+     * 
+     * @param type $board
+     * @return boolean
+     */
     public function canTakeTreasure($board) {
         return !$board->last_turn->dropping && $board->depths[$board->last_turn->position]->tokens;
     }
     
-    public function canDropTreasure($board) {
+    /**
+     * Returns true if the player can drop treasure in the last turn according
+     * to the $board parameter.
+     * 
+     * @param type $board
+     * @return boolean
+     */
+    public function canDropTreasure($board) {   //TODO: fix this!
         return !$board->depths[$board->last_turn->position]->tokens &&
                 !$board->last_turn->taking;
     }
     
+    /**
+     * Processes user actions.
+     * 
+     * @param type $board
+     * @param type $data
+     * @param type $user
+     * @return boolean
+     */
     public function processActions($board, $data, $user) {
         if (array_key_exists('start_returning', $data)) {
             $board->last_turn->returning |= $data['start_returning'];
@@ -206,6 +252,11 @@ class DrTurnsTable extends Table
         return true;
     }
     
+    /**
+     * Generates random roll of two dice with numbers 1-3 and returns an array.
+     * 
+     * @return array of int
+     */
     public function getRoll() {
         return [rand(1, 3), rand(1, 3)];
     }
@@ -238,6 +289,17 @@ class DrTurnsTable extends Table
         }
     }
     
+    /**
+     * Moves a player by $moveCount from his current $position on the $board
+     * depending on whether the player is $returning and returns the final
+     * position.
+     * 
+     * @param type $board
+     * @param int $position
+     * @param int $moveCount
+     * @param boolean $returning
+     * @return int
+     */
     private function processMove($board, $position, $moveCount, $returning) {
         while ($moveCount > 0 && $position > 0) {
             if ($returning) {
