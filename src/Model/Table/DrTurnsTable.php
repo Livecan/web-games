@@ -265,7 +265,7 @@ class DrTurnsTable extends Table
     }
     
     private function processTurns($board, $finished) {
-        if ($finished || ($board->last_turn->returning && $board->last_turn->taking)) {  //TOD: add impossible to drop or dropped already
+        if ($finished || ($board->last_turn->returning && $board->last_turn->taking)) {  //TODO: add impossible to drop or dropped already
             $nextUser = $this->gamesUsers->getNextUser($board->id, $board->last_turn->user_id);
             $roll = $this->getRoll();
             $lastUserTakenTreasuresCount = $this->drTokensGames->getUserTakenTreasuresCount($board->id, $board->last_turn->user_id);
@@ -278,6 +278,9 @@ class DrTurnsTable extends Table
             $nextPlayerLastPosition = $nextPlayerLastTurn ? $nextPlayerLastTurn->position : 0;
             $nextPlayerReturning = $nextPlayerLastTurn ? $nextPlayerLastTurn->returning : 0;
             $position = $this->processMove($board, $nextPlayerLastPosition, $moveCount, $nextPlayerReturning);
+            if ($position == $this->getMaxDepth()) {    //if the player reaches bottom, he must return.
+                $nextPlayerReturning = true;
+            }
             //TODO: process turns until User action required
             $nextTurn = $this->newEntity(['game_id' => $board->id,
                 'user_id' => $nextUser->id,
@@ -304,7 +307,7 @@ class DrTurnsTable extends Table
      * @return int
      */
     private function processMove($board, $position, $moveCount, $returning) {
-        if ($moveCount > 0) {
+        if ($moveCount > 0 &&  ($returning || $position < $this->getMaxDepth())) {
             do {
                 if ($returning) {
                     $position--;
@@ -314,8 +317,14 @@ class DrTurnsTable extends Table
                 if ($position > 0 && !$board->depths[$position]->diver) {
                     $moveCount--;
                 }
-            } while ($moveCount > 0 && $position > 0);
+            } while ($moveCount > 0 && $position > 0 && $position < $this->getMaxDepth());
         }
         return $position;
+    }
+    
+    private $maxDepth = 20; //TODO: refactor constant
+    
+    public function getMaxDepth() {
+        return $this->maxDepth;
     }
 }

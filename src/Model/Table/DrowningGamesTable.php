@@ -97,9 +97,6 @@ class DrowningGamesTable extends GamesTable {
         return true;
     }
     
-    private $maxDepth = 20; //TODO: refactor
-    private $maxOxygen = 25;    //TODO: refactor
-    
     public function getBoard($game, $currentUser = null) {
         $board = new Entity();
         
@@ -107,17 +104,22 @@ class DrowningGamesTable extends GamesTable {
         
         $board->depths = [];
 
-        for ($depth = 1; $depth <= $this->maxDepth; $depth++) {
+        for ($depth = 1; $depth <= $this->drTurns->getMaxDepth(); $depth++) {
             $board->depths[$depth] = new Entity();
         }
         
         foreach($this->drTurns->getPositionPlayer($game->id) as $positionPlayer) {
-            $board->depths[$positionPlayer->position]->diver = $positionPlayer->user;
+            if ($positionPlayer->position > 0) {
+                $board->depths[$positionPlayer->position]->diver = $positionPlayer->user;
+            }
+            else {
+                $board->outDivers[] = $positionPlayer->user;
+            }
         }
 
         //get tokens by depth and add to $board
         $tokensByPosition = $this->drTokensGames->getTokensByPosition($game->id);
-        for ($depth = 1; $depth <= $this->maxDepth; $depth++) {
+        for ($depth = 1; $depth <= $this->drTurns->getMaxDepth(); $depth++) {
             if (array_key_exists($depth, $tokensByPosition)) {
                 $board->depths[$depth]->tokens = $tokensByPosition[$depth];
             } else {
@@ -141,7 +143,7 @@ class DrowningGamesTable extends GamesTable {
         $board->last_turn = $this->drTurns->getLastTurn($game->id);
         
         //generate options for the player who's turn it is
-        if ($currentUser!=null && $board->last_turn->user_id == $currentUser->id) {
+        if ($currentUser!=null && $board->last_turn->user_id == $currentUser->id && $board->last_turn-> position > 0) {
             $board->nextTurn = new Entity();
             if (!$board->last_turn->returning) {
                 $board->nextTurn->askReturn = true;
