@@ -204,7 +204,7 @@ class DrTurnsTable extends Table
      * @return boolean
      */
     public function canDropTreasure($board) {   //TODO: fix this!
-        return !$board->depths[$board->last_turn->position]->tokens &&
+        return empty($board->depths[$board->last_turn->position]->tokens) &&
                 !$board->last_turn->taking;
     }
     
@@ -233,6 +233,9 @@ class DrTurnsTable extends Table
                 $gameToken->dr_token_state_id = 2;
             }
             $this->drTokensGames->saveMany($gameTokens);
+            
+            $board->last_turn->taking = true;
+            $this->save($board->last_turn);
         }
         
         if ($this->canDropTreasure($board) && array_key_exists('dropping', $data) && $data['dropping']) {
