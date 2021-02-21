@@ -278,8 +278,10 @@ class DrTurnsTable extends Table
             $nextPlayerLastPosition = $nextPlayerLastTurn ? $nextPlayerLastTurn->position : 0;
             $nextPlayerReturning = $nextPlayerLastTurn ? $nextPlayerLastTurn->returning : 0;
             $position = $this->processMove($board, $nextPlayerLastPosition, $moveCount, $nextPlayerReturning);
-            if ($position == $this->getMaxDepth()) {    //if the player reaches bottom, he must return.
-                $nextPlayerReturning = true;
+            $nextTurnReturning = false;
+            if ($position == $this->getMaxDepth() ||
+                    ($nextPlayerLastTurn && $nextPlayerLastTurn->returning)) {    //if the player reaches bottom, he must return.
+                $nextTurnReturning = true;
             }
             //TODO: process turns until User action required
             $nextTurn = $this->newEntity(['game_id' => $board->id,
@@ -287,7 +289,7 @@ class DrTurnsTable extends Table
                 'position' => $position,
                 'round' => $board->last_turn->round,
                 'roll' => $roll[0] . '+' . $roll[1],
-                'returning' => $nextPlayerLastTurn ? $nextPlayerLastTurn->returning : false,
+                'returning' => $nextTurnReturning,
                 'taking' => false,
                 'oxygen' => $board->last_turn->oxygen - $lastUserTakenTreasuresCount,
                 ]);
@@ -307,7 +309,7 @@ class DrTurnsTable extends Table
      * @return int
      */
     private function processMove($board, $position, $moveCount, $returning) {
-        if ($moveCount > 0 &&  ($returning || $position < $this->getMaxDepth())) {
+        if ($moveCount > 0 && ($returning || $position < $this->getMaxDepth())) {
             do {
                 if ($returning) {
                     $position--;
