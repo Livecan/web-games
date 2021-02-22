@@ -110,4 +110,8 @@ class GamesTable extends Table
         }
         return true;
     }
+    
+    public function getUsers($game_id) {
+        return $this->get($game_id, ['contain' => 'Users'])->users;
+    }
 }
