@@ -77,20 +77,19 @@ class DrowningGamesTable extends GamesTable {
         return $tokens;
     }
     
-    public function start($game) {
-        
+    private function startNewGame($game) {
         //firstly randomize player order
         $this->randomizePlayerOrder($game->users);
         $game->setDirty('users', true);
-        
+
         //secondly randomly deal tokens
         $game->dr_tokens = $this->getRandomizedTokens();
-        
+
         //thirdly change game state to started
         $game->game_state_id = 2;
-        
+
         $firstRoll = $this->getTableDrTurns()->getRoll();
-          
+
         $firstTurn = $this->getTableDrTurns()->newEntity(['user_id' => $game->users[0]->id,
                         'position' => array_sum($firstRoll),
                         'round' => 1,
@@ -103,8 +102,20 @@ class DrowningGamesTable extends GamesTable {
         if (!$result) {
             return false;
         }
-        
+
         return true;
+    }
+    
+    public function start($game, $board = null) {
+        if (!isset($game->users)) {
+            $game->users = $this->getUsers($game->id);
+        }
+            
+        if ($board == null) {
+            return $this->startNewGame($game);
+        } else {
+            //TODO: generating new round
+        }
     }
     
     public function getBoard($game, $currentUser = null) {
