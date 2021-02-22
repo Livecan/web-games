@@ -316,7 +316,7 @@ class DrTurnsTable extends Table
             $this->save($nextTurn);
             $finished = false;
             $board = $this->getTableDrowningGames()->getBoard($board);
-            $endOfRound = debug($this->isEndRound($board));
+            $endOfRound = $this->isEndRound($board);
         }
     }
     
