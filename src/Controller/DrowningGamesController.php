@@ -41,7 +41,7 @@ class DrowningGamesController extends AppController
     
     public function openBoard($id) {
         $game = $this->DrowningGames->get($id, [
-            'contain' => ['Users', 'DrTokens', 'DrTurns'],
+            'contain' => ['Users'],
         ]);
         $this->Authorization->authorize($game);
         

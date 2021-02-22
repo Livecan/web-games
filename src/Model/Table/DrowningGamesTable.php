@@ -127,7 +127,7 @@ class DrowningGamesTable extends GamesTable {
                 $board->depths[$depth]->tokens = [];
             }
         }
-        
+
         $board->users = $game->users;
         usort($board->users, function($_before, $_after) {
             return $_before->_joinData->order < $_after->_joinData->order ?
@@ -159,9 +159,5 @@ class DrowningGamesTable extends GamesTable {
         }
         
         return $board;
-    }
-    
-    private function isEndRound($board) {
-        return $board->last_turn->oxygen <= 0 || is_array($board->outDivers) && count($board->users) == count($board->outDivers);
     }
 }

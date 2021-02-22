@@ -55,9 +55,27 @@ class DrTurnsTable extends Table
             'foreignKey' => 'user_id',
             'joinType' => 'INNER',
         ]);
-        
-        $this->gamesUsers = $this->getTableLocator()->get('GamesUsers');
-        $this->drTokensGames = $this->getTableLocator()->get('DrTokensGames');
+    }
+    
+    public function getTableGamesUsers(): GamesUsersTable {
+        if (!isset($this->gamesUsers)) {
+            $this->gamesUsers = $this->getTableLocator()->get('GamesUsers');
+        }
+        return $this->gamesUsers;
+    }
+    
+    public function getTableDrTokensGames(): DrTokensGamesTable {
+        if (!isset($this->drTokensGames)) {
+            $this->drTokensGames = $this->getTableLocator()->get('DrTokensGames');
+        }
+        return $this->drTokensGames;
+    }
+    
+    public function getTableDrowningGames(): DrowningGamesTable {
+        if (!isset($this->drowningGames)) {
+            $this->drowningGames = $this->getTableLocator()->get('DrowningGames');
+        }
+        return $this->drowningGames;
     }
 
     /**
@@ -123,7 +141,7 @@ class DrTurnsTable extends Table
      * @return array of Entities
      */
     public function getPositionPlayer($game_id) {
-        $playerCount = $this->gamesUsers->find()->where(['game_id' => $game_id])->count();
+        $playerCount = $this->getTableGamesUsers()->find()->where(['game_id' => $game_id])->count();
         $positionPlayers = $this->find('all', ['order' => ['created' => 'DESC']])->
                 contain(['Users' =>
                     ['Games' =>
@@ -223,7 +241,7 @@ class DrTurnsTable extends Table
         }
         
         if ($this->canTakeTreasure($board) && array_key_exists('taking', $data) && $data['taking']) {
-            $gameTokens = $this->drTokensGames->find('all')->
+            $gameTokens = $this->getTableDrTokensGames()->find('all')->
                 where(['game_id' => $board->id, 'position' => $board->last_turn->position])->
                 toArray();
             foreach ($gameTokens as $gameToken) {
@@ -232,14 +250,14 @@ class DrTurnsTable extends Table
                 $gameToken->position = null;
                 $gameToken->dr_token_state_id = 2;
             }
-            $this->drTokensGames->saveMany($gameTokens);
+            $this->getTableDrTokensGames()->saveMany($gameTokens);
             
             $board->last_turn->taking = true;
             $this->save($board->last_turn);
         }
         
         if ($this->canDropTreasure($board) && array_key_exists('dropping', $data) && $data['dropping']) {
-            $gameTokens = $this->drTokensGames->find('all')->
+            $gameTokens = $this->getTableDrTokensGames()->find('all')->
                     where(['game_id' => $board->id, 'group_number' => $data['group_number']])->
                     toArray();
             foreach ($gameTokens as $gameToken) {
@@ -247,7 +265,7 @@ class DrTurnsTable extends Table
                 $gameToken->position = $board->last_turn->position;
                 $gameToken->dr_token_state_id = 1;
             }
-            $this->drTokensGames->saveMany($gameTokens);
+            $this->getTableDrTokensGames()->saveMany($gameTokens);
         }
         
         $this->processTurns($board, array_key_exists('finish', $data) && $data['finish']);
@@ -265,11 +283,13 @@ class DrTurnsTable extends Table
     }
     
     private function processTurns($board, $finished) {
-        if ($finished || ($board->last_turn->returning && $board->last_turn->taking)) {  //TODO: add impossible to drop or dropped already
-            $nextUser = $this->gamesUsers->getNextUser($board->id, $board->last_turn->user_id);
+        $endOfRound = false;
+        while (!$endOfRound &&
+                ($finished || ($board->last_turn->returning && !$this->canTakeTreasure($board) && !$this->canDropTreasure($board)))) {
+            $nextUser = $this->getTableGamesUsers()->getNextUser($board->id, $board->last_turn->user_id);
             $roll = $this->getRoll();
-            $lastUserTakenTreasuresCount = $this->drTokensGames->getUserTakenTreasuresCount($board->id, $board->last_turn->user_id);
-            $nextUserTakenTreasuresCount = $this->drTokensGames->getUserTakenTreasuresCount($board->id, $nextUser->id);
+            $lastUserTakenTreasuresCount = $this->getTableDrTokensGames()->getUserTakenTreasuresCount($board->id, $board->last_turn->user_id);
+            $nextUserTakenTreasuresCount = $this->getTableDrTokensGames()->getUserTakenTreasuresCount($board->id, $nextUser->id);
             $moveCount = max(array_sum($roll) - $nextUserTakenTreasuresCount, 0);
             $nextPlayerLastTurn = $this->find('all')->
                     where(['game_id' => $board->id, 'user_id' => $nextUser->id])->
@@ -294,6 +314,9 @@ class DrTurnsTable extends Table
                 'oxygen' => $board->last_turn->oxygen - $lastUserTakenTreasuresCount,
                 ]);
             $this->save($nextTurn);
+            $finished = false;
+            $board = $this->getTableDrowningGames()->getBoard($board);
+            $endOfRound = debug($this->isEndRound($board));
         }
     }
     
@@ -328,5 +351,9 @@ class DrTurnsTable extends Table
     
     public function getMaxDepth() {
         return $this->maxDepth;
+    }
+    
+    private function isEndRound($board) {
+        return $board->last_turn->oxygen <= 0 || is_array($board->outDivers) && count($board->users) == count($board->outDivers);
     }
 }
