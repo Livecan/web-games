@@ -77,7 +77,25 @@ class DrowningGamesTable extends GamesTable {
         return $tokens;
     }
     
-    private function startNewGame($game) {
+    public function startNewRound($board) {
+        //firstly all the players who made it up claim their tokens
+        $this->getTableDrTokensGames()->claimPlayersTokens($board->id,
+                array_map(function($_user) { return $_user->id; }, $board->outDivers));
+        
+        //secondly all the tokens on board are shifted so that there are no gaps
+        for ($depth = 1; $depth < $this->getTableDrTurns()->getMaxDepth(); $depth++) {
+            if (empty($board->depths[$depth]->tokens)) {
+                $this->getTableDrTokensGames()->shiftTokens($board->id, $depth);
+            }
+        }
+        
+        //TODO: place DrTokens of Users whose ->position is >0 on board starting with the player whose turn it is
+        //TODO: create first move and increase ->round
+    }
+    
+    public function start($game) {
+        $game->users = $this->getUsers($game->id);
+        
         //firstly randomize player order
         $this->randomizePlayerOrder($game->users);
         $game->setDirty('users', true);
@@ -104,18 +122,6 @@ class DrowningGamesTable extends GamesTable {
         }
 
         return true;
-    }
-    
-    public function start($game, $board = null) {
-        if (!isset($game->users)) {
-            $game->users = $this->getUsers($game->id);
-        }
-            
-        if ($board == null) {
-            return $this->startNewGame($game);
-        } else {
-            //TODO: generating new round
-        }
     }
     
     public function getBoard($game, $currentUser = null) {

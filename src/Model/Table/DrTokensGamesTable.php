@@ -143,4 +143,22 @@ class DrTokensGamesTable extends Table
         }
         return $playersTokens;
     }
+    
+    public function claimPlayersTokens($game_id, $user_ids) {
+        $this->query()->update()->
+                set('dr_token_state_id', 3)->
+                where(['game_id' => $game_id])->
+                whereInList('user_id', $user_ids)->
+                execute();
+    }
+    
+    public function shiftTokens($game_id, $starting_position) {
+        $tokensToShift = $this->find('all')->
+                where(['game_id' => $game_id, 'position >' => $starting_position])->
+                toArray();
+        foreach ($tokensToShift as $_tokenToShift) {
+            $_tokenToShift->position--;
+        }
+        $this->saveMany($tokensToShift);
+    }
 }

@@ -292,7 +292,7 @@ class DrTurnsTable extends Table
             $nextUserTakenTreasuresCount = $this->getTableDrTokensGames()->getUserTakenTreasuresCount($board->id, $nextUser->id);
             $moveCount = max(array_sum($roll) - $nextUserTakenTreasuresCount, 0);
             $nextPlayerLastTurn = $this->find('all')->
-                    where(['game_id' => $board->id, 'user_id' => $nextUser->id])->
+                    where(['game_id' => $board->id, 'user_id' => $nextUser->id, 'round' => $board->last_turn->round])->
                     order(['created' => 'DESC'])->
                     first();
             $nextPlayerLastPosition = $nextPlayerLastTurn ? $nextPlayerLastTurn->position : 0;
@@ -317,6 +317,9 @@ class DrTurnsTable extends Table
             $finished = false;
             $board = $this->getTableDrowningGames()->getBoard($board);
             $endOfRound = $this->isEndRound($board);
+            if ($endOfRound) {
+                $board = $this->getTableDrowningGames()->startNewRound($board);
+            }
         }
     }
     
