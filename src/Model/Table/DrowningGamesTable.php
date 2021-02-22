@@ -38,10 +38,20 @@ class DrowningGamesTable extends GamesTable {
             'targetForeignKey' => 'dr_token_id',
             'joinTable' => 'dr_tokens_games',
         ]);
-        
-        $this->drTokensGames = $this->getTableLocator()->get('DrTokensGames');
-        $this->drTurns = $this->getTableLocator()->get('DrTurns');
-        $this->gamesUsers = $this->getTableLocator()->get('GamesUsers');
+    }
+    
+    private function getTableDrTokensGames(): DrTokensGamesTable {
+        if (!isset($this->drTokensGames)) {
+            $this->drTokensGames = $this->getTableLocator()->get('DrTokensGames');
+        }
+        return $this->drTokensGames;
+    }
+    
+    private function getTableDrTurns(): DrTurnsTable {
+        if (!isset($this->drTurns)) {
+            $this->drTurns = $this->getTableLocator()->get('DrTurns');
+        }
+        return $this->drTurns;
     }
     
     private function randomizePlayerOrder($users) {
@@ -62,7 +72,7 @@ class DrowningGamesTable extends GamesTable {
 
         for ($i = 0; $i < count($tokens); $i++) {
             $tokens[$i]->_joinData =
-                $this->drTokensGames->newEntity(['position' => $i + 1]);
+                $this->getTableDrTokensGames()->newEntity(['position' => $i + 1]);
         }
         return $tokens;
     }
@@ -79,9 +89,9 @@ class DrowningGamesTable extends GamesTable {
         //thirdly change game state to started
         $game->game_state_id = 2;
         
-        $firstRoll = $this->drTurns->getRoll();
+        $firstRoll = $this->getTableDrTurns()->getRoll();
           
-        $firstTurn = $this->drTurns->newEntity(['user_id' => $game->users[0]->id,
+        $firstTurn = $this->getTableDrTurns()->newEntity(['user_id' => $game->users[0]->id,
                         'position' => array_sum($firstRoll),
                         'round' => 1,
                         'roll' => $firstRoll[0] . '+' . $firstRoll[1],
@@ -104,12 +114,12 @@ class DrowningGamesTable extends GamesTable {
         
         $board->depths = [];
 
-        for ($depth = 1; $depth <= $this->drTurns->getMaxDepth(); $depth++) {
+        for ($depth = 1; $depth <= $this->getTableDrTurns()->getMaxDepth(); $depth++) {
             $board->depths[$depth] = new Entity();
         }
         
         $board->outDivers = [];
-        foreach($this->drTurns->getPositionPlayer($game->id) as $positionPlayer) {
+        foreach($this->getTableDrTurns()->getPositionPlayer($game->id) as $positionPlayer) {
             if ($positionPlayer->position > 0) {
                 $board->depths[$positionPlayer->position]->diver = $positionPlayer->user;
             }
@@ -119,8 +129,8 @@ class DrowningGamesTable extends GamesTable {
         }
 
         //get tokens by depth and add to $board
-        $tokensByPosition = $this->drTokensGames->getTokensByPosition($game->id);
-        for ($depth = 1; $depth <= $this->drTurns->getMaxDepth(); $depth++) {
+        $tokensByPosition = $this->getTableDrTokensGames()->getTokensByPosition($game->id);
+        for ($depth = 1; $depth <= $this->getTableDrTurns()->getMaxDepth(); $depth++) {
             if (array_key_exists($depth, $tokensByPosition)) {
                 $board->depths[$depth]->tokens = $tokensByPosition[$depth];
             } else {
@@ -132,16 +142,16 @@ class DrowningGamesTable extends GamesTable {
         usort($board->users, function($_before, $_after) {
             return $_before->_joinData->order < $_after->_joinData->order ?
                 1 : -1; });
-        $playersTokens = $this->drTokensGames->getPlayersTokens($board->id);
+        $playersTokens = $this->getTableDrTokensGames()->getPlayersTokens($board->id);
         foreach ($board->users as $_user) {
             if (array_key_exists($_user->id, $playersTokens)) {
                 $_user->tokens = $playersTokens[$_user->id];
             }
         }
         
-        $board->oxygen = $this->drTurns->getOxygenLevel($game->id);
+        $board->oxygen = $this->getTableDrTurns()->getOxygenLevel($game->id);
         
-        $board->last_turn = $this->drTurns->getLastTurn($game->id);
+        $board->last_turn = $this->getTableDrTurns()->getLastTurn($game->id);
         
         //generate options for the player who's turn it is
         if ($currentUser!=null && $board->last_turn->user_id == $currentUser->id && $board->last_turn-> position > 0) {
@@ -149,7 +159,7 @@ class DrowningGamesTable extends GamesTable {
             if (!$board->last_turn->returning) {
                 $board->nextTurn->askReturn = true;
             }
-            if ($this->drTurns->canTakeTreasure($board)) {
+            if ($this->getTableDrTurns()->canTakeTreasure($board)) {
                 $board->nextTurn->askTaking = true;
             }
             if ($this->DrTurns->canDropTreasure($board)) {
