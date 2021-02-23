@@ -161,4 +161,18 @@ class DrTokensGamesTable extends Table
         }
         $this->saveMany($tokensToShift);
     }
+    
+    public function placeDroppedTokens($game_id, $position, $tokenGroup) {
+        $droppedTokensPositions = $this->find('all')->
+                where(['game_id' => $game_id])->
+                whereInList('dr_token_id', $tokenGroup)->
+                toArray();
+        foreach($droppedTokensPositions as $droppedTokenPosition) {
+            $droppedTokenPosition->position = $position;
+            $droppedTokenPosition->user_id = null;
+            $droppedTokenPosition->group_number = $tokenGroup[0];
+            $droppedTokenPosition->dr_token_state_id = 1;
+        }
+        $this->saveMany($droppedTokensPositions);
+    }
 }

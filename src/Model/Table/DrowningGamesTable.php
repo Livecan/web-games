@@ -54,6 +54,20 @@ class DrowningGamesTable extends GamesTable {
         return $this->drTurns;
     }
     
+    private function getTableUsers(): UsersTable {
+        if (!isset($this->users)) {
+            $this->users = $this->getTableLocator()->get('Users');
+        }
+        return $this->users;
+    }
+    
+    private function getTableGamesUsers(): GamesUsersTable {
+        if (!isset($this->gamesUsers)) {
+            $this->gamesUsers = $this->getTableLocator()->get('GamesUsers');
+        }
+        return $this->gamesUsers;
+    }
+    
     private function randomizePlayerOrder($users) {
         usort($users, function($_a, $_b) { return rand(-1, 1); });
         for ($i = 0; $i < count($users); $i++) {
@@ -79,17 +93,50 @@ class DrowningGamesTable extends GamesTable {
     
     public function startNewRound($board) {
         //firstly all the players who made it up claim their tokens
-        $this->getTableDrTokensGames()->claimPlayersTokens($board->id,
-                array_map(function($_user) { return $_user->id; }, $board->outDivers));
-        
-        //secondly all the tokens on board are shifted so that there are no gaps
-        for ($depth = 1; $depth < $this->getTableDrTurns()->getMaxDepth(); $depth++) {
-            if (empty($board->depths[$depth]->tokens)) {
-                $this->getTableDrTokensGames()->shiftTokens($board->id, $depth);
-            }
+        if (!empty($board->outDivers)) {
+            $this->getTableDrTokensGames()->claimPlayersTokens($board->id,
+                    array_map(function($_user) { return $_user->id; }, $board->outDivers));
         }
         
-        //TODO: place DrTokens of Users whose ->position is >0 on board starting with the player whose turn it is
+        //secondly all the tokens on board are shifted so that there are no gaps
+        $shiftCorrection = 0;
+        for ($depth = 1; $depth < $this->getTableDrTurns()->getMaxDepth(); $depth++) {
+            if (empty($board->depths[$depth]->tokens)) {
+                $this->getTableDrTokensGames()->shiftTokens($board->id, $depth - $shiftCorrection);
+                $shiftCorrection++;
+            }
+        }
+        $lastPosition = $this->getTableDrTurns()->getMaxDepth() - $shiftCorrection;
+        
+        $playerTokens = $this->getTableDrTokensGames()->getPlayersTokens($board->id);
+        $tokensToDrop = [];
+        $_user_id = $board->last_turn->user_id;
+        do {
+            $playerTokenGroupsToDrop = $playerTokens[$_user_id][2];
+            if (!empty($playerTokenGroupsToDrop)) {
+                foreach($playerTokenGroupsToDrop as $playerTokensToDrop) {
+                    $tokensToDrop = array_merge($tokensToDrop, $playerTokensToDrop);
+                }
+            }
+            $_user_id = $this->getTableGamesUsers()->getNextUser($board->id, $_user_id)->id;
+        } while ($_user_id != $board->last_turn->user_id);
+        
+        $tokenGroup = [];
+        foreach($tokensToDrop as $_tokenToDrop) {
+            $tokenGroup[] = $_tokenToDrop;
+            if (count($tokenGroup) == 3) {
+                $lastPosition++;
+                $this->getTableDrTokensGames()->placeDroppedTokens($board->id, $lastPosition,
+                        array_map(function($_token) { return $_token->id; }, $tokenGroup));
+                $tokenGroup = [];
+            }
+        }
+        if (count($tokenGroup) < 3 && !empty($tokenGroup)) {
+            $lastPosition++;
+            $this->getTableDrTokensGames()->placeDroppedTokens($board->id, $lastPosition,
+                    array_map(function($_token) { return $_token->id; }, $tokenGroup));
+        }
+        
         //TODO: create first move and increase ->round
     }
     

@@ -245,7 +245,7 @@ class DrTurnsTable extends Table
                 where(['game_id' => $board->id, 'position' => $board->last_turn->position])->
                 toArray();
             foreach ($gameTokens as $gameToken) {
-                $gameToken->group_number = $board->last_turn->id;
+                $gameToken->group_number = $gameTokens[0]->dr_token_id;
                 $gameToken->user_id = $user->id;
                 $gameToken->position = null;
                 $gameToken->dr_token_state_id = 2;
