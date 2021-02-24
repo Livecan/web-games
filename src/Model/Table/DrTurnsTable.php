@@ -140,9 +140,9 @@ class DrTurnsTable extends Table
      * @param int $game_id
      * @return array of Entities
      */
-    public function getPositionPlayer($game_id) {
+    public function getPositionPlayer($game_id, $round = null) {
         $playerCount = $this->getTableGamesUsers()->find()->where(['game_id' => $game_id])->count();
-        $positionPlayers = $this->find('all', ['order' => ['created' => 'DESC']])->
+        $positionPlayersQuery = $this->find('all', ['order' => ['created' => 'DESC']])->
                 contain(['Users' =>
                     ['Games' =>
                         function (Query $q) use ($game_id) {
@@ -152,7 +152,11 @@ class DrTurnsTable extends Table
                 ])->
                 select(['position'])->
                 select($this->Users)->
-                where(['game_id' => $game_id])->
+                where(['game_id' => $game_id]);
+        if ($round != null) {
+            $positionPlayersQuery->where(['round' => $round]);
+        }
+        $positionPlayers = $positionPlayersQuery->
                 limit($playerCount)->
                 all()->
                 toArray();
@@ -198,7 +202,7 @@ class DrTurnsTable extends Table
      * @return App\Model\Entity\DrTurn
      */
     public function getLastTurn($game_id) {
-        return $this->find('all', ['order' => ['created' => 'DESC']])->
+        return $this->find('all', ['order' => ['id' => 'DESC']])->
             where(['game_id' => $game_id])->
             first();
     }

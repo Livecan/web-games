@@ -137,7 +137,17 @@ class DrowningGamesTable extends GamesTable {
                     array_map(function($_token) { return $_token->id; }, $tokenGroup));
         }
         
-        //TODO: create first move and increase ->round
+        $firstTurnNextRound = $this->getTableDrTurns()->newEmptyEntity();
+        $firstTurnNextRound->game_id = $board->id;
+        $firstTurnNextRound->user_id = $board->last_turn->user_id;
+        $firstTurnNextRound->round = $board->last_turn->round + 1;
+        $firstTurnNextRound->returning = false;
+        $firstTurnNextRound->taking = false;
+        $firstTurnNextRound->dropping = false;
+        $roll = $this->getTableDrTurns()->getRoll();
+        $firstTurnNextRound->roll = $roll[0] . '+' . $roll[1];
+        $firstTurnNextRound->position = array_sum($roll);
+        $this->getTableDrTurns()->save($firstTurnNextRound);
     }
     
     public function start($game) {
@@ -177,13 +187,15 @@ class DrowningGamesTable extends GamesTable {
         $board->id = $game->id;
         
         $board->depths = [];
+        
+        $board->last_turn = $this->getTableDrTurns()->getLastTurn($game->id);
 
         for ($depth = 1; $depth <= $this->getTableDrTurns()->getMaxDepth(); $depth++) {
             $board->depths[$depth] = new Entity();
         }
         
         $board->outDivers = [];
-        foreach($this->getTableDrTurns()->getPositionPlayer($game->id) as $positionPlayer) {
+        foreach($this->getTableDrTurns()->getPositionPlayer($game->id, $board->last_turn->round) as $positionPlayer) {
             if ($positionPlayer->position > 0) {
                 $board->depths[$positionPlayer->position]->diver = $positionPlayer->user;
             }
@@ -214,8 +226,6 @@ class DrowningGamesTable extends GamesTable {
         }
         
         $board->oxygen = $this->getTableDrTurns()->getOxygenLevel($game->id);
-        
-        $board->last_turn = $this->getTableDrTurns()->getLastTurn($game->id);
         
         //generate options for the player who's turn it is
         if ($currentUser!=null && $board->last_turn->user_id == $currentUser->id && $board->last_turn-> position > 0) {

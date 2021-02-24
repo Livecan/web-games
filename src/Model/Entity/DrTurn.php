@@ -16,6 +16,8 @@ use Cake\ORM\Entity;
  * @property int $roll
  * @property bool $returning
  * @property bool $taking
+ * @property bool $dropping
+ * @property int $oxygen
  *
  * @property \App\Model\Entity\Game $game
  * @property \App\Model\Entity\Player $player
