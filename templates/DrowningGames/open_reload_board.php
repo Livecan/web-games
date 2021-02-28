@@ -24,8 +24,9 @@ $this->Html->css('drowning-game/board', ['block' => true]);
 <script>
     $(document).ready(function(){
         $("button").click(function() {
-            $.getJSON("/drowning-games/update-board-json/1", function(data, status){
-               alert("Status: " + status + "\nData: " + JSON.stringify(data));
+            $.getJSON('<?= \Cake\Routing\Router::url(['action' => 'update-board-json', $game->id]) ?>',
+                    function(data, status){
+                        alert("Status: " + status + "\nData: " + JSON.stringify(data));
             });
         });
     });
