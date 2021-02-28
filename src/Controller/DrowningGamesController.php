@@ -13,6 +13,8 @@ class DrowningGamesController extends AppController
     public function initialize(): void
     {
         parent::initialize();
+        
+        $this->loadComponent('RequestHandler');
     }
 
     /**
@@ -48,6 +50,27 @@ class DrowningGamesController extends AppController
         $board = $this->DrowningGames->getBoard($game, $this->request->getAttribute('identity')->getOriginalData());
 
         $this->set(compact('board'));
+    }
+    
+    public function openReloadBoard($id) {
+        $game = $this->DrowningGames->get($id, [
+            'contain' => ['Users'],
+        ]);
+        $this->Authorization->authorize($game);
+        
+        $this->set(compact('game'));
+    }
+    
+    public function updateBoardJson($id) {
+        $game = $this->DrowningGames->get($id, [
+            'contain' => ['Users'],
+        ]);
+        $this->Authorization->authorize($game);
+        
+        $board = $this->DrowningGames->getBoard($game, $this->request->getAttribute('identity')->getOriginalData());
+
+        $this->set(compact('board'));
+        $this->viewBuilder()->setOption('serialize', 'board');
     }
     
     public function processActions($id = null) {
