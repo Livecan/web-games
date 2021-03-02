@@ -18,6 +18,7 @@ use Cake\ORM\Entity;
  * @property bool $taking
  * @property bool $dropping
  * @property int $oxygen
+ * @property date $modified
  *
  * @property \App\Model\Entity\Game $game
  * @property \App\Model\Entity\Player $player
@@ -45,5 +46,6 @@ class DrTurn extends Entity
         'oxygen' => true,
         'game' => true,
         'user' => true,
+        'modified' => true,
     ];
 }

@@ -6,7 +6,7 @@
 
 $this->Html->css('drowning-game/board', ['block' => true]);
 ?>
-<div id="game_id" hidden="true">$game->id</div>
+<div id="game_id" hidden="true"><?= $game->id ?></div>
 <div id="modified" hidden="true"></div>
 <div id="oxygen">
 </div>
@@ -39,7 +39,6 @@ $this->Html->css('drowning-game/board', ['block' => true]);
                 $("#depth" + depthNo).
                         append('<div class="diver D0" /><span class="user_id" hidden="true">' + //TODO: DX - insert order number? and include user color later
                             depths[depthNo].diver["id"] + '</span></div>');
-                alert(JSON.stringify(depths[depthNo].diver));
             }
         }
     }
@@ -47,8 +46,8 @@ $this->Html->css('drowning-game/board', ['block' => true]);
         //$("button").click(function() {
             $.getJSON('<?= \Cake\Routing\Router::url(['action' => 'update-board-json', $game->id]) ?>',
                     function(data, status){
-                        //alert(JSON.stringify(data["modified"]));
                         drowningGameFillBoard(data["depths"], data["users"]);
+                        $("#modified").html(data["modified"]);
             });
         //});
     });
