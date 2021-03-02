@@ -16,8 +16,8 @@ and open the template in the editor.
 }
 
 .depth {
-        width: 10%;
-        height: 10%;
+        width: 12%;
+        height: 12%;
 }
 
 .depth:nth-child(1) {
@@ -150,20 +150,22 @@ and open the template in the editor.
 
 .diver {
         position: absolute;
+        left: 40%;
+        top: 0%;
         z-index: 1;
 }
 
 .token:nth-child(1) {
         position: absolute;
-        left: 10%;
-        top: 10%;
+        left: 0%;
+        top: 0%;
         z-index: 0;
 }
 
 .token:nth-child(2) {
         position: absolute;
-        left: 20%;
-        top: 20%;
+        left: 15%;
+        top: 15%;
         z-index: -1;
 }
 
@@ -174,14 +176,9 @@ and open the template in the editor.
         z-index: -2;
 }
 
-.token {
-        width: 30%;
-        height: 30%;
-}
-
 .T1, .T2, .T3, .T4 {
-        width: 100%;
-        height: 100%;
+        width: 70%;
+        height: 70%;
         background-size: 100% 100%;
 }
 
@@ -202,8 +199,8 @@ and open the template in the editor.
 }
 
 .D0, .D1, .D2 {
-        width: 40%;
-        height: 40%;
+        width: 50%;
+        height: 50%;
         background-size: 100% 100%;
 }
 
