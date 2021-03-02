@@ -216,12 +216,13 @@ class DrowningGamesTable extends GamesTable {
 
         $board->users = $game->users;
         usort($board->users, function($_before, $_after) {
-            return $_before->_joinData->order < $_after->_joinData->order ?
+            return $_before->_joinData->order_number < $_after->_joinData->order_number ?
                 1 : -1; });
         $playersTokens = $this->getTableDrTokensGames()->getPlayersTokens($board->id);
         foreach ($board->users as $_user) {
             if (array_key_exists($_user->id, $playersTokens)) {
                 $_user->tokens = $playersTokens[$_user->id];
+                $_user->order_number = $_user->_joinData->order_number;
             }
         }
         
@@ -241,6 +242,8 @@ class DrowningGamesTable extends GamesTable {
             //always ask about turn finish, no need to add it here
             }
         }
+        
+        $board->modified = $board->last_turn->modified;
         
         return $board;
     }

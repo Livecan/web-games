@@ -7,6 +7,7 @@
 $this->Html->css('drowning-game/board', ['block' => true]);
 ?>
 <div id="game_id" hidden="true">$game->id</div>
+<div id="modified" hidden="true"></div>
 <div id="oxygen">
 </div>
 <div id="ocean">
@@ -22,21 +23,34 @@ $this->Html->css('drowning-game/board', ['block' => true]);
 <div id="nextTurn">
 </div>
 <script>
+    var drowningGameFillBoard = function(depths, users) {
+        for (let depthNo in depths) {
+            let jsonTokens = depths[depthNo].tokens;
+            let tokens = "";
+            for (let token in jsonTokens) {
+                tokens += '<div class="token T' + jsonTokens[token]["type"] + '"></div>';
+            }
+            if (tokens != "") {
+                $("#depth" + depthNo + " .tokens").html(tokens);
+            } else {
+                $("#depth" + depthNo + " .tokens").html('<img src="/img/drowning-game/redX2.png"></img>');
+            }
+            if (depths[depthNo].diver != undefined) {
+                $("#depth" + depthNo).
+                        append('<div class="diver D0" /><span class="user_id" hidden="true">' + //TODO: DX - insert order number? and include user color later
+                            depths[depthNo].diver["id"] + '</span></div>');
+                alert(JSON.stringify(depths[depthNo].diver));
+            }
+        }
+    }
     $(document).ready(function(){
-        $("button").click(function() {
+        //$("button").click(function() {
             $.getJSON('<?= \Cake\Routing\Router::url(['action' => 'update-board-json', $game->id]) ?>',
                     function(data, status){
-                        alert("Status: " + status + "\nData: " + JSON.stringify(data));
-                        for (let depthNo in data["depths"]) {
-                            let jsonTokens = data["depths"][depthNo].tokens;
-                            let tokens = "";
-                            for (let token in jsonTokens) {
-                                tokens += '<div class="token T' + jsonTokens[token]["type"] + '"></div>';
-                            }
-                            $("#depth" + depthNo + " .tokens").html(tokens);
-                        }
+                        //alert(JSON.stringify(data["modified"]));
+                        drowningGameFillBoard(data["depths"], data["users"]);
             });
-        });
+        //});
     });
 </script>
-<button>Get Current Board!</button>
+<!--button>Get Current Board!</button-->
