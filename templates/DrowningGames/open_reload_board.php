@@ -40,7 +40,7 @@ $this->Html->css('drowning-game/board', ['block' => true]);
             if (depths[depthNo].diver != undefined) {
                 let diverUserId = depths[depthNo].diver["id"];
                 $("#depth" + depthNo).
-                        append('<div class="diver"/><span class="user_id" hidden="true">' + //TODO: DX - insert order number? and include user color later
+                        append('<div class="diver"/><span class="user_id" hidden="true">' +
                             diverUserId + '</span></div>');
             }
         }
@@ -77,6 +77,7 @@ $this->Html->css('drowning-game/board', ['block' => true]);
                         drowningGameFillUsers(data["users"]);
                         drowningGameFillOutDivers(data["outDivers"]);
                         $("#oxygen").html(data["oxygen"]);
+                        //TODO: next turns buttons
             });
         //});
     });
