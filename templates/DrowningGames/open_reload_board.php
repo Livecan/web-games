@@ -17,13 +17,15 @@ $this->Html->css('drowning-game/board', ['block' => true]);
         </div>
     </div>
     <?php endfor; ?>
+    <div id="outDivers">
+    </div>
 </div>
 <div id="users">
 </div>
 <div id="nextTurn">
 </div>
 <script>
-    var drowningGameFillBoard = function(depths, users) {
+    var drowningGameFillBoard = function(depths) {
         for (let depthNo in depths) {
             let jsonTokens = depths[depthNo].tokens;
             let tokens = "";
@@ -36,18 +38,45 @@ $this->Html->css('drowning-game/board', ['block' => true]);
                 $("#depth" + depthNo + " .tokens").html('<img src="/img/drowning-game/redX2.png"></img>');
             }
             if (depths[depthNo].diver != undefined) {
+                let diverUserId = depths[depthNo].diver["id"];
                 $("#depth" + depthNo).
-                        append('<div class="diver D0" /><span class="user_id" hidden="true">' + //TODO: DX - insert order number? and include user color later
-                            depths[depthNo].diver["id"] + '</span></div>');
+                        append('<div class="diver"/><span class="user_id" hidden="true">' + //TODO: DX - insert order number? and include user color later
+                            diverUserId + '</span></div>');
             }
         }
     }
+    
+    var drowningGameFillUsers = function(users) {
+        let userElements = "";
+        for (let userIndex in users) {
+            let user = users[userIndex];
+            userElements = "<div class=\"user\">";
+            userElements += '<span class="id">' + user["id"] + '</span>';
+            userElements += '<span class="name">' + user["name"] + '</span>';
+            userElements += '<span class="order_number">' + user["order_number"] + '</span>';
+            userElements += "</div>";
+        }
+        $("#users").append(userElements);
+    }
+    
+    var drowningGameFillOutDivers = function(outDivers) {
+        let outDiversElements = "";
+        for (let outDiverIndex in outDivers) {
+            outDiversElements += '<span class="id">' + outDivers[outDiverIndex]["id"] + '</span>';
+        }
+        $("#outDivers").append(outDiversElements);
+    }
+    
     $(document).ready(function(){
         //$("button").click(function() {
             $.getJSON('<?= \Cake\Routing\Router::url(['action' => 'update-board-json', $game->id]) ?>',
                     function(data, status){
-                        drowningGameFillBoard(data["depths"], data["users"]);
+                        alert(Object.keys(data));
+                        drowningGameFillBoard(data["depths"]);
                         $("#modified").html(data["modified"]);
+                        drowningGameFillUsers(data["users"]);
+                        drowningGameFillOutDivers(data["outDivers"]);
+                        $("#oxygen").html(data["oxygen"]);
             });
         //});
     });
