@@ -31,6 +31,9 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
 
     <?= $this->Html->css(['normalize.min', 'milligram.min', 'cake']) ?>
     <?= $this->Html->script('https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js') ?>
+    <?= $this->Html->scriptBlock(sprintf('var csrfToken = %s;',
+        json_encode($this->request->getAttribute('csrfToken')))); 
+    ?>
     
     <?= $this->fetch('meta') ?>
     <?= $this->fetch('css') ?>
