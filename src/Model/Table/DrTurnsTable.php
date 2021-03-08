@@ -240,7 +240,9 @@ class DrTurnsTable extends Table
      */
     public function processActions($board, $data, $user) {
         if (array_key_exists('start_returning', $data)) {
-            $board->last_turn->returning |= $data['start_returning'];
+            if ($data['start_returning']) {
+                $board->last_turn->returning = true;
+            }
             $this->save($board->last_turn);
         }
         
