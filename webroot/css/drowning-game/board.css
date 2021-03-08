@@ -182,19 +182,19 @@ and open the template in the editor.
         background-size: 100% 100%;
 }
 
-.T1 {
+.tokens .T1 {
         background-image: url("/css/drowning-game/png/Help (1).png");
 }
 
-.T2 {
+.tokens .T2 {
         background-image: url("/css/drowning-game/png/Help (2).png");
 }
 
-.T3 {
+.tokens .T3 {
         background-image: url("/css/drowning-game/png/Help (3).png");
 }
 
-.T4 {
+.tokens .T4 {
         background-image: url("/css/drowning-game/png/Help (4).png");
 }
 

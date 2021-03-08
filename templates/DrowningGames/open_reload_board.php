@@ -74,21 +74,42 @@ $this->Html->css('drowning-game/board', ['block' => true]);
             nextTurnElement.append("<button id=\"askTakingBtn\" >Take</button>");
             $("#askTakingBtn").click(function() {
                 $.post('<?= \Cake\Routing\Router::url(['controller' => 'DrowningGames', 'action' => 'processActions', $game->id]) ?>',
-                { _csrfToken: csrfToken, game_id: <?= $game->id ?>, taking: true });
+                    { _csrfToken: csrfToken, game_id: <?= $game->id ?>, taking: true });
             });
         }
+        
         if (nextTurn["askReturn"]) {
             nextTurnElement.append("<button id=\"askReturnBtn\" >Return</button>");
             $("#askReturnBtn").click(function() {
                 $.post('<?= \Cake\Routing\Router::url(['controller' => 'DrowningGames', 'action' => 'processActions', $game->id]) ?>',
-                { _csrfToken: csrfToken, game_id: <?= $game->id ?>, start_returning: true });
+                    { _csrfToken: csrfToken, game_id: <?= $game->id ?>, start_returning: true });
             });
         }
-        //TODO: dropping is a bit more complicated, do next commit
+        
+        if (nextTurn["askDropping"]) {
+            dropSet = nextTurn["askDropping"];
+            console.log(dropSet);
+            for (let groupNumber in dropSet) {
+                let droppingButton = document.createElement("button");
+                droppingButton.setAttribute("class", "askDropBtn");
+                groupTokens = dropSet[groupNumber];
+                for (let groupToken of groupTokens) {
+                    let groupTokenElement = document.createElement("div");
+                    groupTokenElement.setAttribute("class", "token T" + groupToken["type"]);
+                    droppingButton.appendChild(groupTokenElement);
+                }
+                nextTurnElement.append(droppingButton);
+                droppingButton.onclick = function() {
+                    $.post('<?= \Cake\Routing\Router::url(['controller' => 'DrowningGames', 'action' => 'processActions', $game->id]) ?>',
+                        { _csrfToken: csrfToken, game_id: <?= $game->id ?>, dropping: true, group_number: groupNumber });
+                };
+            }
+        }
+        
         nextTurnElement.append("<button id=\"finishBtn\">Finish turn</button>");
         $("#finishBtn").click(function() {
             $.post('<?= \Cake\Routing\Router::url(['controller' => 'DrowningGames', 'action' => 'processActions', $game->id]) ?>',
-                { _csrfToken: csrfToken, game_id: <?= $game->id ?>, finish: true })
+                { _csrfToken: csrfToken, game_id: <?= $game->id ?>, finish: true });
         });
     };
     
@@ -96,7 +117,6 @@ $this->Html->css('drowning-game/board', ['block' => true]);
         //$("button").click(function() {
             $.getJSON('<?= \Cake\Routing\Router::url(['action' => 'update-board-json', $game->id]) ?>',
                     function(data, status){
-                        //alert(Object.keys(data));
                         drowningGameFillBoard(data["depths"]);
                         $("#modified").html(data["modified"]);
                         drowningGameFillUsers(data["users"]);
