@@ -239,6 +239,9 @@ class DrTurnsTable extends Table
      * @return boolean
      */
     public function processActions($board, $data, $user) {
+        if ($board->last_turn->id != $data['turn_id']) {
+            return false;
+        }
         if (array_key_exists('start_returning', $data)) {
             if ($data['start_returning']) {
                 $board->last_turn->returning = true;

@@ -6,8 +6,6 @@
 
 $this->Html->css('drowning-game/board', ['block' => true]);
 ?>
-<div id="game_id" hidden="true"><?= $game->id ?></div>
-<div id="modified" hidden="true"></div>
 <div id="oxygen">
 </div>
 <div id="ocean">
@@ -25,7 +23,11 @@ $this->Html->css('drowning-game/board', ['block' => true]);
 <div id="nextTurn">
 </div>
 <script>
-    var drowningGameFillBoard = function(depths) {
+    var drGameId;
+    var drModified;
+    var drTurnId;
+    
+    var drFillBoard = function(depths) {
         for (let depthNo in depths) {
             let jsonTokens = depths[depthNo].tokens;
             let tokens = "";
@@ -37,7 +39,8 @@ $this->Html->css('drowning-game/board', ['block' => true]);
             } else {
                 $("#depth" + depthNo + " .tokens").html('<img src="/img/drowning-game/redX2.png"></img>');
             }
-            if (depths[depthNo].diver != undefined) {
+            $("#depth" + depthNo + " .diver").remove();
+            if (depths[depthNo].diver !== undefined) {
                 let diverUserId = depths[depthNo].diver["id"];
                 $("#depth" + depthNo).
                         append('<div class="diver"/><span class="user_id" hidden="true">' +
@@ -46,7 +49,7 @@ $this->Html->css('drowning-game/board', ['block' => true]);
         }
     };
     
-    var drowningGameFillUsers = function(users) {
+    var drFillUsers = function(users) {
         let userElements = "";
         for (let userIndex in users) {
             let user = users[userIndex];
@@ -56,25 +59,25 @@ $this->Html->css('drowning-game/board', ['block' => true]);
             userElements += '<span class="order_number">' + user["order_number"] + '</span>';
             userElements += "</div>";
         }
-        $("#users").append(userElements);
+        $("#users").html(userElements);
     };
     
-    var drowningGameFillOutDivers = function(outDivers) {
+    var drFillOutDivers = function(outDivers) {
         let outDiversElements = "";
         for (let outDiverIndex in outDivers) {
             outDiversElements += '<span class="id">' + outDivers[outDiverIndex]["id"] + '</span>';
         }
-        $("#outDivers").append(outDiversElements);
+        $("#outDivers").html(outDiversElements);
     };
     
-    var drowningGameFillNextTurn = function(nextTurn) {
+    var drFillNextTurn = function(nextTurn) {
         let nextTurnElement = $("#nextTurn");
         nextTurnElement.empty();
         if (nextTurn["askTaking"]) {
             nextTurnElement.append("<button id=\"askTakingBtn\" >Take</button>");
             $("#askTakingBtn").click(function() {
                 $.post('<?= \Cake\Routing\Router::url(['controller' => 'DrowningGames', 'action' => 'processActions', $game->id]) ?>',
-                    { _csrfToken: csrfToken, game_id: <?= $game->id ?>, taking: true });
+                    { _csrfToken: csrfToken, game_id: drGameId, taking: true, turn_id: drTurnId });
             });
         }
         
@@ -82,7 +85,7 @@ $this->Html->css('drowning-game/board', ['block' => true]);
             nextTurnElement.append("<button id=\"askReturnBtn\" >Return</button>");
             $("#askReturnBtn").click(function() {
                 $.post('<?= \Cake\Routing\Router::url(['controller' => 'DrowningGames', 'action' => 'processActions', $game->id]) ?>',
-                    { _csrfToken: csrfToken, game_id: <?= $game->id ?>, start_returning: true });
+                    { _csrfToken: csrfToken, game_id: drGameId, start_returning: true, turn_id: drTurnId });
             });
         }
         
@@ -101,7 +104,7 @@ $this->Html->css('drowning-game/board', ['block' => true]);
                 nextTurnElement.append(droppingButton);
                 droppingButton.onclick = function() {
                     $.post('<?= \Cake\Routing\Router::url(['controller' => 'DrowningGames', 'action' => 'processActions', $game->id]) ?>',
-                        { _csrfToken: csrfToken, game_id: <?= $game->id ?>, dropping: true, group_number: groupNumber });
+                        { _csrfToken: csrfToken, game_id: drGameId, dropping: true, group_number: groupNumber, turn_id: drTurnId });
                 };
             }
         }
@@ -109,23 +112,28 @@ $this->Html->css('drowning-game/board', ['block' => true]);
         nextTurnElement.append("<button id=\"finishBtn\">Finish turn</button>");
         $("#finishBtn").click(function() {
             $.post('<?= \Cake\Routing\Router::url(['controller' => 'DrowningGames', 'action' => 'processActions', $game->id]) ?>',
-                { _csrfToken: csrfToken, game_id: <?= $game->id ?>, finish: true });
+                { _csrfToken: csrfToken, game_id: drGameId, finish: true, turn_id: drTurnId });
         });
     };
     
-    $(document).ready(function(){
-        //$("button").click(function() {
-            $.getJSON('<?= \Cake\Routing\Router::url(['action' => 'update-board-json', $game->id]) ?>',
-                    function(data, status){
-                        drowningGameFillBoard(data["depths"]);
-                        $("#modified").html(data["modified"]);
-                        drowningGameFillUsers(data["users"]);
-                        drowningGameFillOutDivers(data["outDivers"]);
-                        $("#oxygen").html(data["oxygen"]);
-                        
-                        drowningGameFillNextTurn(data["nextTurn"]);
-            });
-        //});
+    var drRefreshBoard = function() {
+        $.getJSON('<?= \Cake\Routing\Router::url(['action' => 'update-board-json', $game->id]) ?>',
+                function(data, status){
+                    drGameId = data["id"];
+                    drTurnId = data["last_turn"]["id"];
+                    drModified = data["modified"];
+                    $("#oxygen").html(data["oxygen"]);
+                    drFillBoard(data["depths"]);
+                    drFillUsers(data["users"]);
+                    drFillOutDivers(data["outDivers"]);
+                    drFillNextTurn(data["nextTurn"]);
+        });
+    }
+    
+    $(document).ready(function () {
+        drRefreshBoard();
+        
+        $("#refresher").click(drRefreshBoard);
     });
 </script>
-<!--button>Get Current Board!</button-->
+<button id="refresher">Get Current Board!</button>
