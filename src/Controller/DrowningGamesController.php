@@ -61,7 +61,8 @@ class DrowningGamesController extends AppController
         $this->set(compact('game'));
     }
     
-    public function updateBoardJson($id) {
+    public function updateBoardJson() {
+        $id = $this->request->getQuery('id');
         $game = $this->DrowningGames->get($id, [
             'contain' => ['Users'],
         ]);

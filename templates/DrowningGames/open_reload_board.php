@@ -24,8 +24,8 @@ $this->Html->css('drowning-game/board', ['block' => true]);
 </div>
 <script>
     var drGameId;
-    var drModified;
-    var drTurnId;
+    var drModified = null;
+    var drTurnId = null;
     
     var drFillBoard = function(depths) {
         for (let depthNo in depths) {
@@ -117,7 +117,10 @@ $this->Html->css('drowning-game/board', ['block' => true]);
     };
     
     var drRefreshBoard = function() {
-        $.getJSON('<?= \Cake\Routing\Router::url(['action' => 'update-board-json', $game->id]) ?>',
+        let url = '<?= \Cake\Routing\Router::url(
+                ['action' => 'update-board-json', '?' => ['id' => $game->id]]) ?>';
+        //console.log(url + '/' + drModified);
+        $.getJSON(url, { modified: drModified },
                 function(data, status){
                     drGameId = data["id"];
                     drTurnId = data["last_turn"]["id"];
