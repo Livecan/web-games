@@ -119,7 +119,6 @@ $this->Html->css('drowning-game/board', ['block' => true]);
     var drRefreshBoard = function() {
         let url = '<?= \Cake\Routing\Router::url(
                 ['action' => 'update-board-json', '?' => ['id' => $game->id]]) ?>';
-        //console.log(url + '/' + drModified);
         $.getJSON(url, { modified: drModified },
                 function(data, status){
                     drGameId = data["id"];
