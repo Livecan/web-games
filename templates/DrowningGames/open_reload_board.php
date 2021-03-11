@@ -118,17 +118,19 @@ $this->Html->css('drowning-game/board', ['block' => true]);
     
     var drRefreshBoard = function() {
         let url = '<?= \Cake\Routing\Router::url(
-                ['action' => 'update-board-json', '?' => ['id' => $game->id]]) ?>';
+                ['action' => 'update-board-json', $game->id]) ?>';
         $.getJSON(url, { modified: drModified },
                 function(data, status){
-                    drGameId = data["id"];
-                    drTurnId = data["last_turn"]["id"];
-                    drModified = data["modified"];
-                    $("#oxygen").html(data["oxygen"]);
-                    drFillBoard(data["depths"]);
-                    drFillUsers(data["users"]);
-                    drFillOutDivers(data["outDivers"]);
-                    drFillNextTurn(data["nextTurn"]);
+                    if (data["hasUpdated"]) {
+                        drGameId = data["id"];
+                        drTurnId = data["last_turn"]["id"];
+                        drModified = data["modified"];
+                        $("#oxygen").html(data["oxygen"]);
+                        drFillBoard(data["depths"]);
+                        drFillUsers(data["users"]);
+                        drFillOutDivers(data["outDivers"]);
+                        drFillNextTurn(data["nextTurn"]);
+                    }
         });
     }
     

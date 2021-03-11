@@ -181,7 +181,7 @@ class DrowningGamesTable extends GamesTable {
         return true;
     }
     
-    public function getBoard($game, $currentUser = null) {
+    public function getBoard($game, $currentUser = null, $modifiedDate = null) {
         $board = new Entity();
         
         $board->id = $game->id;
@@ -189,6 +189,14 @@ class DrowningGamesTable extends GamesTable {
         $board->depths = [];
         
         $board->last_turn = $this->getTableDrTurns()->getLastTurn($game->id);
+        
+        //if the board wasn't updated since $modifiedDate, finish here and don't
+        //return the $board structure
+        if ($modifiedDate != null && $modifiedDate >= $board->last_turn->modified) {
+            return new Entity(['hasUpdated' => false]);
+        }
+        
+        $board->hasUpdated = true;
 
         for ($depth = 1; $depth <= $this->getTableDrTurns()->getMaxDepth(); $depth++) {
             $board->depths[$depth] = new Entity();

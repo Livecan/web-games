@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Cake\I18n\Time;
+
 /**
  * DrowningGame Controller
  *
@@ -61,14 +63,19 @@ class DrowningGamesController extends AppController
         $this->set(compact('game'));
     }
     
-    public function updateBoardJson() {
-        $id = $this->request->getQuery('id');
+    public function updateBoardJson($id) {
         $game = $this->DrowningGames->get($id, [
             'contain' => ['Users'],
         ]);
         $this->Authorization->authorize($game);
         
-        $board = $this->DrowningGames->getBoard($game, $this->request->getAttribute('identity')->getOriginalData());
+        $modifiedDateQueryParam = $this->request->getQuery('modified');
+        $modifiedDate = $modifiedDateQueryParam == null ? null : 
+                new Time($modifiedDateQueryParam);
+        
+        $board = $this->DrowningGames->getBoard($game,
+                $this->request->getAttribute('identity')->getOriginalData(),
+                $modifiedDate);
 
         $this->set(compact('board'));
         $this->viewBuilder()->setOption('serialize', 'board');
