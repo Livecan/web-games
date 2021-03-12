@@ -37,7 +37,10 @@ $this->Html->css('drowning-game/board', ['block' => true]);
             if (tokens !== "") {
                 $("#depth" + depthNo + " .tokens").html(tokens);
             } else {
-                $("#depth" + depthNo + " .tokens").html('<img src="/img/drowning-game/redX2.png"></img>');
+                let img = document.createElement("img");
+                img.src = "/img/drowning-game/redX2.png";
+                img.style= "position: absolute; width: 80%; height: 80%";
+                $("#depth" + depthNo + " .tokens").append(img);
             }
             $("#depth" + depthNo + " .diver").remove();
             if (depths[depthNo].diver !== undefined) {
