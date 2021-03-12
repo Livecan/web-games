@@ -6,16 +6,16 @@ namespace App\Model\Entity;
 use Cake\ORM\Entity;
 
 /**
- * Game Entity
+ * DrResult Entity
  *
  * @property int $id
- * @property string $name
- * @property string $type
- * @property int @game_state_id
+ * @property int $game_id
+ * @property int $user_id
+ * @property int $score
  *
- * @property \App\Model\Entity\User[] $users
+ * @property \App\Model\Entity\GamesUser $games_user
  */
-class Game extends Entity
+class DrResult extends Entity
 {
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
@@ -27,9 +27,9 @@ class Game extends Entity
      * @var array
      */
     protected $_accessible = [
-        'name' => true,
-        'type' => true,
-        'game_states' => true,
-        'users' => true,
+        'game_id' => true,
+        'user_id' => true,
+        'score' => true,
+        'games_user' => true,
     ];
 }

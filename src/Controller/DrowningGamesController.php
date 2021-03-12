@@ -90,7 +90,7 @@ class DrowningGamesController extends AppController
         $game->currentTurnPlayer = $this->DrTurns->getCurrentTurnUser($id);
         $this->Authorization->authorize($game);
         
-        if ($this->request->is(['post'])) {
+        if ($this->request->is(['post']) && $game->game_state_id == 2) {
             if ($this->DrTurns->processActions($this->DrowningGames->getBoard($game),
                     $this->request->getData(),
                     $this->request->getAttribute('identity')->getOriginalData())) {

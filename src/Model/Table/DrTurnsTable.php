@@ -77,6 +77,13 @@ class DrTurnsTable extends Table
         }
         return $this->drowningGames;
     }
+    
+    public function getTableDrResults(): DrResultsTable {
+        if (!isset($this->drResults)) {
+            $this->drResults = $this->getTableLocator()->get('DrResults');
+        }
+        return $this->drResults;
+    }
 
     /**
      * Default validation rules.
@@ -329,7 +336,11 @@ class DrTurnsTable extends Table
             $board = $this->getTableDrowningGames()->getBoard($board);
             $endOfRound = $this->isEndRound($board);
             if ($endOfRound) {
-                $board = $this->getTableDrowningGames()->startNewRound($board);
+                $this->getTableDrowningGames()->startNewRound($board);
+                $board = $this->getTableDrowningGames()->getBoard($board);
+                if ($board->last_turn->round >= 3) {
+                    $this->processEndGame($board);
+                }
             }
         }
     }
@@ -359,6 +370,26 @@ class DrTurnsTable extends Table
             } while ($moveCount > 0 && $position > 0 && $position < $this->getMaxDepth());
         }
         return $position;
+    }
+    
+    private function processEndGame($board) {
+        $game = $this->getTableDrowningGames()->get($board->id);
+        $game->game_state_id = 3;   //FINISHED
+        $this->getTableDrowningGames()->save($game);
+        $usersScoreQuery = $this->getTableDrTokensGames()->find('all');
+        $usersScore = debug($usersScoreQuery->where(['game_id' => $board->id])->
+                whereNotNull('user_id')->
+                group('user_id')->
+                contain(['DrTokens'])->
+                select(['user_id', 'game_id'])->
+                select(['score' => $usersScoreQuery->func()->sum('DrTokens.value')])->
+                toArray());
+        $results = [];
+        foreach ($usersScore as $userScore) {
+            $results[] = $this->getTableDrResults()->newEntity(
+                    ['game_id' => $userScore->game_id, 'user_id' => $userScore->user_id, 'score' => (int)$userScore->score]);
+        }
+        $this->getTableDrResults()->saveMany($results);
     }
     
     private $maxDepth = 20; //TODO: refactor constant
