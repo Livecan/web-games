@@ -152,28 +152,28 @@ and open the template in the editor.
         position: absolute;
         left: 40%;
         top: 0%;
-        z-index: 1;
+        z-index: 10;
 }
 
 .token:nth-child(1) {
         position: absolute;
         left: 0%;
         top: 0%;
-        z-index: 0;
+        z-index: 2;
 }
 
 .token:nth-child(2) {
         position: absolute;
         left: 15%;
         top: 15%;
-        z-index: -1;
+        z-index: 1;
 }
 
 .token:nth-child(3) {
         position: absolute;
         left: 30%;
         top: 30%;
-        z-index: -2;
+        z-index: 0;
 }
 
 .T1, .T2, .T3, .T4 {
@@ -183,22 +183,22 @@ and open the template in the editor.
 }
 
 .tokens .T1 {
-        background-image: url("/css/drowning-game/png/Help (1).png");
+        background-image: url("/img/drowning-game/crystals/6.png");
 }
 
 .tokens .T2 {
-        background-image: url("/css/drowning-game/png/Help (2).png");
+        background-image: url("/img/drowning-game/crystals/17.png");
 }
 
 .tokens .T3 {
-        background-image: url("/css/drowning-game/png/Help (3).png");
+        background-image: url("/img/drowning-game/crystals/9.png");
 }
 
 .tokens .T4 {
-        background-image: url("/css/drowning-game/png/Help (4).png");
+        background-image: url("/img/drowning-game/crystals/19.png");
 }
 
-.D0, .D1, .D2 {
+.D0, .D1, .D2, .D3, .D4 {
         width: 50%;
         height: 50%;
         background-size: 100% 100%;
@@ -214,4 +214,12 @@ and open the template in the editor.
 
 .D2 {
         background-image: url("/css/drowning-game/png/Profile (3).png")
+}
+
+.D3 {
+        background-image: url("/css/drowning-game/png/Profile (4).png")
+}
+
+.D4 {
+        background-image: url("/css/drowning-game/png/Profile (5).png")
 }
