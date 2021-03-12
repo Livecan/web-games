@@ -279,7 +279,7 @@ class DrTurnsTable extends Table
             $this->save($board->last_turn);
         }
         
-        $this->processTurns($board, array_key_exists('finish', $data) && $data['finish']);
+        $this->processTurns($board = $this->getTableDrowningGames()->getBoard($board), array_key_exists('finish', $data) && $data['finish']);
         
         return true;
     }
