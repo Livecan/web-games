@@ -112,10 +112,12 @@ class DrowningGamesTable extends GamesTable {
         $tokensToDrop = [];
         $_user_id = $board->last_turn->user_id;
         do {
-            $playerTokenGroupsToDrop = $playerTokens[$_user_id][2];
-            if (!empty($playerTokenGroupsToDrop)) {
-                foreach($playerTokenGroupsToDrop as $playerTokensToDrop) {
-                    $tokensToDrop = array_merge($tokensToDrop, $playerTokensToDrop);
+            if (array_key_exists($_user_id, $playerTokens) && array_key_exists(2, $playerTokens[$_user_id])) {
+                $playerTokenGroupsToDrop = $playerTokens[$_user_id][2];
+                if (!empty($playerTokenGroupsToDrop)) {
+                    foreach($playerTokenGroupsToDrop as $playerTokensToDrop) {
+                        $tokensToDrop = array_merge($tokensToDrop, $playerTokensToDrop);
+                    }
                 }
             }
             $_user_id = $this->getTableGamesUsers()->getNextUser($board->id, $_user_id)->id;
