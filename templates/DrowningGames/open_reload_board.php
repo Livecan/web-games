@@ -34,7 +34,7 @@ $this->Html->css('drowning-game/board', ['block' => true]);
             for (let token in jsonTokens) {
                 tokens += '<div class="token T' + jsonTokens[token]["type"] + '"></div>';
             }
-            if (tokens != "") {
+            if (tokens !== "") {
                 $("#depth" + depthNo + " .tokens").html(tokens);
             } else {
                 $("#depth" + depthNo + " .tokens").html('<img src="/img/drowning-game/redX2.png"></img>');
@@ -131,13 +131,14 @@ $this->Html->css('drowning-game/board', ['block' => true]);
                         drFillOutDivers(data["outDivers"]);
                         drFillNextTurn(data["nextTurn"]);
                     }
+        }).always(function() {
+            setTimeout(drRefreshBoard, 500);
         });
     }
     
     $(document).ready(function () {
         drRefreshBoard();
-        
-        $("#refresher").click(drRefreshBoard);
+        //$("#refresher").click(drRefreshBoard);
     });
 </script>
-<button id="refresher">Get Current Board!</button>
+<!--button id="refresher">Get Current Board!</button-->

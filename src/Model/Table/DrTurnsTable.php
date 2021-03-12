@@ -275,6 +275,8 @@ class DrTurnsTable extends Table
                 $gameToken->dr_token_state_id = 1;
             }
             $this->getTableDrTokensGames()->saveMany($gameTokens);
+            $board->last_turn->dropping = true;
+            $this->save($board->last_turn);
         }
         
         $this->processTurns($board, array_key_exists('finish', $data) && $data['finish']);
