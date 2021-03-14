@@ -122,8 +122,10 @@ class DrTokensGamesTable extends Table
     }
     
     public function getUserTakenTreasuresCount($game_id, $user_id) {
-        return $this->find('all')->
+        $query = $this->find('all');
+        return $query->
                 where(['game_id' => $game_id, 'user_id' => $user_id, 'dr_token_state_id' => 2])->
+                select($query->func()->min('id'))->
                 group('group_number')->
                 count();
         
