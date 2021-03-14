@@ -224,17 +224,24 @@ class DrowningGamesTable extends GamesTable {
             }
         }
 
-        $board->users = $game->users;
-        usort($board->users, function($_before, $_after) {
-            return $_before->_joinData->order_number < $_after->_joinData->order_number ?
-                1 : -1; });
+        $board->users = array_map(function($_user) {
+            $editedUser = new Entity();
+            $editedUser->id = $_user->id;
+            $editedUser->name = $_user->name;
+            $editedUser->order_number = $_user->_joinData->order_number;
+            $editedUser->_joinData = $_user->_joinData; //TODO: refactor this step
+            return $editedUser;
+        }, $game->users);
         $playersTokens = $this->getTableDrTokensGames()->getPlayersTokens($board->id);
         foreach ($board->users as $_user) {
+            $_user->order_number = $_user->_joinData->order_number;
             if (array_key_exists($_user->id, $playersTokens)) {
                 $_user->tokens = $playersTokens[$_user->id];
-                $_user->order_number = $_user->_joinData->order_number;
             }
         }
+        usort($board->users, function($_before, $_after) {
+            return $_before->order_number < $_after->order_number ?
+                1 : -1; });
         
         $board->oxygen = $this->getTableDrTurns()->getOxygenLevel($game->id);
         

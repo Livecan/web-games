@@ -27,7 +27,7 @@ $this->Html->css('drowning-game/board', ['block' => true]);
     var drModified = null;
     var drTurnId = null;
     
-    var drFillBoard = function(depths) {
+    var drFillBoard = function(depths, users) {
         for (let depthNo in depths) {
             let jsonTokens = depths[depthNo].tokens;
             let tokens = "";
@@ -40,8 +40,9 @@ $this->Html->css('drowning-game/board', ['block' => true]);
                 let img = document.createElement("img");
                 img.src = "/img/drowning-game/redX2.png";
                 img.style= "position: absolute; width: 80%; height: 80%";
-                $("#depth" + depthNo + " .tokens").append(img);
+                $("#depth" + depthNo + " .tokens").html(img);
             }
+            
             $("#depth" + depthNo + " .diver").remove();
             if (depths[depthNo].diver !== undefined) {
                 let diverUserId = depths[depthNo].diver["id"];
@@ -129,7 +130,7 @@ $this->Html->css('drowning-game/board', ['block' => true]);
                         drTurnId = data["last_turn"]["id"];
                         drModified = data["modified"];
                         $("#oxygen").html(data["oxygen"]);
-                        drFillBoard(data["depths"]);
+                        drFillBoard(data["depths"], data["users"]);
                         drFillUsers(data["users"]);
                         drFillOutDivers(data["outDivers"]);
                         drFillNextTurn(data["nextTurn"]);
