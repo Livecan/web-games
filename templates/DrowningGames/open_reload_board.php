@@ -46,8 +46,9 @@ $this->Html->css('drowning-game/board', ['block' => true]);
             $("#depth" + depthNo + " .diver").remove();
             if (depths[depthNo].diver !== undefined) {
                 let diverUserId = depths[depthNo].diver["id"];
+                let user = users.find(function(_user) { return _user["id"] === diverUserId; });
                 $("#depth" + depthNo).
-                        append('<div class="diver"/><span class="user_id" hidden="true">' +
+                        append('<div class="diver D' + user["order_number"] + '"/><span class="user_id" hidden="true">' +
                             diverUserId + '</span></div>');
             }
         }
