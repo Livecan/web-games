@@ -69,16 +69,24 @@ class DrowningGamesController extends AppController
         ]);
         $this->Authorization->authorize($game);
         
-        $modifiedDateQueryParam = $this->request->getQuery('modified');
-        $modifiedDate = $modifiedDateQueryParam == null ? null : 
-                new Time($modifiedDateQueryParam);
-        
-        $board = $this->DrowningGames->getBoard($game,
-                $this->request->getAttribute('identity')->getOriginalData(),
-                $modifiedDate);
+        if ($game->game_state_id == 2) {
+            $modifiedDateQueryParam = $this->request->getQuery('modified');
+            $modifiedDate = $modifiedDateQueryParam == null ? null : 
+                    new Time($modifiedDateQueryParam);
 
-        $this->set(compact('board'));
-        $this->viewBuilder()->setOption('serialize', 'board');
+            $board = $this->DrowningGames->getBoard($game,
+                    $this->request->getAttribute('identity')->getOriginalData(),
+                    $modifiedDate);
+
+            $this->set(compact('board'));
+            $this->viewBuilder()->setOption('serialize', 'board');
+        } else if ($game->game_state_id == 3) {
+            $results = $this->DrowningGames->getResults($game);
+            $this->set(compact('results'));
+            $this->viewBuilder()->setOption('serialize', 'results');
+        } else {
+            $this->Flash->error(__('The game has not started yet.'));
+        }
     }
     
     public function processActions($id = null) {
@@ -97,7 +105,11 @@ class DrowningGamesController extends AppController
                 $this->Flash->success(__('The action was performed.'));
                 return $this->redirect(['action' => 'openBoard', $id = $id]);
             }
-            $this->Flash->error(__('The action was not performed. Please, try again.'));
+            if ($game->game_state_id == 1) {
+                $this->Flash->error(__('The game hasn\'t started yet.'));
+            } else if ($game->game_state_id == 3) {
+                $this->Flash->error(__('The game is already finished.'));
+            }
         }
     }
 }

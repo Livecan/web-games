@@ -68,6 +68,13 @@ class DrowningGamesTable extends GamesTable {
         return $this->gamesUsers;
     }
     
+    private function getTableDrResults(): DrResultsTable {
+        if (!isset($this->drResults)) {
+            $this->drResults = $this->getTableLocator()->get('DrResults');
+        }
+        return $this->drResults;
+    }
+    
     private function randomizePlayerOrder($users) {
         usort($users, function($_a, $_b) { return rand(-1, 1); });
         for ($i = 0; $i < count($users); $i++) {
@@ -263,5 +270,23 @@ class DrowningGamesTable extends GamesTable {
         $board->modified = $board->last_turn->modified;
         
         return $board;
+    }
+    
+    public function getResults($game) {
+        $rawResults = $this->getTableDrResults()->find('all')->
+                contain(['Users'])->
+                where(['game_id' => $game->id])->
+                select(['user_id', 'Users.name', 'score'])->
+                toArray();
+        $results = new Entity();
+        $results->results = array_map(function($result) {
+            return new Entity([
+                'user_id' => $result->user_id,
+                'name' => $result->user->name,
+                'score' => $result->score
+            ]);
+        }, $rawResults);
+        $results->isResults = true;
+        return $results;
     }
 }
