@@ -338,7 +338,7 @@ class DrTurnsTable extends Table
             if ($endOfRound) {
                 $this->getTableDrowningGames()->startNewRound($board);
                 $board = $this->getTableDrowningGames()->getBoard($board);
-                if ($board->last_turn->round >= 3) {
+                if ($board->last_turn->round > 3) {
                     $this->processEndGame($board);
                 }
             }
@@ -377,13 +377,13 @@ class DrTurnsTable extends Table
         $game->game_state_id = 3;   //FINISHED
         $this->getTableDrowningGames()->save($game);
         $usersScoreQuery = $this->getTableDrTokensGames()->find('all');
-        $usersScore = debug($usersScoreQuery->where(['game_id' => $board->id])->
+        $usersScore = $usersScoreQuery->where(['game_id' => $board->id])->
                 whereNotNull('user_id')->
                 group('user_id')->
                 contain(['DrTokens'])->
                 select(['user_id', 'game_id'])->
                 select(['score' => $usersScoreQuery->func()->sum('DrTokens.value')])->
-                toArray());
+                toArray();
         $results = [];
         foreach ($usersScore as $userScore) {
             $results[] = $this->getTableDrResults()->newEntity(
