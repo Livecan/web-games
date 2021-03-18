@@ -64,70 +64,84 @@ $this->Html->css('drowning-game/board', ['block' => true]);
     };
     
     var drFillUsers = function(users) {
-        let userElements = "";
+        let usersElement = $("#users").empty();
         for (let userIndex in users) {
             let user = users[userIndex];
-            userElements = "<div class=\"user\">";
-            userElements += '<span class="id">' + user["id"] + '</span>';
-            userElements += '<span class="name">' + user["name"] + '</span>';
-            userElements += '<span class="order_number">' + user["order_number"] + '</span>';
-            userElements += "</div>";
+            let userElement = $(document.createElement("div"))
+                    .addClass("user")
+                    .append($(document.createElement("span"))
+                            .addClass("id")
+                            .text(user["id"].toString()))
+                    .append($(document.createElement("span"))
+                            .addClass("name")
+                            .text(user["name"].toString()))
+                    .append($(document.createElement("span"))
+                            .addClass("order_number")
+                            .text(user["order_number"].toString()));
+            usersElement.append(userElement);
         }
-        $("#users").html(userElements);
     };
     
     var drFillOutDivers = function(outDivers) {
-        let outDiversElements = "";
+        let outDiversElement = $("#outDivers");
         for (let outDiverIndex in outDivers) {
-            outDiversElements += '<span class="id">' + outDivers[outDiverIndex]["id"] + '</span>';
+            outDiverElement = $(document.createElement("span"))
+                    .addClass("id")
+                    .text(outDivers[outDiverIndex]["id"].toString());
+            outDiversElement.append(outDiverElement);
         }
-        $("#outDivers").html(outDiversElements);
     };
     
     var drFillNextTurn = function(nextTurn) {
         let nextTurnElement = $("#nextTurn");
         nextTurnElement.empty();
         if (nextTurn["askTaking"]) {
-            nextTurnElement.append("<button id=\"askTakingBtn\" >Take</button>");
-            $("#askTakingBtn").click(function() {
-                $.post('<?= \Cake\Routing\Router::url(['controller' => 'DrowningGames', 'action' => 'processActions', $game->id]) ?>',
-                    { _csrfToken: csrfToken, game_id: drGameId, taking: true, turn_id: drTurnId });
+            let askTakingBtn = $(document.createElement("button"))
+                    .text("Take")
+                    .on("click", function() {
+                        $.post('<?= \Cake\Routing\Router::url(['controller' => 'DrowningGames', 'action' => 'processActions', $game->id]) ?>',
+                            { _csrfToken: csrfToken, game_id: drGameId, taking: true, turn_id: drTurnId });
             });
+            nextTurnElement.append(askTakingBtn);
         }
         
         if (nextTurn["askReturn"]) {
-            nextTurnElement.append("<button id=\"askReturnBtn\" >Return</button>");
-            $("#askReturnBtn").click(function() {
-                $.post('<?= \Cake\Routing\Router::url(['controller' => 'DrowningGames', 'action' => 'processActions', $game->id]) ?>',
-                    { _csrfToken: csrfToken, game_id: drGameId, start_returning: true, turn_id: drTurnId });
+            let askReturnBtn = $(document.createElement("button"))
+                    .text("Return")
+                    .on("click", function() {
+                        $.post('<?= \Cake\Routing\Router::url(['controller' => 'DrowningGames', 'action' => 'processActions', $game->id]) ?>',
+                            { _csrfToken: csrfToken, game_id: drGameId, start_returning: true, turn_id: drTurnId });
             });
+            nextTurnElement.append(askReturnBtn);
         }
         
         if (nextTurn["askDropping"]) {
             dropSet = nextTurn["askDropping"];
             console.log(dropSet);
             for (let groupNumber in dropSet) {
-                let droppingButton = document.createElement("button");
-                droppingButton.setAttribute("class", "askDropBtn");
+                let droppingButton = $(document.createElement("button"))
+                        .addClass("askDropBtn");
                 groupTokens = dropSet[groupNumber];
                 for (let groupToken of groupTokens) {
-                    let groupTokenElement = document.createElement("div");
-                    groupTokenElement.setAttribute("class", "token T" + groupToken["type"]);
-                    droppingButton.appendChild(groupTokenElement);
+                    let groupTokenElement = $(document.createElement("div"))
+                            .addClass("token")
+                            .addClass("T" + groupToken["type"]);
+                    droppingButton.append(groupTokenElement);
                 }
                 nextTurnElement.append(droppingButton);
-                droppingButton.onclick = function() {
+                droppingButton.on("click", function() {
                     $.post('<?= \Cake\Routing\Router::url(['controller' => 'DrowningGames', 'action' => 'processActions', $game->id]) ?>',
                         { _csrfToken: csrfToken, game_id: drGameId, dropping: true, group_number: groupNumber, turn_id: drTurnId });
-                };
+                });
             }
         }
         
-        nextTurnElement.append("<button id=\"finishBtn\">Finish turn</button>");
-        $("#finishBtn").click(function() {
-            $.post('<?= \Cake\Routing\Router::url(['controller' => 'DrowningGames', 'action' => 'processActions', $game->id]) ?>',
-                { _csrfToken: csrfToken, game_id: drGameId, finish: true, turn_id: drTurnId });
-        });
+        nextTurnElement.append($(document.createElement("button"))
+                .text("Finish turn")
+                .on("click", function() {
+                    $.post('<?= \Cake\Routing\Router::url(['controller' => 'DrowningGames', 'action' => 'processActions', $game->id]) ?>',
+                        { _csrfToken: csrfToken, game_id: drGameId, finish: true, turn_id: drTurnId });
+        }));
     };
     
     var drRefreshBoard = function() {
@@ -148,7 +162,7 @@ $this->Html->css('drowning-game/board', ['block' => true]);
         }).always(function() {
             setTimeout(drRefreshBoard, 500);
         });
-    }
+    };
     
     $(document).ready(function () {
         drRefreshBoard();
