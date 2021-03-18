@@ -30,26 +30,35 @@ $this->Html->css('drowning-game/board', ['block' => true]);
     var drFillBoard = function(depths, users) {
         for (let depthNo in depths) {
             let jsonTokens = depths[depthNo].tokens;
-            let tokens = "";
+            let tokensElement = $("#depth" + depthNo + " .tokens");
+            tokensElement.empty();
             for (let token in jsonTokens) {
-                tokens += '<div class="token T' + jsonTokens[token]["type"] + '"></div>';
+                let tokenElement = $(document.createElement("div"))
+                        .addClass('token')
+                        .addClass('T' + jsonTokens[token]["type"]);
+                tokensElement.append(tokenElement);
             }
-            if (tokens !== "") {
-                $("#depth" + depthNo + " .tokens").html(tokens);
-            } else {
-                let img = document.createElement("img");
-                img.src = "/img/drowning-game/redX2.png";
-                img.style= "position: absolute; width: 80%; height: 80%";
-                $("#depth" + depthNo + " .tokens").html(img);
+            if (tokensElement.children().length === 0) {
+                let img = $(document.createElement("img"))
+                        .attr("src", "/img/drowning-game/redX2.png")
+                        .attr("style", "position: absolute; width: 80%; height: 80%");
+                $("#depth" + depthNo + " .tokens").append(img);
             }
             
             $("#depth" + depthNo + " .diver").remove();
             if (depths[depthNo].diver !== undefined) {
                 let diverUserId = depths[depthNo].diver["id"];
                 let user = users.find(function(_user) { return _user["id"] === diverUserId; });
-                $("#depth" + depthNo).
-                        append('<div class="diver D' + user["order_number"] + '"/><span class="user_id" hidden="true">' +
-                            diverUserId + '</span></div>');
+                let diverElement = $(document.createElement("div"))
+                        .addClass("diver")
+                        .addClass("D" + user["order_number"]);
+                let diverUserIdElement = $(document.createElement("span"))
+                        .addClass("user_id")
+                        .attr("hidden", "true")
+                        .text(diverUserId.toString());
+                diverElement.append(diverUserIdElement);
+                
+                $("#depth" + depthNo).append(diverElement);
             }
         }
     };
