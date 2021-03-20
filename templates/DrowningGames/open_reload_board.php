@@ -27,17 +27,32 @@ $this->Html->css('drowning-game/board', ['block' => true]);
     var drModified = null;
     var drTurnId = null;
     
+    var drGetTokenElements = function(tokens, tagName = "div") {
+        let tokenElements = [];
+        for (let token of tokens) {
+            let tokenElement = $(document.createElement(tagName))
+                        .addClass('token')
+                        .addClass('T' + token["type"]);
+            if (token["value"] !== undefined) {
+                tokenElement.text(token["value"]);
+            }
+            tokenElements.push(tokenElement);
+        }
+        return tokenElements;
+    };
+    
     var drFillBoard = function(depths, users) {
         for (let depthNo in depths) {
             let jsonTokens = depths[depthNo].tokens;
             let tokensElement = $("#depth" + depthNo + " .tokens");
             tokensElement.empty();
-            for (let token in jsonTokens) {
+            tokensElement.append(drGetTokenElements(jsonTokens));
+            /*for (let token in jsonTokens) {
                 let tokenElement = $(document.createElement("div"))
                         .addClass('token')
                         .addClass('T' + jsonTokens[token]["type"]);
                 tokensElement.append(tokenElement);
-            }
+            }*/
             if (tokensElement.children().length === 0) {
                 let img = $(document.createElement("img"))
                         .attr("src", "/img/drowning-game/redX2.png")
@@ -67,17 +82,33 @@ $this->Html->css('drowning-game/board', ['block' => true]);
         let usersElement = $("#users").empty();
         for (let userIndex in users) {
             let user = users[userIndex];
+            let tokensTaken = user["tokens"][2];
+            let tokensTakenElement = $(document.createElement("span"))
+                            .addClass("tokens_taken");
+            if (tokensTaken !== undefined) {
+                for (let tokensTakenGroup of Object.values(tokensTaken)) {
+                    tokensTakenElement.append(drGetTokenElements(tokensTakenGroup, "span"));
+                }
+            }
+            
+            let tokensClaimed = user["tokens"][3];
+            let score = 0;
+            if (tokensClaimed !== undefined) {
+                score = Object.values(tokensClaimed).reduce(function(total, currentValue) {
+                    return total + currentValue.reduce(function(total, currentValue) {
+                        return currentValue["value"];
+                    }, 0);
+                }, 0);
+            }
             let userElement = $(document.createElement("div"))
                     .addClass("user")
                     .append($(document.createElement("span"))
-                            .addClass("id")
-                            .text(user["id"].toString()))
-                    .append($(document.createElement("span"))
                             .addClass("name")
                             .text(user["name"].toString()))
+                    .append(tokensTakenElement)
                     .append($(document.createElement("span"))
-                            .addClass("order_number")
-                            .text(user["order_number"].toString()));
+                            .addClass("score")
+                            .text(score.toString()));
             usersElement.append(userElement);
         }
     };

@@ -100,7 +100,7 @@ class DrTokensGamesTable extends Table
         $results = $this->find('all', ['order' => ['position' => 'ASC']])->
                 contain(['DrTokens'])->
                 select('position')->
-                select($this->DrTokens)->
+                select("DrTokens.type")->
                 where(['game_id' => $game_id])->
                 all()->
                 toArray();
