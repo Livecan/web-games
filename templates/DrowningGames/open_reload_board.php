@@ -142,6 +142,8 @@ $this->Html->css('drowning-game/board', ['block' => true]);
     var drFillNextTurn = function(nextTurn) {
         let nextTurnElement = $("#nextTurn");
         nextTurnElement.empty();
+        if (nextTurn === undefined)
+            return;
         if (nextTurn["askTaking"]) {
             let askTakingBtn = $(document.createElement("button"))
                     .text("Take")
