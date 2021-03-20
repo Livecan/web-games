@@ -144,7 +144,6 @@ and open the template in the editor.
         width: 100%;
         height: 100%;
         background-size: 100% 100%;
-        /*background-image: url("/img/drowning-game/redX2.png");*/
         z-index: 1;
 }
 
@@ -176,28 +175,6 @@ and open the template in the editor.
         z-index: 0;
 }
 
-.T1, .T2, .T3, .T4 {
-        width: 70%;
-        height: 70%;
-        background-size: 100% 100%;
-}
-
-.tokens .T1 {
-        background-image: url("/img/drowning-game/crystals/6.png");
-}
-
-.tokens .T2 {
-        background-image: url("/img/drowning-game/crystals/17.png");
-}
-
-.tokens .T3 {
-        background-image: url("/img/drowning-game/crystals/9.png");
-}
-
-.tokens .T4 {
-        background-image: url("/img/drowning-game/crystals/19.png");
-}
-
 .D0, .D1, .D2, .D3, .D4 {
         width: 50%;
         height: 50%;
@@ -222,4 +199,8 @@ and open the template in the editor.
 
 .D4 {
         background-image: url("/css/drowning-game/png/Profile (5).png")
+}
+/*Players panel*/
+#users {
+    position: relative;
 }

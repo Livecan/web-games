@@ -27,12 +27,22 @@ $this->Html->css('drowning-game/board', ['block' => true]);
     var drModified = null;
     var drTurnId = null;
     
-    var drGetTokenElements = function(tokens, tagName = "div") {
+    var drTokenElements = $.map([
+        "6.png",
+        "17.png",
+        "9.png",
+        "19.png",
+    ], function(png, index) { return $(document.createElement("img"))
+                .addClass("token")
+                .addClass("T" + (index + 1))
+                .attr("src", "/img/drowning-game/crystals/" + png)
+                .attr("alt", png);
+            });
+    
+    var drGetTokenElements = function(tokens) {
         let tokenElements = [];
         for (let token of tokens) {
-            let tokenElement = $(document.createElement(tagName))
-                        .addClass('token')
-                        .addClass('T' + token["type"]);
+            let tokenElement = drTokenElements[token["type"] - 1].clone();
             if (token["value"] !== undefined) {
                 tokenElement.text(token["value"]);
             }
@@ -82,23 +92,29 @@ $this->Html->css('drowning-game/board', ['block' => true]);
         let usersElement = $("#users").empty();
         for (let userIndex in users) {
             let user = users[userIndex];
-            let tokensTaken = user["tokens"][2];
+            
             let tokensTakenElement = $(document.createElement("span"))
                             .addClass("tokens_taken");
-            if (tokensTaken !== undefined) {
-                for (let tokensTakenGroup of Object.values(tokensTaken)) {
-                    tokensTakenElement.append(drGetTokenElements(tokensTakenGroup, "span"));
+            if (user["tokens"] !== undefined) {
+                let tokensTaken = user["tokens"][2];
+                if (tokensTaken !== undefined) {
+                    for (let tokensTakenGroup of Object.values(tokensTaken)) {
+                        tokensTakenElement.append(drGetTokenElements(tokensTakenGroup));
+                    }
                 }
             }
+            tokensTakenElement.children().attr("style", "position: relative; width: 30px; height: 30px");
             
-            let tokensClaimed = user["tokens"][3];
             let score = 0;
-            if (tokensClaimed !== undefined) {
-                score = Object.values(tokensClaimed).reduce(function(total, currentValue) {
-                    return total + currentValue.reduce(function(total, currentValue) {
-                        return currentValue["value"];
+            if (user["tokens"] !== undefined) {
+                let tokensClaimed = user["tokens"][3];
+                if (tokensClaimed !== undefined) {
+                    score = Object.values(tokensClaimed).reduce(function(total, currentValue) {
+                        return total + currentValue.reduce(function(total, currentValue) {
+                            return currentValue["value"];
+                        }, 0);
                     }, 0);
-                }, 0);
+                }
             }
             let userElement = $(document.createElement("div"))
                     .addClass("user")
