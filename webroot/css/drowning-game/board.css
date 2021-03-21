@@ -10,6 +10,7 @@ and open the template in the editor.
 
 #ocean {
     width: 100%;
+    max-width: 800px;
     height: 500px;
     position: relative;
     background-image: linear-gradient(lightblue, darkblue 80%, darkgreen 85%, saddlebrown 90%, black 95%);
@@ -152,7 +153,7 @@ and open the template in the editor.
 }
 
 .tokens .token {
-    height: 70%;
+    height: 95%;
 }
 
 .tokens .token:nth-child(1) {
@@ -273,6 +274,7 @@ and open the template in the editor.
     text-align: right;
     padding-top: 25px;
     color: black;
+    max-width: 800px;
 }
 
 #oxygenDepletion {
