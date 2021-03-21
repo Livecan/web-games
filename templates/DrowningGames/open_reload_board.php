@@ -28,10 +28,10 @@ $this->Html->css('drowning-game/board', ['block' => true]);
     var drTurnId = null;
     
     var drTokenElements = $.map([
-        "6.png",
-        "17.png",
-        "9.png",
-        "19.png",
+        "6b.png",
+        "17b.png",
+        "9b.png",
+        "19b.png",
     ], function(png, index) { return $(document.createElement("img"))
                 .addClass("token")
                 .addClass("T" + (index + 1))
@@ -66,7 +66,6 @@ $this->Html->css('drowning-game/board', ['block' => true]);
             if (tokensElement.children().length === 0) {
                 let img = $(document.createElement("img"))
                         .attr("src", "/img/drowning-game/redX2.png")
-                        .attr("style", "position: absolute; width: 80%; height: 80%");
                 $("#depth" + depthNo + " .tokens").append(img);
             }
             
@@ -103,7 +102,6 @@ $this->Html->css('drowning-game/board', ['block' => true]);
                     }
                 }
             }
-            tokensTakenElement.children().attr("style", "position: relative; width: 30px; height: 30px");
             
             let score = 0;
             if (user["tokens"] !== undefined) {

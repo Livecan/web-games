@@ -9,198 +9,227 @@ and open the template in the editor.
 */
 
 #ocean {
-        width: 600px;
-        height: 600px;
-        position: relative;
-        background-image: linear-gradient(lightblue, darkblue 80%, darkgreen 85%, saddlebrown 90%, black 95%);
+    width: 600px;
+    height: 600px;
+    position: relative;
+    background-image: linear-gradient(lightblue, darkblue 80%, darkgreen 85%, saddlebrown 90%, black 95%);
 }
 
 .depth {
-        width: 12%;
-        height: 12%;
+    width: 12%;
+    height: 12%;
 }
 
 .depth:nth-child(1) {
-        position: absolute;
-        left: 10%;
-        top: 10%;
+    position: absolute;
+    left: 10%;
+    top: 10%;
 }
 
 .depth:nth-child(2) {
-        position: absolute;
-        left: 30%;
-        top: 10%;
+    position: absolute;
+    left: 30%;
+    top: 10%;
 }
 
 .depth:nth-child(3) {
-        position: absolute;
-        left: 50%;
-        top: 10%;
+    position: absolute;
+    left: 50%;
+    top: 10%;
 }
 
 .depth:nth-child(4) {
-        position: absolute;
-        left: 70%;
-        top: 10%;
+    position: absolute;
+    left: 70%;
+    top: 10%;
 }
 
 .depth:nth-child(5) {
-        position: absolute;
-        left: 80%;
-        top: 21%;
+    position: absolute;
+    left: 80%;
+    top: 21%;
 }
 
 .depth:nth-child(6) {
-        position: absolute;
-        left: 70%;
-        top: 32%;
+    position: absolute;
+    left: 70%;
+    top: 32%;
 }
 
 .depth:nth-child(7) {
-        position: absolute;
-        left: 50%;
-        top: 32%;
+    position: absolute;
+    left: 50%;
+    top: 32%;
 }
 
 .depth:nth-child(8) {
-        position: absolute;
-        left: 30%;
-        top: 32%;
+    position: absolute;
+    left: 30%;
+    top: 32%;
 }
 
 .depth:nth-child(9) {
-        position: absolute;
-        left: 10%;
-        top: 32%;
+    position: absolute;
+    left: 10%;
+    top: 32%;
 }
 
 .depth:nth-child(10) {
-        position: absolute;
-        left: 0%;
-        top: 43%;
+    position: absolute;
+    left: 0%;
+    top: 43%;
 }
 
 .depth:nth-child(11) {
-        position: absolute;
-        left: 10%;
-        top: 54%;
+    position: absolute;
+    left: 10%;
+    top: 54%;
 }
 
 .depth:nth-child(12) {
-        position: absolute;
-        left: 30%;
-        top: 54%;
+    position: absolute;
+    left: 30%;
+    top: 54%;
 }
 
 .depth:nth-child(13) {
-        position: absolute;
-        left: 50%;
-        top: 54%;
+    position: absolute;
+    left: 50%;
+    top: 54%;
 }
 
 .depth:nth-child(14) {
-        position: absolute;
-        left: 70%;
-        top: 54%;
+    position: absolute;
+    left: 70%;
+    top: 54%;
 }
 
 .depth:nth-child(15) {
-        position: absolute;
-        left: 80%;
-        top: 65%;
+    position: absolute;
+    left: 80%;
+    top: 65%;
 }
 
 .depth:nth-child(16) {
-        position: absolute;
-        left: 70%;
-        top: 76%;
+    position: absolute;
+    left: 70%;
+    top: 76%;
 }
 
 .depth:nth-child(17) {
-        position: absolute;
-        left: 50%;
-        top: 76%;
+    position: absolute;
+    left: 50%;
+    top: 76%;
 }
 
 .depth:nth-child(18) {
-        position: absolute;
-        left: 30%;
-        top: 76%;
+    position: absolute;
+    left: 30%;
+    top: 76%;
 }
 
 .depth:nth-child(19) {
-        position: absolute;
-        left: 10%;
-        top: 76%;
+    position: absolute;
+    left: 10%;
+    top: 76%;
 }
 
 .depth:nth-child(20) {
-        position: absolute;
-        left: 0%;
-        top: 87%;
+    position: absolute;
+    left: 0%;
+    top: 87%;
 }
 
 .tokens {
-        width: 100%;
-        height: 100%;
-        background-size: 100% 100%;
-        z-index: 1;
+    width: 100%;
+    height: 100%;
+    background-size: 100% 100%;
+    z-index: 1;
 }
 
 .diver {
-        position: absolute;
-        left: 40%;
-        top: 0%;
-        z-index: 10;
+    position: absolute;
+    left: 40%;
+    top: 0%;
+    z-index: 10;
 }
 
-.token:nth-child(1) {
-        position: absolute;
-        left: 0%;
-        top: 0%;
-        z-index: 2;
+.tokens .token {
+    height: 70%;
 }
 
-.token:nth-child(2) {
-        position: absolute;
-        left: 15%;
-        top: 15%;
-        z-index: 1;
+.tokens .token:nth-child(1) {
+    position: absolute;
+    left: 0%;
+    top: 0%;
+    z-index: 2;
 }
 
-.token:nth-child(3) {
-        position: absolute;
-        left: 30%;
-        top: 30%;
-        z-index: 0;
+.tokens .token:nth-child(2) {
+    position: absolute;
+    left: 15%;
+    top: 15%;
+    z-index: 1;
+}
+
+.tokens .token:nth-child(3) {
+    position: absolute;
+    left: 30%;
+    top: 30%;
+    z-index: 0;
 }
 
 .D0, .D1, .D2, .D3, .D4 {
-        width: 50%;
-        height: 50%;
-        background-size: 100% 100%;
+    width: 50%;
+    height: 50%;
+    background-size: 100% 100%;
 }
 
 .D0 {
-        background-image: url("/css/drowning-game/png/Profile (1).png")
+    background-image: url("/css/drowning-game/png/Profile (1).png")
 }
 
 .D1 {
-        background-image: url("/css/drowning-game/png/Profile (2).png")
+    background-image: url("/css/drowning-game/png/Profile (2).png")
 }
 
 .D2 {
-        background-image: url("/css/drowning-game/png/Profile (3).png")
+    background-image: url("/css/drowning-game/png/Profile (3).png")
 }
 
 .D3 {
-        background-image: url("/css/drowning-game/png/Profile (4).png")
+    background-image: url("/css/drowning-game/png/Profile (4).png")
 }
 
 .D4 {
-        background-image: url("/css/drowning-game/png/Profile (5).png")
+    background-image: url("/css/drowning-game/png/Profile (5).png")
 }
+
 /*Players panel*/
 #users {
     position: relative;
+    width: 180px;
+    border: 2px solid black;
+    padding: 0px 5px;
+    border-radius: 10px;
+}
+
+.tokens_taken {
+    vertical-align: middle;
+}
+
+.tokens_taken * {
+    position: relative;
+    height: 100%;
+}
+
+#users .user {
+    border-bottom: 1px solid black;
+    border-top: 1px solid black;
+    height: 25px;
+}
+
+.user .score {
+    position: absolute;
+    right: 5px;
 }
