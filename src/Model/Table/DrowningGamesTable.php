@@ -261,7 +261,7 @@ class DrowningGamesTable extends GamesTable {
             if ($this->getTableDrTurns()->canTakeTreasure($board)) {
                 $board->nextTurn->askTaking = true;
             }
-            if ($this->DrTurns->canDropTreasure($board)) {
+            if ($this->DrTurns->canDropTreasure($board) && array_key_exists(2, $playersTokens[$currentUser->id])) {
                 $board->nextTurn->askDropping = $playersTokens[$currentUser->id][2];
             //always ask about turn finish, no need to add it here
             }
