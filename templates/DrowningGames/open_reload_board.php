@@ -7,6 +7,8 @@
 $this->Html->css('drowning-game/board', ['block' => true]);
 ?>
 <div id="oxygen">
+    <div id="oxygenDepletion">
+    </div>
 </div>
 <div id="ocean">
     <?php for ($i = 1; $i <= 20; $i++): ?>
@@ -57,12 +59,6 @@ $this->Html->css('drowning-game/board', ['block' => true]);
             let tokensElement = $("#depth" + depthNo + " .tokens");
             tokensElement.empty();
             tokensElement.append(drGetTokenElements(jsonTokens));
-            /*for (let token in jsonTokens) {
-                let tokenElement = $(document.createElement("div"))
-                        .addClass('token')
-                        .addClass('T' + jsonTokens[token]["type"]);
-                tokensElement.append(tokenElement);
-            }*/
             if (tokensElement.children().length === 0) {
                 let img = $(document.createElement("img"))
                         .attr("src", "/img/drowning-game/redX2.png")
@@ -191,6 +187,11 @@ $this->Html->css('drowning-game/board', ['block' => true]);
         }));
     };
     
+    var drFillOxygen = function(oxygen) {
+        $("#oxygenDepletion")
+                .attr("style", "left: " + (3 + 88.5 * oxygen / 25) + "%; width: " + (88.5 * (25 - oxygen) / 25) + "%;");
+    };
+    
     var drRefreshBoard = function() {
         let url = '<?= \Cake\Routing\Router::url(
                 ['action' => 'update-board-json', $game->id]) ?>';
@@ -200,7 +201,7 @@ $this->Html->css('drowning-game/board', ['block' => true]);
                         drGameId = data["id"];
                         drTurnId = data["last_turn"]["id"];
                         drModified = data["modified"];
-                        $("#oxygen").html(data["oxygen"]);
+                        drFillOxygen(data["oxygen"]);
                         drFillBoard(data["depths"], data["users"]);
                         drFillUsers(data["users"]);
                         drFillOutDivers(data["outDivers"]);

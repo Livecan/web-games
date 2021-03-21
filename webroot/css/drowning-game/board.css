@@ -9,8 +9,8 @@ and open the template in the editor.
 */
 
 #ocean {
-    width: 600px;
-    height: 600px;
+    width: 100%;
+    height: 500px;
     position: relative;
     background-image: linear-gradient(lightblue, darkblue 80%, darkgreen 85%, saddlebrown 90%, black 95%);
 }
@@ -20,28 +20,32 @@ and open the template in the editor.
     height: 12%;
 }
 
+.depth {
+    position: absolute;
+}
+
+.depth:nth-child(-n+4) {
+    top: 10%;
+}
+
 .depth:nth-child(1) {
     position: absolute;
     left: 10%;
-    top: 10%;
 }
 
 .depth:nth-child(2) {
     position: absolute;
     left: 30%;
-    top: 10%;
 }
 
 .depth:nth-child(3) {
     position: absolute;
     left: 50%;
-    top: 10%;
 }
 
 .depth:nth-child(4) {
     position: absolute;
     left: 70%;
-    top: 10%;
 }
 
 .depth:nth-child(5) {
@@ -141,17 +145,10 @@ and open the template in the editor.
 }
 
 .tokens {
-    width: 100%;
-    height: 100%;
+    width: 90%;
+    height: 90%;
     background-size: 100% 100%;
     z-index: 1;
-}
-
-.diver {
-    position: absolute;
-    left: 40%;
-    top: 0%;
-    z-index: 10;
 }
 
 .tokens .token {
@@ -179,30 +176,38 @@ and open the template in the editor.
     z-index: 0;
 }
 
+.diver {
+    position: absolute;
+    left: 20%;
+    top: -30%;
+    z-index: 10;
+}
+
 .D0, .D1, .D2, .D3, .D4 {
-    width: 50%;
-    height: 50%;
-    background-size: 100% 100%;
+    width: 125%;
+    height: 125%;
+    background-size: 600% 1200%;
+    background-image: url("/img/drowning-game/chess.png")
 }
 
 .D0 {
-    background-image: url("/css/drowning-game/png/Profile (1).png")
+    background-position-y: 46%; /*red*/
 }
 
 .D1 {
-    background-image: url("/css/drowning-game/png/Profile (2).png")
+    background-position-y: 73%; /*green*/
 }
 
 .D2 {
-    background-image: url("/css/drowning-game/png/Profile (3).png")
+    background-position-y: 82%; /*blue*/
 }
 
 .D3 {
-    background-image: url("/css/drowning-game/png/Profile (4).png")
+    background-position-y: 19%; /*grey*/
 }
 
 .D4 {
-    background-image: url("/css/drowning-game/png/Profile (5).png")
+    background-position-y: 64%; /*yellow*/
 }
 
 /*Players panel*/
@@ -232,4 +237,46 @@ and open the template in the editor.
 .user .score {
     position: absolute;
     right: 5px;
+}
+
+.user:nth-child(1) {
+    background-color: red;
+    color: white;
+}
+
+.user:nth-child(2) {
+    background-color: green;
+    color: black;
+}
+
+.user:nth-child(3) {
+    background-color: blue;
+    color: white;
+}
+
+.user:nth-child(4) {
+    background-color: grey;
+    color: black;
+}
+
+.user:nth-child(5) {
+    background-color: yellow;
+    color: black;
+}
+
+/*Oxygen bar*/
+#oxygen {
+    background: url("/img/drowning-game/health-bar/health25.png");
+    background-size: 95% 100%;
+    background-repeat: no-repeat;
+    height: 70px;
+    text-align: right;
+    padding-top: 25px;
+    color: black;
+}
+
+#oxygenDepletion {
+    position: relative;
+    background-color: black;
+    height: 48%;
 }
