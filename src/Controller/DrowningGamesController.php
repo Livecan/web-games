@@ -36,7 +36,7 @@ class DrowningGamesController extends AppController
             if ($this->DrowningGames->start($game)) {
                 $this->Flash->success(__('The drowning game has been initialized.'));
 
-                return $this->redirect(['action' => 'openBoard', $id = $id]);
+                return $this->redirect(['action' => 'openReloadBoard', $id = $id]);
             }
             $this->Flash->error(__('The drowning game could not be initialized. Please, try again.'));
         }
