@@ -195,7 +195,7 @@ class DrTurnsTable extends Table
      * @return App\Model\Entity\User
      */
     public function getCurrentTurnUser($game_id) {
-        return $this->find('all', ['order' => ['created' => 'DESC']])->
+        return $this->find('all', ['order' => ['DrTurns.created' => 'DESC', 'DrTurns.id' => 'DESC']])->
                 contain(['Users'])->
                 select($this->Users)->
                 where(['game_id' => $game_id])->
@@ -303,8 +303,16 @@ class DrTurnsTable extends Table
     private function processTurns($board, $finished) {
         $endOfRound = false;
         while (!$endOfRound &&
-                ($finished || ($board->last_turn->returning && !$this->canTakeTreasure($board) && !$this->canDropTreasure($board)))) {
-            $nextUser = $this->getTableGamesUsers()->getNextUser($board->id, $board->last_turn->user_id);
+                ($finished || (($board = $this->getTableDrowningGames()->getBoard($board))->last_turn->returning
+                && !$this->canTakeTreasure($board) && !$this->canDropTreasure($board)) || $board->last_turn->position < 1)) {
+            $nextUserId = $board->last_turn->user_id;
+            do {
+                $nextUser = $this->getTableGamesUsers()->getNextUser($board->id, $nextUserId);
+                $nextUserId = $nextUser->id;
+            } while (count($board->outDivers) < $board->users &&
+                    count(array_filter($board->outDivers, function ($user) use ($nextUser)
+                { return $user->id == $nextUser->id; })) > 0);
+            
             $roll = $this->getRoll();
             $lastUserTakenTreasuresCount = $this->getTableDrTokensGames()->getUserTakenTreasuresCount($board->id, $board->last_turn->user_id);
             $nextUserTakenTreasuresCount = $this->getTableDrTokensGames()->getUserTakenTreasuresCount($board->id, $nextUser->id);
@@ -321,7 +329,7 @@ class DrTurnsTable extends Table
                     ($nextPlayerLastTurn && $nextPlayerLastTurn->returning)) {    //if the player reaches bottom, he must return.
                 $nextTurnReturning = true;
             }
-            //TODO: process turns until User action required
+            
             $nextTurn = $this->newEntity(['game_id' => $board->id,
                 'user_id' => $nextUser->id,
                 'position' => $position,
