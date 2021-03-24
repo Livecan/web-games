@@ -138,12 +138,24 @@ class DrTokensGamesTable extends Table
                 select($this->DrTokens)->
                 where(['game_id' => $game_id])->
                 whereInList('dr_token_state_id', [2, 3])->
-                toArray();
-        $playersTokens = [];
-        foreach ($playersTokensResult as $playerToken) {
-            $playersTokens[$playerToken->user_id][$playerToken->dr_token_state_id][$playerToken->group_number][] = $playerToken->dr_token;
-        }
-        return $playersTokens;
+                toList();
+        return collection($playersTokensResult)->
+                groupBy('user_id')->
+                map(function($userTokens) {
+                    return collection($userTokens)->groupBy('dr_token_state_id')->
+                            map(function ($userStateTokens) {
+                                return collection($userStateTokens)->
+                                        groupBy('group_number')->
+                                        map(function($group) {
+                                            return collection($group)->
+                                                    extract('dr_token')->
+                                                    toList();
+                                        })->
+                                        toArray();
+                            })->
+                            toArray();
+                })->
+                toList();
     }
     
     public function claimPlayersTokens($game_id, $user_ids) {
