@@ -50,10 +50,20 @@ class GamesTable extends Table
             'foreignKey' => 'game_state_id',
             'joinType' => 'INNER',
         ]);
+        $this->belongsTo('GameTypes', [
+            'foreignKey' => 'game_type_id',
+            'joinType' => 'INNER',
+        ]);
         $this->belongsToMany('Users', [
             'foreignKey' => 'game_id',
             'targetForeignKey' => 'user_id',
             'joinTable' => 'games_users',
+        ]);
+        $this->hasOne('Creator', [
+            'foreignKey' => 'creator_id',
+            'targetTable' => 'users',
+            'targetForeignKey' => 'id',
+            'joinType' => 'INNER',
         ]);
     }
 
@@ -75,11 +85,6 @@ class GamesTable extends Table
             ->requirePresence('name', 'create')
             ->notEmptyString('name');
 
-        $validator
-            ->scalar('type')
-            ->requirePresence('type', 'create')
-            ->notEmptyString('type');
-
         return $validator;
     }
     
@@ -89,6 +94,7 @@ class GamesTable extends Table
         }
         
         $game = $this->newEntity($data);
+        $game->creator_id = $user->id;
         $game->users = [$user];
         $result = $this->save($game);
         
@@ -96,7 +102,7 @@ class GamesTable extends Table
             return false;
         }
         
-        return true;
+        return $result;
     }
     
     public function addUser($game, $user) {
