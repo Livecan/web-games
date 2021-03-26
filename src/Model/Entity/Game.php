@@ -10,7 +10,7 @@ use Cake\ORM\Entity;
  *
  * @property int $id
  * @property string $name
- * @property string $type
+ * @property string $game_type_id
  * @property int @game_state_id
  *
  * @property \App\Model\Entity\User[] $users
@@ -28,7 +28,7 @@ class Game extends Entity
      */
     protected $_accessible = [
         'name' => true,
-        'type' => true,
+        'game_type_id' => true,
         'game_states' => true,
         'users' => true,
     ];
