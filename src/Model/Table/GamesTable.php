@@ -59,10 +59,9 @@ class GamesTable extends Table
             'targetForeignKey' => 'user_id',
             'joinTable' => 'games_users',
         ]);
-        $this->hasOne('Creator', [
+        $this->belongsTo('Creator', [
+            'className' => 'Users',
             'foreignKey' => 'creator_id',
-            'targetTable' => 'users',
-            'targetForeignKey' => 'id',
             'joinType' => 'INNER',
         ]);
     }

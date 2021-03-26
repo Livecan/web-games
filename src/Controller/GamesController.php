@@ -119,7 +119,10 @@ class GamesController extends AppController
      */
     public function newGames()
     {
-        $games = $this->paginate($this->Games->find()->where([ 'game_state_id' => 1 ])->contain([ 'Users' ]));
+        $games = $this->paginate($this->Games->find()->
+                where([ 'game_state_id' => 1 ])->
+                contain([ 'Creator', 'Users', 'GameTypes' ])->
+                order(['created' => 'DESC']));
         $this->Authorization->skipAuthorization();
         $this->set(compact('games'));
     }

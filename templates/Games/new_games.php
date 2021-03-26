@@ -11,23 +11,29 @@
         <table>
             <thead>
                 <tr>
-                    <th><?= $this->Paginator->sort('id') ?></th>
+                    <!--th><?= $this->Paginator->sort('id') ?></th-->
                     <th><?= $this->Paginator->sort('name') ?></th>
+                    <th><?= $this->Paginator->sort('game') ?></th>
                     <th><?= $this->Paginator->sort('players') ?></th>
                     <th class="actions"><?= __('Actions') ?></th>
+                    <th><?= $this->Paginator->sort('creator') ?></th>
+                    <th><?= $this->Paginator->sort('created') ?></th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($games as $game): ?>
                 <tr>
-                    <td><?= $this->Number->format($game->id) ?></td>
+                    <!--td><?= $this->Number->format($game->id) ?></td-->
                     <td><?= h($game->name) ?></td>
+                    <td><?= h($game->game_type->name) ?></td>
                     <td><?= count($game->users) ?></td>
                     <td class="actions">
                         <?= $this->Html->link(__('View'), ['action' => 'view', $game->id]) ?>
                         <?= $this->Form->postLink(__('Join'), ['action' => 'waitingRoom', $game->id]) ?>
-                        <?= $this->Form->postLink(__('Start'), ['controller' => 'DrowningGames', 'action' => 'start', $game->id]) ?>
+                        <?= $this->Form->postLink(__('Start'), ['controller' => $game->game_type->controller, 'action' => 'start', $game->id]) ?>
                     </td>
+                    <td><?= h($game->creator->name) ?></td>
+                    <td><?= h($game->created) ?></td>
                 </tr>
                 <?php endforeach; ?>
             </tbody>
