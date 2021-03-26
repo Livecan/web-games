@@ -75,12 +75,12 @@ class DrowningGamesTable extends GamesTable {
         return $this->drResults;
     }
     
-    private function randomizePlayerOrder($users) {
-        usort($users, function($_a, $_b) { return rand(-1, 1); });
-        for ($i = 0; $i < count($users); $i++) {
-            $users[$i]->_joinData->order_number = $i;
-            $users[$i]->_joinData->next_user_id = $users[($i + 1) % count($users)]->id;
-        }
+    private function randomizePlayerOrder(&$users) {
+        $users = collection($users)->shuffle()->toList();
+        $users = collection($users)->each(function($value, $key) use ($users) {
+            $value->_joinData->order_number = $key;
+            $value->_joinData->next_user_id = $users[($key + 1) % count($users)]->id;
+        })->toList();
     }
     
     private function getRandomizedTokens() {
