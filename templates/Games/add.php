@@ -18,7 +18,7 @@
                 <legend><?= __('Add Game') ?></legend>
                 <?php
                     echo $this->Form->control('name');
-                    echo $this->Form->control('type');
+                    echo $this->Form->control('game_type_id', ['options' => $gameTypes, 'type' => 'select']);
                 ?>
             </fieldset>
             <?= $this->Form->button(__('Submit')) ?>

@@ -49,18 +49,19 @@ class GamesController extends AppController
     public function add()
     {
         $this->Authorization->skipAuthorization();
+        $game;
         if ($this->request->is('post')) {
-            if ($this->Games->addGame($this->request->getData(), $this->request->getAttribute('identity')->getOriginalData())) {
+            if ($game = $this->Games->addGame($this->request->getData(), $this->request->getAttribute('identity')->getOriginalData())) {
                 $this->Flash->success(__('The game has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'waitingRoom', $game->id]);
             }
             $this->Flash->error(__('The game could not be saved. Please, try again.'));
         }
         
         $game = $this->Games->newEmptyEntity();
-        $users = $this->Games->Users->find('list', ['limit' => 200]);
-        $this->set(compact('game', 'users'));
+        $gameTypes = $this->Games->GameTypes->find('list')->select(['id', 'name']);
+        $this->set(compact('game', 'gameTypes'));
     }
 
     /**
