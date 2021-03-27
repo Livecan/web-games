@@ -17,13 +17,13 @@ class FormulaLogic {
         $this->FoPositions = $this->getTableLocator()->get('FoPositions');
         $this->FoCars = $this->getTableLocator()->get('FoCars');
         $this->FoDamages = $this->getTableLocator()->get('FoDamages');
+        $this->Users = $this->getTableLocator()->get('Users');
     }
     
     public function start($formulaGame) {
         
         $formulaGame->fo_cars = collection($formulaGame->users)->map(function($user) use ($formulaGame) {
             $playerCarsLeft = $formulaGame->fo_game->cars_per_player;
-            $cars = [];
             while ($playerCarsLeft-- > 0) {
                 $damages = $this->FoDamages->newEntities([
                         ['fo_e_damage_type_id' => 1, 'wear_points' => 7],
@@ -32,10 +32,8 @@ class FormulaLogic {
                         ['fo_e_damage_type_id' => 4, 'wear_points' => 3],
                         ['fo_e_damage_type_id' => 5, 'wear_points' => 3],
                         ['fo_e_damage_type_id' => 6, 'wear_points' => 3],]);
-                $car = $this->FoCars->createUserCar($formulaGame->id, $user->id, $damages, false);
-                $cars[] = $car;
+                yield $this->FoCars->createUserCar($formulaGame->id, $user->id, $damages, false);
             }
-            return $cars;
         })->unfold()->shuffle();
         
         $startingPositions = $this->FoPositions->find('all')->
