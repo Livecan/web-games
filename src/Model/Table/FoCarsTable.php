@@ -121,4 +121,16 @@ class FoCarsTable extends Table
             return $foCar;
         }
     }
+    
+    public function generateCarOrder($game_id) {
+        $foCars = $this->find('all')->contain(['FoPositions'])->
+                where(['game_id' => $game_id])->
+                select($this)->
+                order(['lap' => 'DESC', 'FoPositions.order' => 'DESC']);
+        $order = 1;
+        foreach ($foCars as $foCar) {
+            $foCar->order = $order++;
+        }
+        return $this->saveMany($foCars);
+    }
 }

@@ -21,7 +21,6 @@ class FormulaLogic {
     }
     
     public function start($formulaGame) {
-        
         $formulaGame->fo_cars = collection($formulaGame->users)->map(function($user) use ($formulaGame) {
             $playerCarsLeft = $formulaGame->fo_game->cars_per_player;
             while ($playerCarsLeft-- > 0) {
@@ -38,7 +37,7 @@ class FormulaLogic {
         
         $startingPositions = $this->FoPositions->find('all')->
                 select('id')->
-                where(['fo_track_id', $formulaGame->fo_game->track_id])->
+                where(['fo_track_id' => $formulaGame->fo_game->fo_track_id])->
                 whereNotNull('starting_position')->
                 order(['starting_position' => 'ASC']);
         $formulaGame->fo_cars = $formulaGame->fo_cars->zip($startingPositions)->
@@ -49,5 +48,6 @@ class FormulaLogic {
         $formulaGame->fo_cars =
                 $this->FoCars->saveMany($formulaGame->fo_cars->toList(),
                         ['associated' => ['FoDamages']]);
+        $formulaGame->fo_cars = $this->FoCars->generateCarOrder($formulaGame->id);
     }
 }

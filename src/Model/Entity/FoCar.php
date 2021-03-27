@@ -11,6 +11,7 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property int $game_id
  * @property int $user_id
+ * @property int $lap
  * @property int|null $fo_position_id
  * @property int $gear
  * @property \Cake\I18n\FrozenTime $created
@@ -37,6 +38,7 @@ class FoCar extends Entity
     protected $_accessible = [
         'game_id' => true,
         'user_id' => true,
+        'lap' => true,
         'fo_position_id' => true,
         'gear' => true,
         'created' => true,
