@@ -37,4 +37,19 @@ class FormulaController extends AppController
         }
         $this->set(compact('formula'));
     }
+    
+    public function getBoardUpdateJson($id)
+    {
+        $formulaGame = $this->FormulaGames->get($id, ['contain' => ['Users']]);
+        
+        $this->Authorization->authorize($formulaGame);
+        if ($this->request->is('get')) {
+            if ($formulaBoard = $this->Formula->getBoard($formulaGame)) {
+                $this->Flash->success(__('Board has been successfully retrieved.'));
+            }
+            $this->Flash->error(__('Error occurred while retrieving board. Please, try again.'));
+        }
+        $this->set(compact('formulaBoard'));
+        $this->viewBuilder()->setOption('serialize', 'results');
+    }
 }

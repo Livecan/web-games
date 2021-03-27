@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Model\Logic;
 
 use Cake\ORM\Locator\LocatorAwareTrait;
+use \Cake\ORM\Query;
 
 /**
  * Description of FormulaLogic
@@ -18,6 +19,7 @@ class FormulaLogic {
         $this->FoCars = $this->getTableLocator()->get('FoCars');
         $this->FoDamages = $this->getTableLocator()->get('FoDamages');
         $this->Users = $this->getTableLocator()->get('Users');
+        $this->FormulaGames = $this->getTableLocator()->get('FormulaGames');
     }
     
     public function start($formulaGame) {
@@ -44,10 +46,42 @@ class FormulaLogic {
                 map(function($carPositionPair) {
                     $carPositionPair[0]->fo_position_id = $carPositionPair[1]->id;
                     return $carPositionPair[0];
-                });
-        $formulaGame->fo_cars =
-                $this->FoCars->saveMany($formulaGame->fo_cars->toList(),
-                        ['associated' => ['FoDamages']]);
+                })->toList();
+        
+        $formulaGame->game_state_id = 2;
+        
+        $formulaGame->setDirty('fo_card',true);
+        $formulaGame = $this->FormulaGames->save($formulaGame,
+                        ['associated' => ['FoCars', 'FoCars.FoDamages']]);
         $formulaGame->fo_cars = $this->FoCars->generateCarOrder($formulaGame->id);
+        
+        return $formulaGame;
+    }
+    
+    public function getBoard($formulaGame) {
+        $board = $this->FormulaGames->
+                find('all')->
+                contain([
+                    'Users' => function(Query $q) {
+                        return $q->select(['id', 'name']);
+                    },
+                    'FoCars' => function(Query $q) {
+                        return $q->select(['id', 'game_id', 'user_id', 'lap', 'gear']);
+                    },
+                    'FoCars.FoDamages' => function(Query $q) {
+                        return $q->select(['id', 'fo_car_id', 'wear_points']);
+                    },
+                    'FoCars.FoDamages.FoEDamageTypes' => function(Query $q) {
+                        return $q->select(['id', 'name']);
+                    },
+                    'FoCars.FoPositions' => function(Query $q) {
+                        return $q->select(['pos_x', 'pos_y', 'angle']);
+                    }
+                    ])->
+                select(['id', 'name', 'game_state_id'])->
+                where(['id' => $formulaGame->id])->
+                limit(1)->
+                toList()[0];
+        return $board;
     }
 }

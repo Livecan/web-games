@@ -20,6 +20,20 @@ class FormulaGamePolicy
      */
     public function canStart(IdentityInterface $user, FormulaGame $formulaGame)
     {
-        return $user->id == $formulaGame->formula_game->creator_id || $user->is_admin;
+        return $user->id == $formulaGame->creator_id || $user->is_admin;
+    }
+    
+    /**
+     * Check if $user can retrieve board info
+     * 
+     * @param \Authorization\IdentityInterface $user The user.
+     * @param \App\Model\Entity\Game $game
+     * @return bool
+     */
+    public function canGetBoardUpdateJson(IdentityInterface $user, FormulaGame $formulaGame)
+    {
+        return collection($formulaGame->users)->some(
+                function($player) use ($user) { return $player->id == $user->id; })
+                || $user->is_admin;
     }
 }
