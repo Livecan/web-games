@@ -27,15 +27,16 @@ class FormulaController extends AppController
         $formulaGame = $this->FormulaGames->get($id, ['contain' => ['FoGames', 'Users'],
             ]);
         $this->Authorization->authorize($formulaGame);
-        if ($this->request->is('post')) {
-            if ($formulaGame = $this->Formula->start($formulaGame, $this->request->getData())) {
+        if ($formulaGame->game_state_id == 1) {
+            if ($this->request->is('post') && $formulaGame = $this->Formula->start($formulaGame, $this->request->getData())) {
                 $this->Flash->success(__('The formula has been saved.'));
-
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['action' => 'getBoard', $id]);
             }
-            $this->Flash->error(__('The formula could not be saved. Please, try again.'));
+            $this->Flash->error(__('The formula game could not be started. Please, try again.'));
+            return $this->redirect(['controller' => 'Games', 'action' => 'newGames']);
         }
-        $this->set(compact('formula'));
+        $this->Flash->error(__('The game has already started. Please, try again.'));
+        return $this->redirect(['action' => 'getBoard', $id]);
     }
     
     public function getBoardUpdateJson($id)
