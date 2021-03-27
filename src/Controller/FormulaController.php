@@ -54,6 +54,7 @@ class FormulaController extends AppController
     {
         $formulaGame = $this->FormulaGames->get($id, ['contain' => ['FoGames', 'Users'],
             ]);
+        $this->Authorization->authorize($formulaGame);
         if ($this->request->is('post')) {
             if ($formulaGame = $this->Formula->start($formulaGame, $this->request->getData())) {
                 $this->Flash->success(__('The formula has been saved.'));
