@@ -31,7 +31,7 @@
                     <td><?= $this->Number->format($game->id) ?></td>
                 </tr>
                 <tr>
-                    <td><?= $this->Form->postLink(__('Start'), ['controller' => 'DrowningGames', 'action' => 'start', $game->id]) ?></td>
+                    <td><?= $this->Form->postLink(__('Start'), ['controller' => $game->game_type->controller, 'action' => 'start', $game->id]) ?></td>
                 </tr>
             </table>
             <div class="text">

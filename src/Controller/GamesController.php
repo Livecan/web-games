@@ -135,7 +135,7 @@ class GamesController extends AppController
     public function waitingRoom($id)
     {
         $game = $this->Games->get($id, [
-            'contain' => ['Users', 'GameStates'],
+            'contain' => ['Users', 'GameStates', 'GameTypes'],
         ]);
         $this->Authorization->skipAuthorization();
         
