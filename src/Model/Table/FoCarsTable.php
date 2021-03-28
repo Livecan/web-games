@@ -123,9 +123,14 @@ class FoCarsTable extends Table
     }
     
     public function generateCarOrder($game_id) {
-        $foCars = $this->find('all')->contain(['FoPositions'])->
-                where(['game_id' => $game_id])->
+        $foCars = $this->find('all')->
+                contain(['FoDamages' => function(Query $q) {
+                    return $q->select($this->FoDamages);
+                }, 'FoPositions' => function(Query $q) {
+                    return $q->select($this->FoPositions);
+                }])->
                 select($this)->
+                where(['game_id' => $game_id])->
                 order(['lap' => 'DESC', 'FoPositions.order' => 'DESC']);
         $order = 1;
         foreach ($foCars as $foCar) {

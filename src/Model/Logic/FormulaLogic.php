@@ -20,6 +20,7 @@ class FormulaLogic {
         $this->FoDamages = $this->getTableLocator()->get('FoDamages');
         $this->Users = $this->getTableLocator()->get('Users');
         $this->FormulaGames = $this->getTableLocator()->get('FormulaGames');
+        $this->FoLogs = $this->getTableLocator()->get('FoLogs');
     }
     
     public function start($formulaGame) {
@@ -53,7 +54,9 @@ class FormulaLogic {
         $formulaGame->setDirty('fo_card',true);
         $formulaGame = $this->FormulaGames->save($formulaGame,
                         ['associated' => ['FoCars', 'FoCars.FoDamages']]);
-        $formulaGame->fo_cars = $this->FoCars->generateCarOrder($formulaGame->id);
+        $formulaGame->fo_cars = $this->FoCars->generateCarOrder($formulaGame->id)->toList();
+        
+        $this->FoLogs->logGameStart($formulaGame->fo_cars);
         
         return $formulaGame;
     }

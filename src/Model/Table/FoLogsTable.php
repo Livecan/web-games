@@ -7,6 +7,8 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use App\Model\Entity\FoDamage;
+use App\Model\Entity\FoCar;
 
 /**
  * FoLogs Model
@@ -103,5 +105,20 @@ class FoLogsTable extends Table
         $rules->add($rules->existsIn(['fo_position_id'], 'FoPositions'), ['errorField' => 'fo_position_id']);
 
         return $rules;
+    }
+    
+    public function logGameStart($formulaCars) {
+        collection($formulaCars)->each(function(FoCar $formulaCar) {
+            $foLog = $this->save(
+                    $this->newEntity(['fo_car_id' => $formulaCar->id,
+                        'fo_position_id' => $formulaCar->fo_position_id,
+                        'gear' => $formulaCar->gear,
+                        'type' => 'I']));
+            $formulaCar->fo_damages = collection($formulaCar->fo_damages)->
+                    map(function(FoDamage $damage) use ($foLog) {
+                        $damage->fo_log_id = $foLog->id;
+                        return $this->FoDamages->save($damage);
+            })->toList();
+        });
     }
 }
