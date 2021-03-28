@@ -36,4 +36,18 @@ class FormulaGamePolicy
                 function($player) use ($user) { return $player->id == $user->id; })
                 || $user->is_admin;
     }
+    
+    /**
+     * Check if $user can retrieve board
+     * 
+     * @param \Authorization\IdentityInterface $user The user.
+     * @param \App\Model\Entity\Game $game
+     * @return bool
+     */
+    public function canGetBoard(IdentityInterface $user, FormulaGame $formulaGame)
+    {
+        return collection($formulaGame->users)->some(
+                function($player) use ($user) { return $player->id == $user->id; })
+                || $user->is_admin;
+    }
 }

@@ -42,8 +42,8 @@ class FormulaController extends AppController
     public function getBoardUpdateJson($id)
     {
         $formulaGame = $this->FormulaGames->get($id, ['contain' => ['Users']]);
-        
         $this->Authorization->authorize($formulaGame);
+        $formulaBoard;
         if ($this->request->is('get')) {
             if ($formulaBoard = $this->Formula->getBoard($formulaGame)) {
                 $this->Flash->success(__('Board has been successfully retrieved.'));
@@ -51,6 +51,20 @@ class FormulaController extends AppController
             $this->Flash->error(__('Error occurred while retrieving board. Please, try again.'));
         }
         $this->set(compact('formulaBoard'));
-        $this->viewBuilder()->setOption('serialize', 'results');
+        $this->viewBuilder()->setOption('serialize', 'formulaBoard');
+    }
+    
+    public function getBoard($id)
+    {
+        $formulaGame = $this->FormulaGames->get($id, ['contain' => ['Users', 'FoGames.FoTracks']]);
+        
+        $this->Authorization->authorize($formulaGame);
+        if ($this->request->is('get') && $formulaGame->game_state_id != 1) {
+                $this->Flash->success(__('Board has been successfully retrieved.'));
+                $this->set(compact('formulaGame'));
+        } else {
+            $this->Flash->error(__('Error occurred while retrieving board. Please, try again.'));
+            $this->redirect(['controller' => 'Games', 'action' => 'newGames']);
+        }
     }
 }
