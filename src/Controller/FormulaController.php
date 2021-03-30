@@ -13,7 +13,7 @@ class FormulaController extends AppController
     public function initialize(): void {
         parent::initialize();
         
-        $this->Formula = new \App\Model\Logic\FormulaLogic();
+        $this->Formula = new \App\Model\FormulaLogic\FormulaLogic();
         $this->FormulaGame = $this->loadModel('FormulaGames');
     }
 
