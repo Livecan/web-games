@@ -7,7 +7,7 @@
 </div>
 <div class="carStats" onmouseenter="elmtVisibilityToggle(this, false)" 
      onmouseleave="elmtVisibilityToggle(this, true)"
-     style="position: fixed; right: 0; bottom: 20px; opacity: .9;
+     style="position: fixed; right: 20px; bottom: 20px; opacity: .9;
      transition-property: opacity; transition-duration: .5s;">
     <table id="carStatsTable" style="background-color: white; color: black; font-weight: bold">
     </table>
