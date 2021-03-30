@@ -9,6 +9,7 @@ use Cake\ORM\Table;
 use Cake\Validation\Validator;
 use App\Model\Entity\FoDamage;
 use App\Model\Entity\FoCar;
+use App\Model\Entity\FoLog;
 
 /**
  * FoLogs Model
@@ -120,5 +121,29 @@ class FoLogsTable extends Table
                         return $this->FoDamages->save($damage);
             })->toList();
         });
+    }
+    
+    public function logFirstMove(FoCar $foCar) {
+        return $this->save(new FoLog([
+            'fo_car_id' => $foCar->id,
+            'gear' => $foCar->gear + 1,
+            'type' => 'M',
+        ]));
+    }
+    
+    public function logRoll(FoCar $foCar, $roll, $logType) {
+        if ($logType == 'I') {
+            $foLog = $this->find('all')->
+                    where(['fo_car_id' => $foCar->id, 'type' => 'I'])->
+                    toList()[0];
+            $this->patchEntity($foLog, ['roll' => $roll]);
+            return $this->save($foLog);
+        } else {
+            return $this->save(new FoLog(['fo_car_id' => $foCar->id,
+                'gear' => $foCar->gear,
+                'roll' => $roll,
+                'type' => $logType,
+            ]));
+        }
     }
 }

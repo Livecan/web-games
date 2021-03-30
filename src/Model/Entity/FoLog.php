@@ -15,6 +15,8 @@ use Cake\ORM\Entity;
  * @property int|null $roll
  * @property int|null $ranking
  * @property string $type
+ * @property \Cake\I18n\FrozenTime $created
+ * @property \Cake\I18n\FrozenTime $modified
  *
  * @property \App\Model\Entity\FoCar $fo_car
  * @property \App\Model\Entity\FoPosition $fo_position
@@ -38,6 +40,8 @@ class FoLog extends Entity
         'roll' => true,
         'ranking' => true,
         'type' => true,
+        'created' => true,
+        'modified' => true,
         'fo_car' => true,
         'fo_position' => true,
         'fo_damages' => true,

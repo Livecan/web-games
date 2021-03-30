@@ -7,6 +7,8 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use App\Model\Entity\FoCar;
+use App\Model\FormulaLogic\DiceLogic;
 
 /**
  * FoCars Model
@@ -72,6 +74,8 @@ class FoCarsTable extends Table
         $this->hasMany('FoMoveOptions', [
             'foreignKey' => 'fo_car_id',
         ]);
+        
+        $this->DiceLogic = new DiceLogic();
     }
 
     /**
@@ -137,5 +141,26 @@ class FoCarsTable extends Table
             $foCar->order = $order++;
         }
         return $this->saveMany($foCars);
+    }
+    
+    public function getNextMoveLength(FoCar $foCar): int {
+        if ($foCar->gear == -1) { //processing start
+            $blackDiceRoll = $this->DiceLogic->getRoll(0);
+            $this->FoLogs->logRoll($foCar, $blackDiceRoll, 'I');
+            if ($blackDiceRoll < 5) {   //slow start
+                $foCar->gear = 0;
+                $this->save($foCar);
+                return 0;
+            }
+            $foCar->gear = 1;
+            $this->save($foCar);
+
+            if ($blackDiceRoll == 20) {
+                return 4;
+            }
+        }
+        $roll = $this->DiceLogic->getRoll($foCar->gear);
+        $this->FoLogs->logRoll($foCar, $roll, 'M');
+        return $roll;
     }
 }

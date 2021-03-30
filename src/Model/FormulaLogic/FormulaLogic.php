@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Model\Logic;
+namespace App\Model\FormulaLogic;
 
 use Cake\ORM\Locator\LocatorAwareTrait;
 use \Cake\ORM\Query;
@@ -21,6 +21,7 @@ class FormulaLogic {
         $this->Users = $this->getTableLocator()->get('Users');
         $this->FormulaGames = $this->getTableLocator()->get('FormulaGames');
         $this->FoLogs = $this->getTableLocator()->get('FoLogs');
+        $this->MovementLogic = new MovementLogic();
     }
     
     public function start($formulaGame) {
@@ -87,6 +88,48 @@ class FormulaLogic {
                 where(['id' => $formulaGame->id])->
                 limit(1)->
                 toList()[0];
+        $this->getActions($formulaGame, 3);   //TODO: remove, used for testing
         return $board;
+    }
+    
+    public function getActions($formulaGame, $user_id) {
+        $currentCarQuery = $this->FoCars->
+                find('all')->
+                where(['game_id' => $formulaGame->id])->
+                whereNotNull('order')->
+                order(['order' => 'ASC'])->
+                limit(1);
+        $currentCar;
+        foreach ($currentCarQuery as $_currentCar) {
+            $currentCar = $_currentCar;
+        }
+        
+        if ($currentCar["user_id"] != $user_id) {
+            return;
+        }
+        
+        $lastCarTurnQueryResult = $this->FoLogs->
+                find('all')->
+                contain(['FoCars'])->
+                where(['game_id' => $formulaGame->id,
+                    "fo_car_id" => $currentCar->id,
+                    "type" => 'M'])->
+                order(['FoLogs.modified' => 'DESC'])->
+                limit(1)->
+                toList();
+        
+        $lastCarTurn = null;
+        if (count($lastCarTurnQueryResult) > 0) {
+            $lastCarTurn = $lastCarTurnQueryResult[0];
+        }
+        
+        if ($lastCarTurn == null || $lastCarTurn['fo_position_id'] == null) {
+            if ($lastCarTurn != null) {
+                $movesLeft = $lastCarTurn['roll'];
+            } else {
+                $movesLeft = $this->FoCars->getNextMoveLength($currentCar);
+            }
+            $availableMoves = $this->MovementLogic->getAvailableMoves($currentCar, $movesLeft);
+        }
     }
 }
