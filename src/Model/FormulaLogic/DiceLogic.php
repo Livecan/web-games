@@ -19,6 +19,6 @@ class DiceLogic {
     ];
     
     public function getRoll($diceNumber) {
-        return $this->dice[$diceNumber][random_int(0, count($this->dice[$diceNumber]))];
+        return $this->dice[$diceNumber][random_int(0, count($this->dice[$diceNumber]) - 1)];
     }
 }
