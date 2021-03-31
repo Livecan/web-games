@@ -86,42 +86,31 @@ class FormulaLogic {
                     ])->
                 select(['id', 'name', 'game_state_id'])->
                 where(['id' => $formulaGame->id])->
-                limit(1)->
-                toList()[0];
+                first();
         $this->getActions($formulaGame, 3);   //TODO: remove, used for testing
         return $board;
     }
     
     public function getActions($formulaGame, $user_id) {
-        $currentCarQuery = $this->FoCars->
+        $currentCar = $this->FoCars->
                 find('all')->
                 where(['game_id' => $formulaGame->id])->
                 whereNotNull('order')->
                 order(['order' => 'ASC'])->
-                limit(1);
-        $currentCar;
-        foreach ($currentCarQuery as $_currentCar) {
-            $currentCar = $_currentCar;
-        }
+                first();
         
         if ($currentCar["user_id"] != $user_id) {
             return;
         }
         
-        $lastCarTurnQueryResult = $this->FoLogs->
+        $lastCarTurn = $this->FoLogs->
                 find('all')->
                 contain(['FoCars'])->
                 where(['game_id' => $formulaGame->id,
                     "fo_car_id" => $currentCar->id,
                     "type" => 'M'])->
                 order(['FoLogs.modified' => 'DESC'])->
-                limit(1)->
-                toList();
-        
-        $lastCarTurn = null;
-        if (count($lastCarTurnQueryResult) > 0) {
-            $lastCarTurn = $lastCarTurnQueryResult[0];
-        }
+                first();
         
         if ($lastCarTurn == null || $lastCarTurn['fo_position_id'] == null) {
             if ($lastCarTurn != null) {
