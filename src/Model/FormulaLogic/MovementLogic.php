@@ -8,7 +8,10 @@ use Cake\ORM\Query;
 use App\Model\Entity\FoMoveOption;
 use App\Model\Entity\FoCar;
 use App\Model\Entity\FoPosition2Position;
+use App\Model\Entity\FoDamage;
 use Cake\Database\Expression\QueryExpression;
+use Cake\Collection\CollectionInterface;
+use Cake\Collection\Collection;
 
 /**
  * Description of MovementLogic
@@ -55,6 +58,7 @@ class MovementLogic {
             /*TODO: add is_adjacent in db and add all the relations that are not there yet!!!
             The is_left, is_straight, is_right and is_curve would be automatically included*/
             $moveOptions = $this->mergeMoveOptions($moveOptions, $nextPositionMoveOptions);
+            $moveOptions = $this->addUniqueMoveOption($moveOptions, $this->getBrakingOption($currentMoveOption));
             $moveOptions = $moveOptions->sortBy('np_moves_left', SORT_DESC, SORT_NUMERIC);
         }
         //TODO: after this is finished, do drafting if conditions for drafting are met
@@ -115,23 +119,73 @@ class MovementLogic {
         return $nextMoveOption;
     }
     
-    private function mergeMoveOptions($moveOptions, $moveOptions2) {
-        $moveOptions = collection($moveOptions);
-        if ($moveOptions->count() === 0) {
+    private function mergeMoveOptions(CollectionInterface $moveOptions, $moveOptions2) {
+        if ($moveOptions->count() == 0) {
             return collection($moveOptions2);
         }
-        $moveOptionsAppend = [];
+        
         foreach ($moveOptions2 as $moveOption2) {
-            if ($moveOptions->every(function(FoMoveOption $_moveOption) use ($moveOption2) {
-                return $_moveOption->fo_position_id != $moveOption2->fo_position_id ||
-                        $_moveOption->np_allowed_left != $moveOption2->np_allowed_left ||
-                        $_moveOption->np_allowed_right != $moveOption2->np_allowed_right ||
-                        $_moveOption->np_moves_left != $moveOption2->np_moves_left; //TODO: compare also damages
-            })) {
-                $moveOptionsAppend[] = $moveOption2;
+            $moveOptions = $this->addUniqueMoveOption($moveOptions, $moveOption2);
+        }
+        return $moveOptions;
+    }
+    
+    private function addUniqueMoveOption(CollectionInterface $moveOptions, FoMoveOption $moveOption) {
+        if ($moveOption === null) {
+            return $moveOptions;
+        }
+        if ($moveOptions->every(function(FoMoveOption $_moveOption) use ($moveOption) {
+            return $_moveOption->fo_position_id != $moveOption->fo_position_id ||
+                    $_moveOption->np_allowed_left != $moveOption->np_allowed_left ||
+                    $_moveOption->np_allowed_right != $moveOption->np_allowed_right ||
+                    $_moveOption->np_moves_left != $moveOption->np_moves_left; //TODO: compare also damages
+        })) {
+            return $moveOptions->appendItem($moveOption);
+        } else {
+            return $moveOptions;
+        }
+    }
+    
+    private function compareDamages($damages1, $damages2) {
+        $damages1 = collection($damages1);
+        $damages2 = colelction($damages2);
+        //TODO: compare damages
+        /*collection($damages1)->every(function($damage1) use $damages2 {
+            return $damages2
+        })*/
+    }
+    
+    private function getBrakingOption(FoMoveOption $moveOption) {
+        $originalBrakeDamage = collection($moveOption->fo_damages ?? [])->
+                firstMatch(['fo_e_damage_type_id' => 3]);
+        $carBrakeWearPoints = $this->FoDamages->find('all')->
+                where(['fo_car_id' => $moveOption->fo_car_id, 'fo_e_damage_type_id' => 3])->
+                select('wear_points')->
+                first()->wear_points;
+        if ($carBrakeWearPoints <= $originalBrakeDamage + 1)    //can't add another brake damage
+            return null;
+        //TODO: compare $originalBrakeDamage with car wear points!
+        $brakingOption = new FoMoveOption([
+            'fo_car_id' => $moveOption->fo_car_id,
+            'fo_position_id' => $moveOption->fo_position_id,
+            'np_moves_left' => $moveOption->np_moves_left - 1,
+            'np_allowed_left' => $moveOption->np_allowed_left,
+            'np_allowed_right' => $moveOption->np_allowed_right,
+        ]);
+        $brakingOption->fo_damages = collection([]);
+        if ($moveOption->fo_damages != null) {
+            foreach ($moveOption->fo_damages as $foDamage) {
+                if ($foDamage->fo_e_damage_type != 3)   //brakes
+                $brakingOption->fo_damages->appendItem(new FoDamage([
+                    'wear_points' => $foDamage->wear_points,
+                    'fo_e_damage_type_id' => $foDamage->fo_e_damage_type,
+                ]));
             }
         }
-        $moveOptions = $moveOptions->append($moveOptionsAppend);
-        return $moveOptions;
+        $brakingOption->fo_damages = $brakingOption->fo_damages->appendItem(new FoDamage([
+            'wear_points' => ($originalBrakeDamage ?? 0) + 1,
+            'fo_e_damage_type_id' => 3, //brakes
+        ]))->toList();
+        return $brakingOption;
     }
 }
