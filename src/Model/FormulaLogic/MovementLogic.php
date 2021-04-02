@@ -31,15 +31,17 @@ class MovementLogic {
     public function getAvailableMoves(FoCar $foCar, int $movesLeft) {
         if ($movesLeft == 0) {
             return [new FoMoveOption(['fo_car_id' => $foCar->id,
-                    'fo_position_id' => $foCar->fo_position_id])
-                ];
+                    'fo_position_id' => $foCar->fo_position_id,
+                    'fo_damages' => $this->getZeroDamages([1, 3, 6]),   //Tires, Brakes, Shocks
+                ])];
         }
         
         $moveOptions = collection([FoMoveOption::getFirstMoveOption(
                 $foCar->id,
                 $foCar->fo_position_id,
-                $movesLeft)]);
-        while ($moveOptions->some(function($_moveOption) { 
+                $movesLeft,
+                $this->getZeroDamages([1, 3, 6]))]);    //Tires, Brakes, Shocks
+        while ($moveOptions->some(function($_moveOption) {
                 return $_moveOption->np_moves_left > 0; })) {
 
             //take out the first FoMoveOption from the collection and remove it from it
@@ -108,7 +110,8 @@ class MovementLogic {
             'fo_position_id' => $nextPosition2Positions->fo_position_to_id,
             'np_moves_left' => ($currentMoveOption->np_moves_left - 1),
             'np_allowed_left' => $currentMoveOption->np_allowed_left,
-            'np_allowed_right' => $currentMoveOption->np_allowed_right]);
+            'np_allowed_right' => $currentMoveOption->np_allowed_right,
+        ]);
         
         if ($nextPosition2Positions->is_left || $nextPosition2Positions->is_curve) {
             $nextMoveOption->np_allowed_right = false;
@@ -116,6 +119,8 @@ class MovementLogic {
         if ($nextPosition2Positions->is_right || $nextPosition2Positions->is_curve) {
             $nextMoveOption->np_allowed_left = false;
         }
+        //TODO: process damages, if no damages, just make a copy in ->fo_damages
+        $nextMoveOption->fo_damages = $this->getNewDamages($currentMoveOption->fo_damages);
         return $nextMoveOption;
     }
     
@@ -148,7 +153,7 @@ class MovementLogic {
     
     private function compareDamages($damages1, $damages2) {
         $damages1 = collection($damages1);
-        $damages2 = colelction($damages2);
+        $damages2 = collection($damages2);
         //TODO: compare damages
         /*collection($damages1)->every(function($damage1) use $damages2 {
             return $damages2
@@ -156,15 +161,16 @@ class MovementLogic {
     }
     
     private function getBrakingOption(FoMoveOption $moveOption) {
-        $originalBrakeDamage = collection($moveOption->fo_damages ?? [])->
-                firstMatch(['fo_e_damage_type_id' => 3]);
+        $originalBrakeDamage = collection($moveOption->fo_damages)->
+                firstMatch(['fo_e_damage_type_id' => 3])->
+                wear_points;
         $carBrakeWearPoints = $this->FoDamages->find('all')->
                 where(['fo_car_id' => $moveOption->fo_car_id, 'fo_e_damage_type_id' => 3])->
                 select('wear_points')->
                 first()->wear_points;
         if ($carBrakeWearPoints <= $originalBrakeDamage + 1)    //can't add another brake damage
             return null;
-        //TODO: compare $originalBrakeDamage with car wear points!
+        
         $brakingOption = new FoMoveOption([
             'fo_car_id' => $moveOption->fo_car_id,
             'fo_position_id' => $moveOption->fo_position_id,
@@ -172,20 +178,44 @@ class MovementLogic {
             'np_allowed_left' => $moveOption->np_allowed_left,
             'np_allowed_right' => $moveOption->np_allowed_right,
         ]);
-        $brakingOption->fo_damages = collection([]);
-        if ($moveOption->fo_damages != null) {
-            foreach ($moveOption->fo_damages as $foDamage) {
-                if ($foDamage->fo_e_damage_type != 3)   //brakes
-                $brakingOption->fo_damages->appendItem(new FoDamage([
-                    'wear_points' => $foDamage->wear_points,
-                    'fo_e_damage_type_id' => $foDamage->fo_e_damage_type,
-                ]));
-            }
-        }
-        $brakingOption->fo_damages = $brakingOption->fo_damages->appendItem(new FoDamage([
-            'wear_points' => ($originalBrakeDamage ?? 0) + 1,
-            'fo_e_damage_type_id' => 3, //brakes
-        ]))->toList();
+        $brakingOption->fo_damages = $this->getNewDamages($moveOption->fo_damages, 3);
         return $brakingOption;
+    }
+    
+    private function getNewDamages($foDamages, $increaseDamageTypeId = null) {
+        $newFoDamages = collection([]);
+        foreach ($foDamages as $foDamage) {
+            $wearPoints = $foDamage->wear_points;
+            if ($increaseDamageTypeId != null &&
+                    $increaseDamageTypeId === $foDamage->fo_e_damage_type_id) {
+                $wearPoints++;
+            }
+            $newFoDamages =  $newFoDamages->appendItem(new FoDamage([
+                    'wear_points' => $wearPoints,
+                    'fo_e_damage_type_id' => $foDamage->fo_e_damage_type_id,
+                ]));
+        }
+        return $newFoDamages->toList();
+    }
+    
+    private function getZeroDamages($foEDamageTypeIds) {
+        if ($foEDamageTypeIds instanceof int) {
+            return [$this->getZeroDamage($foEDamageTypeIds)];
+        } else if (is_array($foEDamageTypeIds)) {
+            $foDamages = [];
+            foreach ($foEDamageTypeIds as $foEDamageTypeId) {
+                $foDamages[] = $this->getZeroDamage($foEDamageTypeId);
+            }
+            return $foDamages;
+        } else {
+            throw new InvalidArgumentException();
+        }
+    }
+    
+    private function getZeroDamage($foEDamageTypeId) {
+        return new FoDamage([
+            'wear_points' => 0,
+            'fo_e_damage_type_id' => $foEDamageTypeId,
+        ]);
     }
 }

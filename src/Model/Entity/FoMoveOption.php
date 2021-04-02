@@ -41,13 +41,14 @@ class FoMoveOption extends Entity
         'fo_damages' => true,
     ];
     
-    public static function getFirstMoveOption(int $fo_car_id, int $fo_position_id, int $movesLeft)
+    public static function getFirstMoveOption(int $fo_car_id, int $fo_position_id, int $movesLeft, $foDamages)
             : FoMoveOption {
         return new FoMoveOption(['fo_car_id' => $fo_car_id,
             'fo_position_id' => $fo_position_id,
             'np_moves_left' => $movesLeft,
             'np_allowed_left' => true,
             'np_allowed_right' => true,
+            'fo_damages' => $foDamages,
             ]);
     }
 }
