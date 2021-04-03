@@ -101,6 +101,7 @@ class FoMoveOptionsTable extends Table
             'np_allowed_right' => true,
             'np_overshooting' => false,
             'fo_damages' => $foDamages,
+            'np_traverse' => null,
             ]);
     }
 }

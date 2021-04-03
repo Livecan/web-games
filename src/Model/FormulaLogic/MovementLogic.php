@@ -67,12 +67,18 @@ class MovementLogic {
         $moveOptions = $this->adjustBrakeDamage($moveOptions);
         //TODO: check if tire damage doesn't exceed car available damage, when it does, remove the MoveOption
         //TODO: save the final options to db before returning
-        debug($moveOptions->reduce(function($accumulated, FoMoveOption $moveOption) {
+        $moveOptions = $moveOptions->filter(function($moveOption) {
+            return $this->isCarDamageOK($moveOption);
+        });
+        /*debug($moveOptions->reduce(function($accumulated, FoMoveOption $moveOption) {
             return $accumulated . $moveOption->fo_position_id . ": " .
                     collection($moveOption->fo_damages)->reduce(function($accumulated, FoDamage $foDamage) {
-                        return $accumulated . /*$foDamage->fo_e_damage_type_id . */"\t" . $foDamage->wear_points . ",";
+                        return $accumulated . "\t" . $foDamage->wear_points . ",";
                     }, "") . "\n";
-        }, ""));
+        }, ""));*/
+        
+        //debug($moveOptions->first()->np_traverse->np_traverse->np_traverse->np_traverse);
+        
         return $moveOptions->toList();
     }
     
@@ -113,7 +119,7 @@ class MovementLogic {
             toList();
     }
     
-    private function getNextPositionMoveOption(FoMoveOption $currentMoveOption, FoPosition2Position $nextPosition2Positions): FoMoveOption {
+    private function getNextPositionMoveOption(FoMoveOption $currentMoveOption, FoPosition2Position $nextPosition2Positions) {
         $nextMoveOption = new FoMoveOption(['fo_car_id' => $currentMoveOption->fo_car_id,
             'fo_position_id' => $nextPosition2Positions->fo_position_to_id,
             'fo_curve_id' => $currentMoveOption->fo_curve_id,
@@ -122,6 +128,7 @@ class MovementLogic {
             'np_allowed_left' => $currentMoveOption->np_allowed_left,
             'np_allowed_right' => $currentMoveOption->np_allowed_right,
             'np_overshooting' => $currentMoveOption->np_overshooting,
+            'np_traverse' => $currentMoveOption,
         ]);
         
         if ($nextPosition2Positions->is_left || $nextPosition2Positions->is_curve) {
@@ -137,12 +144,17 @@ class MovementLogic {
         collection($nextMoveOption->fo_damages)->firstMatch(['fo_e_damage_type_id' => 6])->   //Shocks damage
                 wear_points += $suspentionDamage;
         $nextMoveOption = $this->processCurveHandlingDamage($nextMoveOption);
-        return $nextMoveOption;
+        if ($this->isCarDamageOK($nextMoveOption)) {
+            return $nextMoveOption;
+        } else {
+            return null;
+        }
     }
     
     private function mergeMoveOptions(CollectionInterface $moveOptions, $moveOptions2) {
         if ($moveOptions->count() == 0) {
-            return collection($moveOptions2);
+            return collection($moveOptions2)->reject(
+                    function($moveOption2) { return $moveOption2 == null; });
         }
         
         foreach ($moveOptions2 as $moveOption2) {
@@ -152,7 +164,7 @@ class MovementLogic {
     }
     
     private function addUniqueMoveOption(CollectionInterface $moveOptions, FoMoveOption $moveOption2 = null) {
-        if ($moveOption2 === null) {
+        if ($moveOption2 == null) {
             return $moveOptions;
         }
         if ($moveOptions->every(function(FoMoveOption $_moveOption) use ($moveOption2) {
@@ -191,9 +203,13 @@ class MovementLogic {
         $brakingOption = new FoMoveOption([
             'fo_car_id' => $moveOption->fo_car_id,
             'fo_position_id' => $moveOption->fo_position_id,
+            'fo_curve_id' => $moveOption->fo_curve_id,
+            'stops' => $moveOption->stops,
+            'np_overshooting' => $moveOption->np_overshooting,
             'np_moves_left' => $moveOption->np_moves_left - 1,
             'np_allowed_left' => $moveOption->np_allowed_left,
             'np_allowed_right' => $moveOption->np_allowed_right,
+            'np_traverse' => $moveOption,
         ]);
         $brakingOption->fo_damages = $this->getDamagesCopy($moveOption->fo_damages);
         collection($brakingOption->fo_damages)->
@@ -279,6 +295,9 @@ class MovementLogic {
             $nextMoveOption->fo_curve_id = $nextPosition->fo_curve_id;
             $nextMoveOption->stops = -1;
             $nextMoveOption->np_overshooting = true;
+            collection($nextMoveOption->fo_damages)->
+                    firstMatch(['fo_e_damage_type_id' => 1])->   //tires damage
+                    wear_points++;
             return $nextMoveOption;
         }
         
@@ -296,5 +315,25 @@ class MovementLogic {
             }
         }
         return $moveOptions;
+    }
+    
+    private function isCarDamageOK(FoMoveOption $foMoveOption) {
+        $foCarDamages = collection($this->FoCars->get($foMoveOption->fo_car_id,
+                ['contain' => ['FoDamages']])
+                ->fo_damages);
+        
+        foreach ($foMoveOption->fo_damages as $foDamage) {
+            $foEDamageTypeId = $foDamage->fo_e_damage_type_id;
+            $carDamageWearPoints = $foCarDamages->
+                    firstMatch(['fo_e_damage_type_id' => $foEDamageTypeId])->wear_points;
+            if ($foEDamageTypeId == 1 && $carDamageWearPoints - $foDamage->wear_points < 0) {   //tire damage can drop to 0
+                return false;
+            }
+            if ($foEDamageTypeId != 1 && $carDamageWearPoints - $foDamage->wear_points <= 0) {  //other damages must not go under 0
+                return false;
+            }
+        }
+        
+        return true;
     }
 }
