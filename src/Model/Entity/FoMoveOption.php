@@ -11,12 +11,16 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property int $fo_car_id
  * @property int $fo_position_id
+ * @property int|null $fo_curve_id
+ * @property int|null $stops
  * @property int $np_moves_left
  * @property int $np_allowed_left
  * @property int $np_allowed_right
+ * @property bool $np_overshooting
  *
  * @property \App\Model\Entity\FoCar $fo_car
  * @property \App\Model\Entity\FoPosition $fo_position
+ * @property \App\Model\Entity\FoCurve $fo_curve
  * @property \App\Model\Entity\FoDamage[] $fo_damages
  */
 class FoMoveOption extends Entity
@@ -33,22 +37,15 @@ class FoMoveOption extends Entity
     protected $_accessible = [
         'fo_car_id' => true,
         'fo_position_id' => true,
+        'fo_curve_id' => true,
+        'stops' => true,
         'np_moves_left' => true,
         'np_allowed_left' => true,
-        'np_allowed_right' => true,    
+        'np_allowed_right' => true,
+        'np_overshooting' => true,
         'fo_car' => true,
         'fo_position' => true,
+        'fo_curve' => true,
         'fo_damages' => true,
     ];
-    
-    public static function getFirstMoveOption(int $fo_car_id, int $fo_position_id, int $movesLeft, $foDamages)
-            : FoMoveOption {
-        return new FoMoveOption(['fo_car_id' => $fo_car_id,
-            'fo_position_id' => $fo_position_id,
-            'np_moves_left' => $movesLeft,
-            'np_allowed_left' => true,
-            'np_allowed_right' => true,
-            'fo_damages' => $foDamages,
-            ]);
-    }
 }

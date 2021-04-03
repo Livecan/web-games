@@ -11,7 +11,6 @@ use App\Model\Entity\FoPosition2Position;
 use App\Model\Entity\FoDamage;
 use Cake\Database\Expression\QueryExpression;
 use Cake\Collection\CollectionInterface;
-use Cake\Collection\Collection;
 
 /**
  * Description of MovementLogic
@@ -27,6 +26,8 @@ class MovementLogic {
         $this->FoDamages = $this->getTableLocator()->get('FoDamages');
         $this->FoPosition2Positions = $this->getTableLocator()->get('FoPosition2Positions');
         $this->FoDebris = $this->getTableLocator()->get('FoDebris');
+        $this->FoMoveOptions = $this->getTableLocator()->get('FoMoveOptions');
+        $this->FoCurves = $this->getTableLocator()->get('FoCurves');
     }
     
     public function getAvailableMoves(FoCar $foCar, int $movesLeft) {
@@ -37,7 +38,7 @@ class MovementLogic {
                 ])];
         }
         
-        $moveOptions = collection([FoMoveOption::getFirstMoveOption(
+        $moveOptions = collection([$this->FoMoveOptions->getFirstMoveOption(
                 $foCar->id,
                 $foCar->fo_position_id,
                 $movesLeft,
@@ -58,20 +59,20 @@ class MovementLogic {
                     map(function($position2Positions) use ($currentMoveOption) {
                         return $this->getNextPositionMoveOption($currentMoveOption, $position2Positions);
                     })->toList();
-            /*TODO: add is_adjacent in db and add all the relations that are not there yet!!!
-            The is_left, is_straight, is_right and is_curve would be automatically included*/
             $moveOptions = $this->mergeMoveOptions($moveOptions, $nextPositionMoveOptions);
             $moveOptions = $this->addUniqueMoveOption($moveOptions, $this->getBrakingOption($currentMoveOption));
             $moveOptions = $moveOptions->sortBy('np_moves_left', SORT_DESC, SORT_NUMERIC);
         }
         //TODO: after this is finished, do drafting if conditions for drafting are met
+        //TODO: for final moves transfer brake damage that is higher than 3 to tires
+        //TODO: check if tire damage doesn't exceed car available damage, when it does, remove the MoveOption
         //TODO: save the final options to db before returning
-        /*debug($moveOptions->reduce(function($accumulated, FoMoveOption $moveOption) {
+        debug($moveOptions->reduce(function($accumulated, FoMoveOption $moveOption) {
             return $accumulated . $moveOption->fo_position_id . ": " .
                     collection($moveOption->fo_damages)->reduce(function($accumulated, FoDamage $foDamage) {
-                        return $accumulated . $foDamage->fo_e_damage_type_id . "-" . $foDamage->wear_points . ",";
-                    }, "");
-        }, ""));*/
+                        return $accumulated . /*$foDamage->fo_e_damage_type_id . */"\t" . $foDamage->wear_points . ",";
+                    }, "") . "\n";
+        }, ""));
         return $moveOptions->toList();
     }
     
@@ -115,9 +116,12 @@ class MovementLogic {
     private function getNextPositionMoveOption(FoMoveOption $currentMoveOption, FoPosition2Position $nextPosition2Positions): FoMoveOption {
         $nextMoveOption = new FoMoveOption(['fo_car_id' => $currentMoveOption->fo_car_id,
             'fo_position_id' => $nextPosition2Positions->fo_position_to_id,
+            'fo_curve_id' => $currentMoveOption->fo_curve_id,
+            'stops' => $currentMoveOption->stops,
             'np_moves_left' => ($currentMoveOption->np_moves_left - 1),
             'np_allowed_left' => $currentMoveOption->np_allowed_left,
             'np_allowed_right' => $currentMoveOption->np_allowed_right,
+            'np_overshooting' => $currentMoveOption->np_overshooting,
         ]);
         
         if ($nextPosition2Positions->is_left || $nextPosition2Positions->is_curve) {
@@ -132,7 +136,7 @@ class MovementLogic {
             count();
         collection($nextMoveOption->fo_damages)->firstMatch(['fo_e_damage_type_id' => 6])->   //Shocks damage
                 wear_points += $suspentionDamage;
-        //TODO: process tires damage (curve overshooting magic)
+        $nextMoveOption = $this->processCurveHandlingDamage($nextMoveOption);
         return $nextMoveOption;
     }
     
@@ -147,7 +151,7 @@ class MovementLogic {
         return $moveOptions;
     }
     
-    private function addUniqueMoveOption(CollectionInterface $moveOptions, FoMoveOption $moveOption2) {
+    private function addUniqueMoveOption(CollectionInterface $moveOptions, FoMoveOption $moveOption2 = null) {
         if ($moveOption2 === null) {
             return $moveOptions;
         }
@@ -179,8 +183,8 @@ class MovementLogic {
         $carBrakeWearPoints = $this->FoDamages->find('all')->
                 where(['fo_car_id' => $moveOption->fo_car_id, 'fo_e_damage_type_id' => 3])->
                 select('wear_points')->
-                first()->wear_points;
-        if ($carBrakeWearPoints <= $originalBrakeDamage + 1)    //can't add another brake damage
+                first()->wear_points; 
+       if ($carBrakeWearPoints >= 6 || $carBrakeWearPoints <= $originalBrakeDamage + 1)    //can't add another brake damage
             return null;
         
         $brakingOption = new FoMoveOption([
@@ -228,5 +232,55 @@ class MovementLogic {
             'wear_points' => 0,
             'fo_e_damage_type_id' => $foEDamageTypeId,
         ]);
+    }
+    
+    private function processCurveHandlingDamage(FoMoveOption $nextMoveOption) {
+        
+        $nextPosition = $this->FoPositions->get($nextMoveOption->fo_position_id,
+                ['contain' => ['FoCurves']]);
+        //entering a curve normally
+        if ($nextMoveOption->fo_curve_id == null && $nextPosition->fo_curve_id != null) {
+            $nextMoveOption->fo_curve_id = $nextPosition->fo_curve_id;
+            $nextMoveOption->stops = 0;
+            
+            return $nextMoveOption;
+        }
+        
+        //leaving a curve
+        if ($nextMoveOption->fo_curve_id != null && $nextPosition->fo_curve_id == null &&
+                !$nextMoveOption->np_overshooting) {
+            $foCurve = $this->FoCurves->get($nextMoveOption->fo_curve_id);
+            //leaving normally
+            if ($nextMoveOption->stops >= $foCurve->stops) {
+                $nextMoveOption->fo_curve_id = null;
+                $nextMoveOption->stops = null;
+                return $nextMoveOption;
+            }
+            //leaving skipping one stop
+            if ($nextMoveOption->stops + 1 == $foCurve->stops) {
+                collection($nextMoveOption->fo_damages)->
+                        firstMatch(['fo_e_damage_type_id' => 1])->   //tires damage
+                        wear_points++;
+                return $nextMoveOption;
+            }
+            //otherwise overshooting by more than one stop - invalid MoveOption
+            return null;
+        }
+        
+        //when overshooting the second curve within one turn - ivalid MoveOption
+        if ($nextPosition->fo_curve_id == null && $nextMoveOption->np_overshooting) {
+            return null;
+        }
+        
+        //when overshooting into the second curve within one turn
+        if ($nextMoveOption->fo_curve_id != null && $nextPosition->fo_curve_id != null &&
+                $nextMoveOption->fo_curve_id != $nextPosition->fo_curve_id) {
+            $nextMoveOption->fo_curve_id = $nextPosition->fo_curve_id;
+            $nextMoveOption->stops = -1;
+            $nextMoveOption->np_overshooting = true;
+            return $nextMoveOption;
+        }
+        
+        return $nextMoveOption;
     }
 }

@@ -13,6 +13,8 @@ use Cake\ORM\Entity;
  * @property int $user_id
  * @property int $lap
  * @property int|null $fo_position_id
+ * @property int|null $fo_curve_id
+ * @property int|null stops
  * @property int $gear
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
@@ -20,6 +22,7 @@ use Cake\ORM\Entity;
  * @property \App\Model\Entity\Game $game
  * @property \App\Model\Entity\User $user
  * @property \App\Model\Entity\FoPosition $fo_position
+ * @property \App\Model\Entity\FoCurve $fo_curve
  * @property \App\Model\Entity\FoDamage[] $fo_damages
  * @property \App\Model\Entity\FoLog[] $fo_logs
  * @property \App\Model\Entity\FoMoveOption[] $fo_move_options
@@ -40,12 +43,15 @@ class FoCar extends Entity
         'user_id' => true,
         'lap' => true,
         'fo_position_id' => true,
+        'fo_curve_id' => true,
+        'stops' => true,
         'gear' => true,
         'created' => true,
         'modified' => true,
         'game' => true,
         'user' => true,
         'fo_position' => true,
+        'fo_curve' =>true,
         'fo_damages' => true,
         'fo_logs' => true,
         'fo_move_options' => true,

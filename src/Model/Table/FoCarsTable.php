@@ -65,6 +65,9 @@ class FoCarsTable extends Table
         $this->belongsTo('FoPositions', [
             'foreignKey' => 'fo_position_id',
         ]);
+        $this->belongsTo('FoCurves', [
+            'foreignKey' => 'fo_curve_id',
+        ]);
         $this->hasMany('FoDamages', [
             'foreignKey' => 'fo_car_id',
         ]);
