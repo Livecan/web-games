@@ -64,7 +64,7 @@ class MovementLogic {
             $moveOptions = $moveOptions->sortBy('np_moves_left', SORT_DESC, SORT_NUMERIC);
         }
         //TODO: after this is finished, do drafting if conditions for drafting are met
-        //TODO: for final moves transfer brake damage that is higher than 3 to tires
+        $moveOptions = $this->adjustBrakeDamage($moveOptions);
         //TODO: check if tire damage doesn't exceed car available damage, when it does, remove the MoveOption
         //TODO: save the final options to db before returning
         debug($moveOptions->reduce(function($accumulated, FoMoveOption $moveOption) {
@@ -184,7 +184,8 @@ class MovementLogic {
                 where(['fo_car_id' => $moveOption->fo_car_id, 'fo_e_damage_type_id' => 3])->
                 select('wear_points')->
                 first()->wear_points; 
-       if ($carBrakeWearPoints >= 6 || $carBrakeWearPoints <= $originalBrakeDamage + 1)    //can't add another brake damage
+       if (($carBrakeWearPoints <= 3 && $carBrakeWearPoints <= $originalBrakeDamage + 1) ||
+               $originalBrakeDamage >= 6)    //can't add another brake damage
             return null;
         
         $brakingOption = new FoMoveOption([
@@ -282,5 +283,18 @@ class MovementLogic {
         }
         
         return $nextMoveOption;
+    }
+    
+    private function adjustBrakeDamage($moveOptions) {
+        foreach ($moveOptions as $moveOption) {
+            $foDamages = collection($moveOption->fo_damages);
+            $brakeDamage = $foDamages->firstMatch(['fo_e_damage_type_id' => 3]);
+            if ($brakeDamage->wear_points > 3) {  //brake damage
+                $foDamages->firstMatch(['fo_e_damage_type_id' => 1])->    //tire damage to increase
+                        wear_points += ($brakeDamage->wear_points - 3);
+                $brakeDamage->wear_points = 3;
+            }
+        }
+        return $moveOptions;
     }
 }
