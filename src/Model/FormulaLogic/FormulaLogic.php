@@ -4,7 +4,8 @@ declare(strict_types=1);
 namespace App\Model\FormulaLogic;
 
 use Cake\ORM\Locator\LocatorAwareTrait;
-use \Cake\ORM\Query;
+use Cake\ORM\Query;
+use Cake\ORM\Entity;
 
 /**
  * Description of FormulaLogic
@@ -74,11 +75,8 @@ class FormulaLogic {
                                 order(['user_id' => 'ASC', 'FoCars.id' => 'ASC']);
                     },
                     'FoCars.FoDamages' => function(Query $q) {
-                        return $q->select(['id', 'fo_car_id', 'wear_points'])->
+                        return $q->select(['id', 'fo_car_id', 'wear_points', 'fo_e_damage_type_id'])->
                                 order(['fo_e_damage_type_id' => 'ASC']);
-                    },
-                    'FoCars.FoDamages.FoEDamageTypes' => function(Query $q) {
-                        return $q->select(['id', 'name']);
                     },
                     'FoCars.FoPositions' => function(Query $q) {
                         return $q->select(['pos_x', 'pos_y', 'angle']);
@@ -87,7 +85,7 @@ class FormulaLogic {
                 select(['id', 'name', 'game_state_id'])->
                 where(['id' => $formulaGame->id])->
                 first();
-        $this->getActions($formulaGame, 3);   //TODO: remove, used for testing
+        $board->actions = $this->getActions($formulaGame, 3);   //TODO: remove, used for testing
         return $board;
     }
     
@@ -102,6 +100,8 @@ class FormulaLogic {
         if ($currentCar["user_id"] != $user_id) {
             return;
         }
+        
+        $actions = new Entity();
         
         $lastCarTurn = $this->FoLogs->
                 find('all')->
@@ -118,7 +118,9 @@ class FormulaLogic {
             } else {
                 $movesLeft = $this->FoCars->getNextMoveLength($currentCar);
             }
-            $availableMoves = $this->MovementLogic->getAvailableMoves($currentCar, $movesLeft);
+            $actions->type = "available_moves";
+            $actions->available_moves = $this->MovementLogic->getAvailableMoves($currentCar, $movesLeft);
         }
+        return $actions;
     }
 }
