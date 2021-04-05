@@ -51,7 +51,7 @@
                 );
         }
         return damageTdElements;
-    }
+    };
     var foInsertCarInfo = function(cars, users) {
         let carStatsTable = $("#carStatsTable").empty();
         for (let carIndex in cars) {
@@ -105,7 +105,7 @@
                 });
             $("#board").append(damageOptionsTableElement);
             for (let availableMove of availableMoves) {
-                availableMove["id"] = 123;  //TODO: remove when doing saving of the options
+                //availableMove["id"] = 123;  //TODO: remove when doing saving of the options
                 let moveOptionId = "move_option_" + availableMove["id"];
                 let damageOptionRowElement = $(document.createElement("tr"))
                         .attr("id", moveOptionId)

@@ -75,7 +75,8 @@ class FormulaLogic {
                                 order(['user_id' => 'ASC', 'FoCars.id' => 'ASC']);
                     },
                     'FoCars.FoDamages' => function(Query $q) {
-                        return $q->select(['id', 'fo_car_id', 'wear_points', 'fo_e_damage_type_id'])->
+                        return $q->whereNull(['fo_move_option_id'])->
+                                select(['id', 'fo_car_id', 'wear_points', 'fo_e_damage_type_id'])->
                                 order(['fo_e_damage_type_id' => 'ASC']);
                     },
                     'FoCars.FoPositions' => function(Query $q) {
