@@ -28,9 +28,11 @@
     }
     var foInsertCarsOnBoard = function(cars) {
         let carsElement = $("#formula_board");
+        $("#formula_board .car").remove();
         let radius = .8;
         for (let carIndex in cars) {
             let carElement = $(document.createElementNS("http://www.w3.org/2000/svg", "circle"))
+                    .addClass("car")
                     .attr("cx", cars[carIndex]["fo_position"]["pos_x"] / 1000 + "%")
                     .attr("cy", cars[carIndex]["fo_position"]["pos_y"] / 1000 + "%")
                     .attr("r", radius + "%")
@@ -86,11 +88,13 @@
                     .css("opacity", "65%");
             boardSvgElement.append(circle);
             boardSvgElement.on("click", "#" + moveElementId, function() {
-                    $("#damage_table_" + positionId).css("visibility", "visible")
+                    $(".damage_table").css("visibility", "hidden");
+                    $("#damage_table_" + positionId).css("visibility", "visible");
                 });
             
             let damageOptionsTableElement = $(document.createElement("table"))
                     .attr("id", "damage_table_" + positionId)
+                    .addClass("damage_table")
                     .css("display", "inline-block")
                     .css("position", "absolute")
                     .css("left", 0)
@@ -112,13 +116,19 @@
                         .addClass("damageOption");
                 $("#board").on("click", "#" + moveOptionId, function() {
                     $.post('<?= \Cake\Routing\Router::url(['controller' => 'Formula', 'action' => 'chooseMoveOption', $formulaGame->id]) ?>',
-                            { _csrfToken: csrfToken, game_id: gameId, move_option_id: availableMove["id"] });
+                            { _csrfToken: csrfToken, game_id: gameId, move_option_id: availableMove["id"] },
+                            foReloadBoard,
+                            "json");
                 });
                 damageOptionRowElement.append(foGetDamageTdElements(availableMove["fo_damages"]));
                 damageOptionsTableElement.append(damageOptionRowElement);
             }
         }
-    }
+    };
+    var foClearMoveOptions = function() {
+        $("#formula_board .move_option").remove();
+        $("#board .damage_table").remove();
+    };
     var foReloadBoard = function() {
         let url = '<?= \Cake\Routing\Router::url(
                 ['action' => 'getBoardUpdateJson', $formulaGame->id]) ?>';
@@ -128,6 +138,7 @@
             //alert(JSON.stringify(data["users"]));
             foInsertCarsOnBoard(data["fo_cars"]);
             foInsertCarInfo(data["fo_cars"], data["users"]);
+            foClearMoveOptions();
             if ("actions" in data) {
                 switch (data["actions"]["type"]) {
                     case ("available_moves"):
