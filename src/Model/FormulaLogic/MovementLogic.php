@@ -34,15 +34,26 @@ class MovementLogic {
         if ($movesLeft == 0) {
             return [new FoMoveOption(['fo_car_id' => $foCar->id,
                     'fo_position_id' => $foCar->fo_position_id,
-                    'fo_damages' => $this->getZeroDamages([1, 3, 6]),   //Tires, Brakes, Shocks
+                    'fo_damages' => $this->getZeroDamages($foCar->id, [1, 3, 6]),   //Tires, Brakes, Shocks
                 ])];
         }
-        
+        $savedMoveOptions = $this->FoMoveOptions->find('all')->
+                contain(['FoCars', 'FoPositions'])->
+                contain(['FoDamages' => function(Query $q) {
+                    return $q->select(['fo_move_option_id', 'fo_e_damage_type_id', 'wear_points']);
+                }])->
+                where(['FoCars.game_id' => $foCar->game_id])->
+                select($this->FoPositions)->
+                select($this->FoMoveOptions)->
+                toList();
+        if (count($savedMoveOptions) > 0) {
+            return $savedMoveOptions;
+        }
         $moveOptions = collection([$this->FoMoveOptions->getFirstMoveOption(
                 $foCar->id,
                 $foCar->fo_position_id,
                 $movesLeft,
-                $this->getZeroDamages([1, 3, 6]))]);    //Tires, Brakes, Shocks
+                $this->getZeroDamages($foCar->id, [1, 3, 6]))]);    //Tires, Brakes, Shocks
         while ($moveOptions->some(function($_moveOption) {
                 return $_moveOption->np_moves_left > 0; })) {
 
@@ -70,6 +81,8 @@ class MovementLogic {
         $moveOptions = $moveOptions->filter(function($moveOption) {
             return $this->isCarDamageOK($moveOption);
         });
+        
+        $this->FoMoveOptions->saveMany($moveOptions, ['associated' => ['FoDamages']]);
         /*debug($moveOptions->reduce(function($accumulated, FoMoveOption $moveOption) {
             return $accumulated . $moveOption->fo_position_id . ": " .
                     collection($moveOption->fo_damages)->reduce(function($accumulated, FoDamage $foDamage) {
@@ -232,6 +245,7 @@ class MovementLogic {
         foreach ($foDamages as $foDamage) {
             $wearPoints = $foDamage->wear_points;
             $newFoDamages =  $newFoDamages->appendItem(new FoDamage([
+                'fo_car_id' => $foDamage->fo_car_id,
                 'wear_points' => $wearPoints,
                 'fo_e_damage_type_id' => $foDamage->fo_e_damage_type_id,
             ]));
@@ -239,13 +253,13 @@ class MovementLogic {
         return $newFoDamages->toList();
     }
     
-    private function getZeroDamages($foEDamageTypeIds) {
+    private function getZeroDamages(int $foCarId, $foEDamageTypeIds) {
         if ($foEDamageTypeIds instanceof int) {
-            return [$this->getZeroDamage($foEDamageTypeIds)];
+            return [$this->getZeroDamage($foCarId, $foEDamageTypeIds)];
         } else if (is_array($foEDamageTypeIds)) {
             $foDamages = [];
             foreach ($foEDamageTypeIds as $foEDamageTypeId) {
-                $foDamages[] = $this->getZeroDamage($foEDamageTypeId);
+                $foDamages[] = $this->getZeroDamage($foCarId, $foEDamageTypeId);
             }
             return $foDamages;
         } else {
@@ -253,8 +267,9 @@ class MovementLogic {
         }
     }
     
-    private function getZeroDamage($foEDamageTypeId) {
+    private function getZeroDamage(int $foCarId, int $foEDamageTypeId) {
         return new FoDamage([
+            'fo_car_id' => $foCarId,
             'wear_points' => 0,
             'fo_e_damage_type_id' => $foEDamageTypeId,
         ]);
