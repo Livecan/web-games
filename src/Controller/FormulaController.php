@@ -67,4 +67,13 @@ class FormulaController extends AppController
             $this->redirect(['controller' => 'Games', 'action' => 'newGames']);
         }
     }
+    
+    public function chooseMoveOption($id)
+    {
+        $formulaGame = $this->FormulaGames->get($id, ['contain' => ['FoCars']]);
+        
+        $this->Authorization->authorize($formulaGame);
+        
+        $this->viewBuilder()->setOption('serialize', '');
+    }
 }

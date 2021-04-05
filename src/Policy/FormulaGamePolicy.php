@@ -50,4 +50,12 @@ class FormulaGamePolicy
                 function($player) use ($user) { return $player->id == $user->id; })
                 || $user->is_admin;
     }
+    
+    public function canChooseMoveOption(IdentityInterface $user, FormulaGame $formulaGame)
+    {
+        return $user->id == collection($formulaGame->fo_cars)->
+                filter(function($foCar) { return $foCar->order != null; })->
+                sortBy('order', SORT_ASC)->
+                first()->user_id;
+    }
 }
