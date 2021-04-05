@@ -45,7 +45,8 @@ class FormulaController extends AppController
         $this->Authorization->authorize($formulaGame);
         $formulaBoard;
         if ($this->request->is('get')) {
-            if ($formulaBoard = $this->Formula->getBoard($formulaGame)) {
+            if ($formulaBoard =
+                    $this->Formula->getBoard($formulaGame, $this->request->getAttribute("identity")->id)) {
                 $this->Flash->success(__('Board has been successfully retrieved.'));
             }
             $this->Flash->error(__('Error occurred while retrieving board. Please, try again.'));

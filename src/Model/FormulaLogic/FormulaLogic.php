@@ -63,7 +63,7 @@ class FormulaLogic {
         return $formulaGame;
     }
     
-    public function getBoard($formulaGame) {
+    public function getBoard($formulaGame, $user_id = null) {
         $board = $this->FormulaGames->
                 find('all')->
                 contain([
@@ -86,7 +86,7 @@ class FormulaLogic {
                 select(['id', 'name', 'game_state_id'])->
                 where(['id' => $formulaGame->id])->
                 first();
-        $board->actions = $this->getActions($formulaGame, 3);   //TODO: remove, used for testing
+        $board->actions = $this->getActions($formulaGame, $user_id);   //TODO: remove, used for testing
         return $board;
     }
     
