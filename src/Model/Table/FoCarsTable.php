@@ -70,6 +70,7 @@ class FoCarsTable extends Table
         ]);
         $this->hasMany('FoDamages', [
             'foreignKey' => 'fo_car_id',
+            'conditions' => 'fo_move_option_id IS NULL'
         ]);
         $this->hasMany('FoLogs', [
             'foreignKey' => 'fo_car_id',

@@ -7,6 +7,8 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use App\Model\FormulaLogic\DiceLogic;
+use App\Model\Entity\FoDamage;
 
 /**
  * FoDamages Model
@@ -64,6 +66,8 @@ class FoDamagesTable extends Table
             'foreignKey' => 'fo_e_damage_type_id',
             'joinType' => 'INNER',
         ]);
+        
+        $this->DiceLogic = new DiceLogic();
     }
 
     /**
@@ -101,5 +105,25 @@ class FoDamagesTable extends Table
         $rules->add($rules->existsIn(['fo_e_damage_type_id'], 'FoEDamageTypes'), ['errorField' => 'fo_e_damage_type_id']);
 
         return $rules;
+    }
+    
+    public function assignDamage($carDamages, FoDamage $damageToAssign, $badRoll = null) : int {
+        $damageWearPoints = 0;
+        if ($badRoll == null) {
+            $damageWearPoints = $damageToAssign->wear_points;
+        } else {
+            for ($i = 0; $i < $damageToAssign->wear_points; $i++) {
+                if ($this->DiceLogic->getRoll(0) <= $badRoll) {
+                    $damageWearPoints++;
+                }
+            }
+        }
+        
+        $carDamagesCollection = collection($carDamages);
+        $carDamagesCollection->
+                firstMatch(['fo_e_damage_type_id' => $damageToAssign->fo_e_damage_type_id])->
+                wear_point -= $damageToAssign->wear_points;
+        
+        return $damageWearPoints;
     }
 }

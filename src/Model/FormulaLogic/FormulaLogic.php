@@ -6,6 +6,9 @@ namespace App\Model\FormulaLogic;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\ORM\Query;
 use Cake\ORM\Entity;
+use App\Model\Entity\FormulaGame;
+use App\Model\Entity\FoDamage;
+use App\Model\Entity\FoLog;
 
 /**
  * Description of FormulaLogic
@@ -22,10 +25,11 @@ class FormulaLogic {
         $this->Users = $this->getTableLocator()->get('Users');
         $this->FormulaGames = $this->getTableLocator()->get('FormulaGames');
         $this->FoLogs = $this->getTableLocator()->get('FoLogs');
+        $this->FoMoveOptions = $this->getTableLocator()->get('FoMoveOptions');
         $this->MovementLogic = new MovementLogic();
     }
     
-    public function start($formulaGame) {
+    public function start(FormulaGame $formulaGame) {
         $formulaGame->fo_cars = collection($formulaGame->users)->map(function($user) use ($formulaGame) {
             $playerCarsLeft = $formulaGame->fo_game->cars_per_player;
             while ($playerCarsLeft-- > 0) {
@@ -63,7 +67,7 @@ class FormulaLogic {
         return $formulaGame;
     }
     
-    public function getBoard($formulaGame, $user_id = null) {
+    public function getBoard(FormulaGame $formulaGame, $user_id = null) {
         $board = $this->FormulaGames->
                 find('all')->
                 contain([
@@ -90,7 +94,7 @@ class FormulaLogic {
         return $board;
     }
     
-    public function getActions($formulaGame, $user_id) {
+    private function getActions(FormulaGame $formulaGame, $user_id) {
         $currentCar = $this->FoCars->
                 find('all')->
                 where(['game_id' => $formulaGame->id])->
@@ -123,5 +127,50 @@ class FormulaLogic {
             $actions->available_moves = $this->MovementLogic->getAvailableMoves($currentCar, $movesLeft);
         }
         return $actions;
+    }
+    
+    public function chooseMoveOption(FormulaGame $formulaGame, int $foMoveOptionId) {
+        $foMoveOption = $this->FoMoveOptions->get($foMoveOptionId, ['contain' => ['FoDamages', 'FoCars', 'FoCars.FoDamages']]);
+        $foCar = $foMoveOption->fo_car;
+        $foCar->fo_position_id = $foMoveOption->fo_position_id;
+        $foCar->fo_curve_id = $foMoveOption->fo_curve_id;
+        $foCar->stops = $foMoveOption->stops;
+        $foCar->order = null;
+        
+        $damagesSuffered = [];
+        
+        foreach ($foMoveOption->fo_damages as $foDamage) {
+            $damageSuffered;
+            switch ($foDamage->fo_e_damage_type_id) {
+                case (1):
+                case (3):   $damageSuffered = $this->FoDamages->assignDamage($foCar->fo_damages, $foDamage);
+                    break;
+                case (6):   $damageSuffered = $this->FoDamages->assignDamage($foCar->fo_damages, $foDamage, 4);
+                    break;
+            }
+            if ($damageSuffered > 0) {
+                $damagesSuffered[] = new FoDamage([
+                    'fo_e_damage_type_id' => $foDamage->fo_e_damage_type_id,
+                    'wear_points' => $damageSuffered,
+                ]);
+            }
+        }
+        
+        //TODO: figure out collisions here as well and how to store it, that it doesn't interfere with other data?
+            // maybe to create a new log line for all the other users as well?
+        
+        $foLog = $this->FoLogs->find('all')->
+                contain(['FoCars'])->
+                where(['FoCars.game_id' => $formulaGame->id])->
+                order(['FoLogs.id' => 'DESC'])->
+                first();
+        $foLog->fo_position_id = $foCar->fo_position_id;
+        $foLog->fo_damages = $damagesSuffered;
+        
+        //TODO: remove FoMoveOptions for this game
+        
+        //TODO: check if any car is retired and if tires at 0, get in 0-gear
+        
+        debug($foLog);
     }
 }

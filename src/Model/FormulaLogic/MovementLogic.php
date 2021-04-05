@@ -350,10 +350,13 @@ class MovementLogic {
             $foEDamageTypeId = $foDamage->fo_e_damage_type_id;
             $carDamageWearPoints = $foCarDamages->
                     firstMatch(['fo_e_damage_type_id' => $foEDamageTypeId])->wear_points;
-            if ($foEDamageTypeId == 1 && $carDamageWearPoints - $foDamage->wear_points < 0) {   //tire damage can drop to 0
+            if ($foEDamageTypeId == 1 && $carDamageWearPoints - $foDamage->wear_points < 0) {
+                //tire damage can drop to 0
                 return false;
             }
-            if ($foEDamageTypeId != 1 && $carDamageWearPoints - $foDamage->wear_points <= 0) {  //other damages must not go under 0
+            if ($foEDamageTypeId != 1 && $foEDamageTypeId != 6
+                    && $carDamageWearPoints - $foDamage->wear_points <= 0) {
+                //other damages must not go under 0, but shocks are rolled
                 return false;
             }
         }

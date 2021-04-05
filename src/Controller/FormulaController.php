@@ -47,9 +47,10 @@ class FormulaController extends AppController
         if ($this->request->is('get')) {
             if ($formulaBoard =
                     $this->Formula->getBoard($formulaGame, $this->request->getAttribute("identity")->id)) {
-                $this->Flash->success(__('Board has been successfully retrieved.'));
+                //$this->Flash->success(__('Board has been successfully retrieved.'));
+            } else {
+                $this->Flash->error(__('Error occurred while retrieving board. Please, try again.'));
             }
-            $this->Flash->error(__('Error occurred while retrieving board. Please, try again.'));
         }
         $this->set(compact('formulaBoard'));
         $this->viewBuilder()->setOption('serialize', 'formulaBoard');
@@ -61,7 +62,7 @@ class FormulaController extends AppController
         
         $this->Authorization->authorize($formulaGame);
         if ($this->request->is('get') && $formulaGame->game_state_id != 1) {
-                $this->Flash->success(__('Board has been successfully retrieved.'));
+                //$this->Flash->success(__('Board has been successfully retrieved.'));
                 $this->set(compact('formulaGame'));
         } else {
             $this->Flash->error(__('Error occurred while retrieving board. Please, try again.'));
@@ -74,6 +75,12 @@ class FormulaController extends AppController
         $formulaGame = $this->FormulaGames->get($id, ['contain' => ['FoCars']]);
         
         $this->Authorization->authorize($formulaGame);
+        if ($this->request->is('post') && $formulaGame->game_state_id == 2) {
+            $data = $this->request->getData();
+            $this->Formula->chooseMoveOption($formulaGame, intval($data["move_option_id"]));
+        } else {
+            $this->Flash->error(__('Invalid operation.'));
+        }
         
         $this->viewBuilder()->setOption('serialize', '');
     }
