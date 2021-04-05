@@ -17,7 +17,7 @@
     var foUserCarsColors = ["DarkRed", "Red", "DarkGreen", "LightGreen", "DarkBlue", "Blue", "DarkYellow", "Yellow"];
     var foDamageColors = ["SlateBlue", "SeaGreen", "Turquoise", "Tomato", "Orange", "Orchid"];
     var foDamageTypeClass = ["tires", "gearbox", "brakes", "engine", "chassis", "shocks"];
-    var gameId;
+    var gameId = <?= $formulaGame->id ?>;
     
     var elmtVisibilityToggle = function(element, visibility) {
         if (visibility) {
@@ -105,10 +105,17 @@
                 });
             $("#board").append(damageOptionsTableElement);
             for (let availableMove of availableMoves) {
-               let damageOptionRowElement = $(document.createElement("tr"))
-                       .addClass("damageOption");
-               damageOptionRowElement.append(foGetDamageTdElements(availableMove["fo_damages"]));
-               damageOptionsTableElement.append(damageOptionRowElement);
+                availableMove["id"] = 123;  //TODO: remove when doing saving of the options
+                let moveOptionId = "move_option_" + availableMove["id"];
+                let damageOptionRowElement = $(document.createElement("tr"))
+                        .attr("id", moveOptionId)
+                        .addClass("damageOption");
+                $("#board").on("click", "#" + moveOptionId, function() {
+                    $.post('<?= \Cake\Routing\Router::url(['controller' => 'Formula', 'action' => 'chooseMoveOption', $formulaGame->id]) ?>',
+                            { _csrfToken: csrfToken, game_id: gameId, move_option_id: availableMove["id"] });
+                });
+                damageOptionRowElement.append(foGetDamageTdElements(availableMove["fo_damages"]));
+                damageOptionsTableElement.append(damageOptionRowElement);
             }
         }
     }
@@ -119,7 +126,6 @@
             //alert(Object.keys(data["actions"]));
             //alert(JSON.stringify(data));
             //alert(JSON.stringify(data["users"]));
-            gameId = data["id"];
             foInsertCarsOnBoard(data["fo_cars"]);
             foInsertCarInfo(data["fo_cars"], data["users"]);
             if ("actions" in data) {
