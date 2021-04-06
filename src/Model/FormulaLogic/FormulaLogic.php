@@ -28,6 +28,7 @@ class FormulaLogic {
         $this->FoLogs = $this->getTableLocator()->get('FoLogs');
         $this->FoMoveOptions = $this->getTableLocator()->get('FoMoveOptions');
         $this->FoPosition2Positions = $this->getTableLocator()->get('FoPosition2Positions');
+        $this->FoMoveOptions = $this->getTableLocator()->get('FoMoveOptions');
         $this->MovementLogic = new MovementLogic();
     }
     
@@ -168,28 +169,42 @@ class FormulaLogic {
                         return $q->where(['is_adjacent' => true])->
                                 where(['OR' => ['fo_position_from_id' => $foPositionId,
                                     'fo_position_to_id' => $foPositionId]]);
-                }]))->filter(function(FoCar $collidedCar) use ($foCar) {
+                    }, 'FoDamages'])->
+                    where(['game_id' => $formulaGame->id]))->
+                filter(function(FoCar $collidedCar) use ($foCar) {
                     return $collidedCar->id != $foCar->id &&
                         ($collidedCar->fo_position->fo_position2_positions_from != null ||
                             $collidedCar->fo_position->fo_position2_positions_to != null);
                 })->toList();
-        
-        //TODO: figure out collisions here as well and how to store it, that it
-        //doesn't interfere with other data? maybe to create a new log line
-        //for all the other users as well?
-        
+        foreach ($collidedCars as $collidedCar) {
+            $this->FoDamages->assignDamageSimple($collidedCar->fo_damages,
+                    1, 5, 4, true);   //chassis damage
+            $damageSuffered = $this->FoDamages->assignDamageSimple(
+                    $foCar->fo_damages, 1, 5, 4, false);    //chassis damage
+            if ($damageSuffered > 0) {
+                $damagesSuffered[] = new FoDamage([
+                    'fo_e_damage_type_id' => 5,
+                    'wear_points' => $damageSuffered,
+                ]);
+            }
+        }
+        $foCar->setDirty('fo_damages', true);
+        $this->FoCars->save($foCar, ['associated' => ['FoDamages']]);
         $foLog = $this->FoLogs->find('all')->
                 contain(['FoCars'])->
-                where(['FoCars.game_id' => $formulaGame->id])->
+                where(['fo_car_id' => $foCar->id])->
                 order(['FoLogs.id' => 'DESC'])->
                 first();
         $foLog->fo_position_id = $foPositionId;
         $foLog->fo_damages = $damagesSuffered;
+        $foLog->setDirty('fo_damages', true);
+        $this->FoLogs->save($foLog, ['associated' => ['FoDamages']]);
         
-        //TODO: remove FoMoveOptions for this game
+        $moveOptionsToDelete = $this->FoMoveOptions->find('all')->
+                where(['fo_car_id' => $foCar->id])->
+                toList();
+        $this->FoMoveOptions->deleteMany($moveOptionsToDelete);
         
         //TODO: check if any car is retired and if tires at 0, get in 0-gear
-        
-        //debug($foLog);
     }
 }
