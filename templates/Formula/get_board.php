@@ -1,6 +1,6 @@
 <?php
 ?>
-<button onclick="foReloadBoard()">Refresh</button>  <!--TODO: <--remove the temporary button-->
+<button onclick="foReloadBoard()">Refresh</button>  <!--TODO: <--remove the temporary button and replace with reloading-->
 <div id="board" style="position: relative; width: 200%">    <!--//TODO: temporary width only-->
     <?= $this->Html->image('/img/formula/' . $formulaGame->fo_game->fo_track->game_plan,
             ['alt' => 'Formula track map']) ?>
@@ -17,6 +17,26 @@
     var foUserCarsColors = ["DarkRed", "Red", "DarkGreen", "LightGreen", "DarkBlue", "Blue", "DarkYellow", "Yellow"];
     var foDamageColors = ["SlateBlue", "SeaGreen", "Turquoise", "Tomato", "Orange", "Orchid"];
     var foDamageTypeClass = ["tires", "gearbox", "brakes", "engine", "chassis", "shocks"];
+    var foHandlerMoveOptionDamageDisplay = function(event) {
+        $(".damage_table").css("visibility", "hidden");
+        $("#damage_table_" + event.data.positionId).css("visibility", "visible");
+    };
+    var foHandlerMoveOptionDamageHide = function(event) {
+        $("#damage_table_" + event.data.positionId)
+                .css("visibility", "hidden");
+    };
+    var foHandlerChooseMoveOption = function(event) {
+        $.post('<?= \Cake\Routing\Router::url(['controller' => 'Formula', 'action' => 'chooseMoveOption', $formulaGame->id]) ?>',
+                { _csrfToken: csrfToken, game_id: gameId, move_option_id: event.data.availableMoveId },
+                foReloadBoard,
+                "json");
+    };
+    var foHandlerChooseGear = function(event) {
+        $.post('<?= \Cake\Routing\Router::url(['controller' => 'Formula', 'action' => 'chooseGear', $formulaGame->id]) ?>',
+            { _csrfToken: csrfToken, game_id: gameId, gear: event.data.gear },
+            foReloadBoard,
+            "json");
+    };
     var gameId = <?= $formulaGame->id ?>;
     
     var elmtVisibilityToggle = function(element, visibility) {
@@ -74,7 +94,7 @@
             function (availableMove) {
                 return availableMove["fo_position_id"];
         });
-        let radius = .8;    //TODO: there are overlapping positions, so group moveOptions by positions
+        let radius = .8;
         for (let positionId of Object.keys(availableMovesByPosition)) {
             let availableMoves = availableMovesByPosition[positionId];
             let moveElementId = "move_position_" + positionId;
@@ -87,10 +107,9 @@
                     .attr("fill", "purple")
                     .css("opacity", "65%");
             boardSvgElement.append(circle);
-            boardSvgElement.on("click", "#" + moveElementId, function() {
-                    $(".damage_table").css("visibility", "hidden");
-                    $("#damage_table_" + positionId).css("visibility", "visible");
-                });
+            boardSvgElement.on("click", "#" + moveElementId,
+                    { positionId: positionId },
+                    foHandlerMoveOptionDamageDisplay);
             
             let damageOptionsTableElement = $(document.createElement("table"))
                     .attr("id", "damage_table_" + positionId)
@@ -103,30 +122,25 @@
                     .append($(document.createElement("button"))
                             .attr("id", "button_" + positionId)
                             .html("Close options"));
-            $("#board").on("click", "#button_" + positionId, function() {
-                    $("#damage_table_" + positionId)
-                            .css("visibility", "hidden");
-                });
+            $("#board").on("click", "#button_" + positionId,
+                    { positionId: positionId },
+                    foHandlerMoveOptionDamageHide);
             $("#board").append(damageOptionsTableElement);
             for (let availableMove of availableMoves) {
-                //availableMove["id"] = 123;  //TODO: remove when doing saving of the options
                 let moveOptionId = "move_option_" + availableMove["id"];
                 let damageOptionRowElement = $(document.createElement("tr"))
                         .attr("id", moveOptionId)
                         .addClass("damageOption");
-                $("#board").on("click", "#" + moveOptionId, function() {
-                    $.post('<?= \Cake\Routing\Router::url(['controller' => 'Formula', 'action' => 'chooseMoveOption', $formulaGame->id]) ?>',
-                            { _csrfToken: csrfToken, game_id: gameId, move_option_id: availableMove["id"] },
-                            foReloadBoard,
-                            "json");
-                });
-                damageOptionRowElement.append(foGetDamageTdElements(availableMove["fo_damages"]));
+                $("#board").on("click", "#" + moveOptionId,
+                        { availableMoveId: availableMove["id"] },
+                        foHandlerChooseMoveOption);
+                damageOptionRowElement.append(
+                        foGetDamageTdElements(availableMove["fo_damages"]));
                 damageOptionsTableElement.append(damageOptionRowElement);
             }
         }
     };
     var foInsertGearChoice = function(actions) {
-        alert(JSON.stringify(actions));
         let gearsTable = $(document.createElement("table"))
                 .attr("id", "gears")
                 .css("position", "fixed")
@@ -136,36 +150,30 @@
                 .css("width", "auto");
         $("#board").append(gearsTable);
         gearsTable.append(
-            _.map(actions["available_gears"], function(num) {
-                let gearId = "gear_" + num;
-                $("#board").on("click", "#" + gearId, function() {
-                    $.post('<?= \Cake\Routing\Router::url(['controller' => 'Formula', 'action' => 'chooseGear', $formulaGame->id]) ?>',
-                        { _csrfToken: csrfToken, game_id: gameId, gear: num },
-                        foReloadBoard,
-                        "json");
-                });
+            _.map(actions["available_gears"], function(gear) {
+                let gearId = "gear_" + gear;
+                $("#board").on("click", "#" + gearId, { gear: gear }, foHandlerChooseGear);
                 return $(document.createElement("tr"))
                         .attr("id", gearId)
-                        .html(num);
+                        .html(gear);
             })
         );
         
     };
-    var foClearMoveOptions = function() {
+    var foClearOptions = function() {
         $("#formula_board .move_option").remove();
         $("#board .damage_table").remove();
-        $("#board #gears").remove();
+        $("#gears").remove();
+        $("#board").off();
+        $("#formula_board").off();
     };
     var foReloadBoard = function() {
         let url = '<?= \Cake\Routing\Router::url(
                 ['action' => 'getBoardUpdateJson', $formulaGame->id]) ?>';
         $.getJSON(url, function(data) {
-            //alert(Object.keys(data["actions"]));
-            //alert(JSON.stringify(data));
-            //alert(JSON.stringify(data["users"]));
             foInsertCarsOnBoard(data["fo_cars"]);
             foInsertCarInfo(data["fo_cars"], data["users"]);
-            foClearMoveOptions();
+            foClearOptions();
             if ("actions" in data) {
                 switch (data["actions"]["type"]) {
                     case ("choose_move"):
