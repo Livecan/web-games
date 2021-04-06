@@ -110,16 +110,20 @@ class FoLogsTable extends Table
     
     public function logGameStart($formulaCars) {
         collection($formulaCars)->each(function(FoCar $formulaCar) {
-            $foLog = $this->save(
-                    $this->newEntity(['fo_car_id' => $formulaCar->id,
+            $logDamages = collection($formulaCar->fo_damages)->
+                    map(function(FoDamage $damage) {
+                        return new FoDamage([
+                            'fo_e_damage_type_id' => $damage->fo_e_damage_type_id,
+                            'wear_points' => $damage->wear_points,
+                        ]);
+                })->toList();
+            $foLog = new FoLog(['fo_car_id' => $formulaCar->id,
                         'fo_position_id' => $formulaCar->fo_position_id,
                         'gear' => $formulaCar->gear,
-                        'type' => 'I']));
-            $formulaCar->fo_damages = collection($formulaCar->fo_damages)->
-                    map(function(FoDamage $damage) use ($foLog) {
-                        $damage->fo_log_id = $foLog->id;
-                        return $this->FoDamages->save($damage);
-            })->toList();
+                        'type' => 'I',
+                        'fo_damages' => $logDamages,
+                ]);
+            $foLog = $this->save($foLog, ['associated' => ['FoDamages']]);
         });
     }
     

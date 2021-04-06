@@ -34,7 +34,7 @@ class MovementLogic {
         if ($movesLeft == 0) {
             return [new FoMoveOption(['fo_car_id' => $foCar->id,
                     'fo_position_id' => $foCar->fo_position_id,
-                    'fo_damages' => $this->getZeroDamages($foCar->id, [1, 3, 6]),   //Tires, Brakes, Shocks
+                    'fo_damages' => $this->getZeroDamages([1, 3, 6]),   //Tires, Brakes, Shocks
                 ])];
         }
         $savedMoveOptions = $this->FoMoveOptions->find('all')->
@@ -53,7 +53,7 @@ class MovementLogic {
                 $foCar->id,
                 $foCar->fo_position_id,
                 $movesLeft,
-                $this->getZeroDamages($foCar->id, [1, 3, 6]))]);    //Tires, Brakes, Shocks
+                $this->getZeroDamages([1, 3, 6]))]);    //Tires, Brakes, Shocks
         while ($moveOptions->some(function($_moveOption) {
                 return $_moveOption->np_moves_left > 0; })) {
 
@@ -62,6 +62,7 @@ class MovementLogic {
             $moveOptions = $moveOptions->reject(function($value, $key) { return $key === 0; });
             
             $position2Positions = $this->getNextAvailablePositions(
+                    $foCar->game_id,
                     $currentMoveOption->fo_position_id,
                     $currentMoveOption->np_allowed_left,
                     $currentMoveOption->np_allowed_right);
@@ -104,15 +105,16 @@ class MovementLogic {
         })->toList();
     }
     
-    private function getNextAvailablePositions(int $fo_position_id, bool $is_allowed_left = true, bool $is_allowed_right = true) {
+    private function getNextAvailablePositions(int $game_id, int $fo_position_id, bool $is_allowed_left = true, bool $is_allowed_right = true) {
         //following returns all the possible next moves, excluding fields where other cars are
         $query = $this->FoPosition2Positions->find('all')-> 
                 contain([
                     'FoPositionTo' => function(Query $q) {
                         return $q->select('id');
                     },
-                    'FoPositionTo.FoCars' => function(Query $q) {
-                        return  $q->select('fo_position_id');
+                    'FoPositionTo.FoCars' => function(Query $q) use ($game_id) {
+                        return  $q->where(['game_id' => $game_id])->
+                                select('fo_position_id');
                     },
                 ])->
                 select(['fo_position_to_id', 'is_left', 'is_straight', 'is_right', 'is_curve', 'is_pitlane_move'])->
@@ -253,13 +255,13 @@ class MovementLogic {
         return $newFoDamages->toList();
     }
     
-    private function getZeroDamages(int $foCarId, $foEDamageTypeIds) {
+    private function getZeroDamages($foEDamageTypeIds) {
         if ($foEDamageTypeIds instanceof int) {
-            return [$this->getZeroDamage($foCarId, $foEDamageTypeIds)];
+            return [$this->getZeroDamage($foEDamageTypeIds)];
         } else if (is_array($foEDamageTypeIds)) {
             $foDamages = [];
             foreach ($foEDamageTypeIds as $foEDamageTypeId) {
-                $foDamages[] = $this->getZeroDamage($foCarId, $foEDamageTypeId);
+                $foDamages[] = $this->getZeroDamage($foEDamageTypeId);
             }
             return $foDamages;
         } else {
@@ -267,9 +269,8 @@ class MovementLogic {
         }
     }
     
-    private function getZeroDamage(int $foCarId, int $foEDamageTypeId) {
+    private function getZeroDamage(int $foEDamageTypeId) {
         return new FoDamage([
-            'fo_car_id' => $foCarId,
             'wear_points' => 0,
             'fo_e_damage_type_id' => $foEDamageTypeId,
         ]);

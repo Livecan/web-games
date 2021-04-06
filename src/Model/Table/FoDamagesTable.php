@@ -3,12 +3,14 @@ declare(strict_types=1);
 
 namespace App\Model\Table;
 
+use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
 use App\Model\FormulaLogic\DiceLogic;
 use App\Model\Entity\FoDamage;
+use App\Model\Entity\FoLog;
 
 /**
  * FoDamages Model
@@ -34,8 +36,8 @@ use App\Model\Entity\FoDamage;
  *
  * @mixin \Cake\ORM\Behavior\TimestampBehavior
  */
-class FoDamagesTable extends Table
-{
+class FoDamagesTable extends Table {
+    use LocatorAwareTrait;
     /**
      * Initialize method
      *
@@ -54,7 +56,6 @@ class FoDamagesTable extends Table
 
         $this->belongsTo('FoCars', [
             'foreignKey' => 'fo_car_id',
-            'joinType' => 'INNER',
         ]);
         $this->belongsTo('FoMoveOptions', [
             'foreignKey' => 'fo_move_option_id',
@@ -67,6 +68,7 @@ class FoDamagesTable extends Table
             'joinType' => 'INNER',
         ]);
         
+        $this->FoLogs = $this->getTableLocator()->get('FoLogs');
         $this->DiceLogic = new DiceLogic();
     }
 
@@ -114,7 +116,7 @@ class FoDamagesTable extends Table
                 $badRoll);
     }
     
-    public function assignDamageSimple($carDamages, int $wearPoints, int $foEDamageTypeId, $badRoll = null) : int {
+    public function assignDamageSimple($carDamages, int $wearPoints, int $foEDamageTypeId, $badRoll = null, $save = false) : int {
         $damageWearPoints = 0;
         if ($badRoll == null) {
             $damageWearPoints = $wearPoints;
@@ -126,10 +128,26 @@ class FoDamagesTable extends Table
             }
         }
         
-        $carDamagesCollection = collection($carDamages);
-        $carDamagesCollection->
-                firstMatch(['fo_e_damage_type_id' => $foEDamageTypeId])->
-                wear_point -= $wearPoints;
+        if ($damageWearPoints > 0) {
+            $updatedDamage = collection($carDamages)->
+                    firstMatch(['fo_e_damage_type_id' => $foEDamageTypeId]);
+            $updatedDamage->wear_points -= $damageWearPoints;
+
+            if ($save) {
+                $this->save($updatedDamage);
+                $foLog = new FoLog([
+                    'fo_car_id' => $updatedDamage->fo_car_id,
+                    'type' => 'D',
+                    'fo_damages' => [
+                        new FoDamage([
+                            'fo_e_damage_type_id' => $foEDamageTypeId,
+                            'wear_points' => $damageWearPoints,
+                        ])
+                    ],
+                ]);
+                $this->FoLogs->save($foLog, ['associated' => ['FoDamages']]);
+            }
+        }
         
         return $damageWearPoints;
     }
