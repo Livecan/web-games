@@ -93,17 +93,20 @@ class FormulaLogic {
                 select(['id', 'name', 'game_state_id'])->
                 where(['id' => $formulaGame->id])->
                 first();
-        $board->actions = $this->getActions($formulaGame, $user_id);   //TODO: remove, used for testing
+        $actions = $this->getActions($formulaGame, $user_id);
+        if ($actions != null) {
+            $board->actions = $actions;
+        }
         return $board;
     }
     
     private function getActions(FormulaGame $formulaGame, $user_id) {
-        $currentCar = $this->FoCars->
-                find('all')->
-                where(['game_id' => $formulaGame->id])->
-                whereNotNull('order')->
-                order(['order' => 'ASC'])->
-                first();
+        
+        $currentCar = $this->FoCars->getNextCar($formulaGame->id);
+        if ($currentCar == null) {
+            $this->FoCars->generateCarOrder($formulaGame->id);
+            $currentCar = $this->FoCars->getNextCar($formulaGame->id);
+        }
         
         if ($currentCar["user_id"] != $user_id) {
             return;
@@ -129,13 +132,18 @@ class FormulaLogic {
             $actions->type = "available_moves";
             $actions->available_moves = $this->MovementLogic->getAvailableMoves($currentCar, $movesLeft);
         }
+        $lastCarTurn;
+        if ($lastCarTurn != null && $lastCarTurn['fo_position_id'] != null) {
+            $actions->type = "choose gear";
+            $actions->current_gear = $currentCar->gear;
+        }
         return $actions;
     }
     
     public function chooseMoveOption(FormulaGame $formulaGame, int $foMoveOptionId) {
         $foMoveOption = $this->FoMoveOptions->get($foMoveOptionId, ['contain' => ['FoDamages', 'FoCars', 'FoCars.FoDamages']]);
         $foCar = $foMoveOption->fo_car;
-        $foPositionId = $foMoveOption->fo_position_id;  //TODO: replace retrieving position via entity by this variable
+        $foPositionId = $foMoveOption->fo_position_id;
         $foCar->fo_position_id = $foPositionId;
         $foCar->fo_curve_id = $foMoveOption->fo_curve_id;
         $foCar->stops = $foMoveOption->stops;

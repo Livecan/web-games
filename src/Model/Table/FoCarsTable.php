@@ -167,4 +167,12 @@ class FoCarsTable extends Table
         $this->FoLogs->logRoll($foCar, $roll, 'M');
         return $roll;
     }
+    
+    public function getNextCar(int $game_id) : ?FoCar {
+        return $this->find('all')->
+                where(['game_id' => $game_id])->
+                whereNotNull('order')->
+                order(['order' => 'ASC'])->
+                first();
+    }
 }
