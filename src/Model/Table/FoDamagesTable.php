@@ -108,11 +108,18 @@ class FoDamagesTable extends Table
     }
     
     public function assignDamage($carDamages, FoDamage $damageToAssign, $badRoll = null) : int {
+        return $this->assignDamageSimple($carDamages,
+                $damageToAssign->wear_points,
+                $damageToAssign->fo_e_damage_type_id,
+                $badRoll);
+    }
+    
+    public function assignDamageSimple($carDamages, int $wearPoints, int $foEDamageTypeId, $badRoll = null) : int {
         $damageWearPoints = 0;
         if ($badRoll == null) {
-            $damageWearPoints = $damageToAssign->wear_points;
+            $damageWearPoints = $wearPoints;
         } else {
-            for ($i = 0; $i < $damageToAssign->wear_points; $i++) {
+            for ($i = 0; $i < $wearPoints; $i++) {
                 if ($this->DiceLogic->getRoll(0) <= $badRoll) {
                     $damageWearPoints++;
                 }
@@ -121,8 +128,8 @@ class FoDamagesTable extends Table
         
         $carDamagesCollection = collection($carDamages);
         $carDamagesCollection->
-                firstMatch(['fo_e_damage_type_id' => $damageToAssign->fo_e_damage_type_id])->
-                wear_point -= $damageToAssign->wear_points;
+                firstMatch(['fo_e_damage_type_id' => $foEDamageTypeId])->
+                wear_point -= $wearPoints;
         
         return $damageWearPoints;
     }

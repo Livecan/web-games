@@ -23,6 +23,8 @@ use Cake\ORM\Entity;
  * @property \App\Model\Entity\FoDebri[] $fo_debris
  * @property \App\Model\Entity\FoLog[] $fo_logs
  * @property \App\Model\Entity\FoMoveOption[] $fo_move_options
+ * @property \App\Model\Entity\FoPosition2Position $fo_position2_positions_from
+ * @property \App\Model\Entity\FoPosition2Position $fo_position2_positions_to
  */
 class FoPosition extends Entity
 {
@@ -49,5 +51,7 @@ class FoPosition extends Entity
         'fo_debris' => true,
         'fo_logs' => true,
         'fo_move_options' => true,
+        'fo_position2_positions_from' => true,
+        'fo_position2_positions_to' => true,
     ];
 }

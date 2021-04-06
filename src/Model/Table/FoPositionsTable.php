@@ -67,6 +67,14 @@ class FoPositionsTable extends Table
         $this->hasMany('FoMoveOptions', [
             'foreignKey' => 'fo_position_id',
         ]);
+        $this->hasMany('FoPosition2PositionsFrom', [
+            'className' => 'FoPosition2Positions',
+            'foreignKey' => 'fo_position_from_id',
+        ]);
+        $this->hasMany('FoPosition2PositionsTo', [
+            'className' => 'FoPosition2Positions',
+            'foreignKey' => 'fo_position_to_id',
+        ]);
     }
 
     /**

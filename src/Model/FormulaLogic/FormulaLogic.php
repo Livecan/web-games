@@ -9,6 +9,7 @@ use Cake\ORM\Entity;
 use App\Model\Entity\FormulaGame;
 use App\Model\Entity\FoDamage;
 use App\Model\Entity\FoLog;
+use App\Model\Entity\FoCar;
 
 /**
  * Description of FormulaLogic
@@ -26,6 +27,7 @@ class FormulaLogic {
         $this->FormulaGames = $this->getTableLocator()->get('FormulaGames');
         $this->FoLogs = $this->getTableLocator()->get('FoLogs');
         $this->FoMoveOptions = $this->getTableLocator()->get('FoMoveOptions');
+        $this->FoPosition2Positions = $this->getTableLocator()->get('FoPosition2Positions');
         $this->MovementLogic = new MovementLogic();
     }
     
@@ -132,7 +134,8 @@ class FormulaLogic {
     public function chooseMoveOption(FormulaGame $formulaGame, int $foMoveOptionId) {
         $foMoveOption = $this->FoMoveOptions->get($foMoveOptionId, ['contain' => ['FoDamages', 'FoCars', 'FoCars.FoDamages']]);
         $foCar = $foMoveOption->fo_car;
-        $foCar->fo_position_id = $foMoveOption->fo_position_id;
+        $foPositionId = $foMoveOption->fo_position_id;  //TODO: replace retrieving position via entity by this variable
+        $foCar->fo_position_id = $foPositionId;
         $foCar->fo_curve_id = $foMoveOption->fo_curve_id;
         $foCar->stops = $foMoveOption->stops;
         $foCar->order = null;
@@ -156,21 +159,37 @@ class FormulaLogic {
             }
         }
         
-        //TODO: figure out collisions here as well and how to store it, that it doesn't interfere with other data?
-            // maybe to create a new log line for all the other users as well?
+        $collidedCars = collection($this->FoCars->find('all')->
+                    contain(['FoPositions.FoPosition2PositionsFrom' => function(Query $q) use ($foPositionId) {
+                        return $q->where(['is_adjacent' => true])->
+                                where(['OR' => ['fo_position_from_id' => $foPositionId,
+                                    'fo_position_to_id' => $foPositionId]]);
+                    }, 'FoPositions.FoPosition2PositionsTo' => function(Query $q) use ($foPositionId) {
+                        return $q->where(['is_adjacent' => true])->
+                                where(['OR' => ['fo_position_from_id' => $foPositionId,
+                                    'fo_position_to_id' => $foPositionId]]);
+                }]))->filter(function(FoCar $collidedCar) use ($foCar) {
+                    return $collidedCar->id != $foCar->id &&
+                        ($collidedCar->fo_position->fo_position2_positions_from != null ||
+                            $collidedCar->fo_position->fo_position2_positions_to != null);
+                })->toList();
+        
+        //TODO: figure out collisions here as well and how to store it, that it
+        //doesn't interfere with other data? maybe to create a new log line
+        //for all the other users as well?
         
         $foLog = $this->FoLogs->find('all')->
                 contain(['FoCars'])->
                 where(['FoCars.game_id' => $formulaGame->id])->
                 order(['FoLogs.id' => 'DESC'])->
                 first();
-        $foLog->fo_position_id = $foCar->fo_position_id;
+        $foLog->fo_position_id = $foPositionId;
         $foLog->fo_damages = $damagesSuffered;
         
         //TODO: remove FoMoveOptions for this game
         
         //TODO: check if any car is retired and if tires at 0, get in 0-gear
         
-        debug($foLog);
+        //debug($foLog);
     }
 }

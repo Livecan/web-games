@@ -17,6 +17,7 @@ use Cake\ORM\Entity;
  * @property bool $is_curve
  * @property bool $is_equal_distance
  * @property bool $is_pitlane_move
+ * @property bool $is_adjacent
  * 
  * @property \App\Model\Entity\FoPosition $fo_position_from
  * @property \App\Model\Entity\FoPosition $fo_position_to
@@ -41,6 +42,7 @@ class FoPosition2Position extends Entity
         'is_curve' => true,
         'is_equal_distance' => true,
         'is_pitlane_move' => true,
+        'is_adjacent' => true,
         'fo_position_from' => true,
         'fo_position_to' => true,
     ];

@@ -92,6 +92,10 @@ class FoPosition2PositionsTable extends Table
             ->boolean('is_pitlane_move')
             ->notEmptyString('is_pitlane_move');
 
+        $validator
+            ->boolean('is_adjacent')
+            ->notEmptyString('is_adjacent');
+
         return $validator;
     }
 
