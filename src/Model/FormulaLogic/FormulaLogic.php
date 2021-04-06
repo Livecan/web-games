@@ -129,13 +129,19 @@ class FormulaLogic {
             } else {
                 $movesLeft = $this->FoCars->getNextMoveLength($currentCar);
             }
-            $actions->type = "available_moves";
+            $actions->type = "choose_move";
             $actions->available_moves = $this->MovementLogic->getAvailableMoves($currentCar, $movesLeft);
         }
         $lastCarTurn;
         if ($lastCarTurn != null && $lastCarTurn['fo_position_id'] != null) {
-            $actions->type = "choose gear";
+            $actions->type = "choose_gear";
             $actions->current_gear = $currentCar->gear;
+            $actions->available_gears = [];
+            for ($availableGear = max(1, $currentCar->gear - 4);
+                    $availableGear <= min(6, $currentCar->gear + 1);
+                    $availableGear++) {
+                $actions->available_gears[] = $availableGear;
+            }
         }
         return $actions;
     }

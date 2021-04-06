@@ -125,9 +125,36 @@
             }
         }
     };
+    var foInsertGearChoice = function(actions) {
+        alert(JSON.stringify(actions));
+        let gearsTable = $(document.createElement("table"))
+                .attr("id", "gears")
+                .css("position", "fixed")
+                .css("left", "30px")
+                .css("bottom", "20px")
+                .css("background-color", "white")
+                .css("width", "auto");
+        $("#board").append(gearsTable);
+        gearsTable.append(
+            _.map(actions["available_gears"], function(num) {
+                let gearId = "gear_" + num;
+                $("#board").on("click", "#" + gearId, function() {
+                    $.post('<?= \Cake\Routing\Router::url(['controller' => 'Formula', 'action' => 'chooseGear', $formulaGame->id]) ?>',
+                        { _csrfToken: csrfToken, game_id: gameId, gear: num },
+                        foReloadBoard,
+                        "json");
+                });
+                return $(document.createElement("tr"))
+                        .attr("id", gearId)
+                        .html(num);
+            })
+        );
+        
+    };
     var foClearMoveOptions = function() {
         $("#formula_board .move_option").remove();
         $("#board .damage_table").remove();
+        $("#board #gears").remove();
     };
     var foReloadBoard = function() {
         let url = '<?= \Cake\Routing\Router::url(
@@ -141,8 +168,11 @@
             foClearMoveOptions();
             if ("actions" in data) {
                 switch (data["actions"]["type"]) {
-                    case ("available_moves"):
+                    case ("choose_move"):
                         foInsertAvailableOptions(data["actions"]["available_moves"]);
+                        break;
+                    case ("choose_gear"):
+                        foInsertGearChoice(data["actions"]);
                         break;
                 }
             }
