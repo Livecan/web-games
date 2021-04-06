@@ -151,7 +151,7 @@ class FoCarsTable extends Table
         if ($foCar->gear == -1) { //processing start
             $blackDiceRoll = $this->DiceLogic->getRoll(0);
             $this->FoLogs->logRoll($foCar, $blackDiceRoll, 'I');
-            if ($blackDiceRoll < 5) {   //slow start
+            if ($blackDiceRoll == 1) {   //slow start
                 $foCar->gear = 0;
                 $this->save($foCar);
                 return 0;
