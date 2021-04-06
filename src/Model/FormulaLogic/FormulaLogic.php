@@ -8,8 +8,9 @@ use Cake\ORM\Query;
 use Cake\ORM\Entity;
 use App\Model\Entity\FormulaGame;
 use App\Model\Entity\FoDamage;
-use App\Model\Entity\FoLog;
+use App\Model\FormulaLogic\DiceLogic;
 use App\Model\Entity\FoCar;
+use App\Model\Entity\FoLog;
 
 /**
  * Description of FormulaLogic
@@ -29,6 +30,7 @@ class FormulaLogic {
         $this->FoMoveOptions = $this->getTableLocator()->get('FoMoveOptions');
         $this->FoPosition2Positions = $this->getTableLocator()->get('FoPosition2Positions');
         $this->FoMoveOptions = $this->getTableLocator()->get('FoMoveOptions');
+        $this->DiceLogic = new DiceLogic();
         $this->MovementLogic = new MovementLogic();
     }
     
@@ -71,7 +73,7 @@ class FormulaLogic {
     }
     
     public function getBoard(FormulaGame $formulaGame, $user_id = null) {
-        $board = $this->FormulaGames->
+        $board = $this->FormulaGames->  //TODO: retrieve Debris as well!
                 find('all')->
                 contain([
                     'Users' => function(Query $q) {
@@ -220,5 +222,26 @@ class FormulaLogic {
         $this->FoMoveOptions->deleteMany($moveOptionsToDelete);
         
         //TODO: check if any car is retired and if tires at 0, get in 0-gear
+    }
+    
+    public function chooseGear(FormulaGame $formulaGame, int $gear) {
+        $currentCar = collection($formulaGame->fo_cars)->
+                reject(function(FoCar $foCar) {
+                    return $foCar->order == null;
+                })->
+                sortBy('order', SORT_ASC)->
+                first();
+        if ($gear < max($currentCar->gear - 4, 1) || $gear > min($currentCar->gear + 1, 6)) {
+            return;
+        }
+        $currentCar->gear = $gear;
+        $foLog = new FoLog([
+            'fo_car_id' => $currentCar->id,
+            'gear' => $gear,
+            'roll' => $this->DiceLogic->getRoll($gear),
+            'type' => 'M',
+        ]); //TODO: deal damages when downshifting too much!
+        $this->FoCars->save($currentCar);
+        $this->FoLogs->save($foLog);
     }
 }

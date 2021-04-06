@@ -84,4 +84,19 @@ class FormulaController extends AppController
         
         $this->viewBuilder()->setOption('serialize', '');
     }
+    
+    public function chooseGear($id)
+    {
+        $formulaGame = $this->FormulaGame->get($id, ['contain' => ['FoCars']]);
+        
+        $this->Authorization->authorize($formulaGame);
+        if ($this->request->is('post') && $formulaGame->game_state_id == 2) {
+            $data = $this->request->getData();
+            $this->Formula->chooseGear($formulaGame, intval($data["gear"]));
+        } else {
+            $this->Flash->error(__('Invalid operation.'));
+        }
+        
+        $this->viewBuilder()->setOption('serialize', '');
+    }
 }

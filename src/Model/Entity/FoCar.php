@@ -16,6 +16,7 @@ use Cake\ORM\Entity;
  * @property int|null $fo_curve_id
  * @property int|null stops
  * @property int $gear
+ * @property int $order
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
  *
@@ -46,6 +47,7 @@ class FoCar extends Entity
         'fo_curve_id' => true,
         'stops' => true,
         'gear' => true,
+        'order' => true,
         'created' => true,
         'modified' => true,
         'game' => true,

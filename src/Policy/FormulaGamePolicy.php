@@ -58,4 +58,12 @@ class FormulaGamePolicy
                 sortBy('order', SORT_ASC)->
                 first()->user_id;
     }
+    
+    public function canChooseGear(IdentityInterface $user, FormulaGame $formulaGame)
+    {
+        return $user->id == collection($formulaGame->fo_cars)->
+                filter(function($foCar) { return $foCar->order != null; })->
+                sortBy('order', SORT_ASC)->
+                first()->user_id;
+    }
 }
