@@ -10,7 +10,7 @@ namespace App\Model\FormulaLogic;
  */
 class DiceLogic {
     
-    private $dice = [   //TODO: adjust these according to the real dice
+    private $dice = [
         0 => [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18 ,19, 20, ],  //black
         1 => [1, 2, ],  //yellow - gear 1
         2 => [2, 3, 3, 4, 4, 4, ],  //orange - gear 2
