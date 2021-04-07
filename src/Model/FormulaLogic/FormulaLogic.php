@@ -5,6 +5,7 @@ namespace App\Model\FormulaLogic;
 
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\ORM\Query;
+use Cake\I18n\Time;
 use Cake\ORM\Entity;
 use App\Model\Entity\FormulaGame;
 use App\Model\Entity\FoDamage;
@@ -72,7 +73,18 @@ class FormulaLogic {
         return $formulaGame;
     }
     
-    public function getBoard(FormulaGame $formulaGame, $user_id = null) {
+    public function getBoard(FormulaGame $formulaGame, $user_id = null, Time $modifiedDateParam = null) {
+        $foLogLastModified = $this->FoLogs->find('all')->
+                contain(['FoCars'])->
+                where(['FoCars.game_id' => $formulaGame->id])->
+                order(['FoLogs.modified' => 'DESC'])->
+                select(['FoLogs.modified'])->
+                first();
+        $modified = $foLogLastModified != null ? $foLogLastModified->modified : new Time();
+        if ($modifiedDateParam != null && $modifiedDateParam >= $modified) {
+            return new Entity(['has_updated' => false]);
+        }
+        
         $board = $this->FormulaGames->
                 find('all')->
                 contain([
@@ -105,6 +117,8 @@ class FormulaLogic {
         if ($actions != null) {
             $board->actions = $actions;
         }
+        $board->modified = $modified;
+        $board->has_updated = true;
         return $board;
     }
     

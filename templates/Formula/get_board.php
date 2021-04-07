@@ -38,6 +38,7 @@
             "json");
     };
     var gameId = <?= $formulaGame->id ?>;
+    var modified;
     
     var elmtVisibilityToggle = function(element, visibility) {
         if (visibility) {
@@ -115,10 +116,12 @@
                     .attr("id", "damage_table_" + positionId)
                     .addClass("damage_table")
                     .css("display", "inline-block")
-                    .css("position", "absolute")
-                    .css("left", 0)
-                    .css("top", 0)
+                    .css("position", "fixed")
+                    .css("left", "20px")
+                    .css("top", "20px")
                     .css("visibility", "hidden")
+                    .css("background-color", "white")
+                    .css("width", "auto")
                     .append($(document.createElement("button"))
                             .attr("id", "button_" + positionId)
                             .html("Close options"));
@@ -172,25 +175,29 @@
     var foReloadBoard = function() {
         let url = '<?= \Cake\Routing\Router::url(
                 ['action' => 'getBoardUpdateJson', $formulaGame->id]) ?>';
-        $.getJSON(url, function(data) {
-            foRemoveMoveOptions();
-            foRemoveEventHandlers();
-            foInsertCarsOnBoard(data["fo_cars"]);
-            foInsertCarInfo(data["fo_cars"], data["users"]);
-            //TODO: display debris as well
-            if ("actions" in data) {
-                switch (data["actions"]["type"]) {
-                    case ("choose_move"):
-                        foInsertAvailableOptions(data["actions"]["available_moves"]);
-                        break;
-                    case ("choose_gear"):
-                        foInsertGearChoice(data["actions"]);
-                        break;
+        $.getJSON(url, {modified: modified}, function(data) {
+            if (data["has_updated"]) {
+                modified = data["modified"];
+                foRemoveMoveOptions();
+                foRemoveEventHandlers();
+                foInsertCarsOnBoard(data["fo_cars"]);
+                foInsertCarInfo(data["fo_cars"], data["users"]);
+                //TODO: display debris as well
+                if ("actions" in data) {
+                    switch (data["actions"]["type"]) {
+                        case ("choose_move"):
+                            foInsertAvailableOptions(data["actions"]["available_moves"]);
+                            break;
+                        case ("choose_gear"):
+                            foInsertGearChoice(data["actions"]);
+                            break;
+                    }
                 }
             }
         });
     };
     $(document).ready(function() {
         foReloadBoard();
+        setInterval(foReloadBoard, 1000);
     });
 </script>

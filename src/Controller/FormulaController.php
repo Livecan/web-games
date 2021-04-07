@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use Cake\I18n\Time;
+
 /**
  * Formula Controller
  *
@@ -45,10 +47,14 @@ class FormulaController extends AppController
         $this->Authorization->authorize($formulaGame);
         $formulaBoard;
         if ($this->request->is('get')) {
-            if ($formulaBoard =
-                    $this->Formula->getBoard($formulaGame, $this->request->getAttribute("identity")->id)) {
-                //$this->Flash->success(__('Board has been successfully retrieved.'));
-            } else {
+            
+            $modifiedDateQueryParam = $this->request->getQuery('modified');
+            $modifiedDate = $modifiedDateQueryParam == null ? null : 
+                    new Time($modifiedDateQueryParam);
+            $formulaBoard = $this->Formula->getBoard($formulaGame,
+                            $this->request->getAttribute("identity")->id,
+                            $modifiedDate);
+            if ($formulaBoard == null) {
                 $this->Flash->error(__('Error occurred while retrieving board. Please, try again.'));
             }
         }
@@ -62,8 +68,7 @@ class FormulaController extends AppController
         
         $this->Authorization->authorize($formulaGame);
         if ($this->request->is('get') && $formulaGame->game_state_id != 1) {
-                //$this->Flash->success(__('Board has been successfully retrieved.'));
-                $this->set(compact('formulaGame'));
+            $this->set(compact('formulaGame'));
         } else {
             $this->Flash->error(__('Error occurred while retrieving board. Please, try again.'));
             $this->redirect(['controller' => 'Games', 'action' => 'newGames']);
