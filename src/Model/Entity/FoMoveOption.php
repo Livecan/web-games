@@ -18,6 +18,7 @@ use Cake\ORM\Entity;
  * @property int $np_allowed_right
  * @property bool $np_overshooting
  * @property string $np_traverse
+ * @property int $np_overtaking
  *
  * @property \App\Model\Entity\FoCar $fo_car
  * @property \App\Model\Entity\FoPosition $fo_position
@@ -44,6 +45,7 @@ class FoMoveOption extends Entity
         'np_allowed_left' => true,
         'np_allowed_right' => true,
         'np_overshooting' => true,
+        'np_overtaking' => true,
         'fo_car' => true,
         'fo_position' => true,
         'fo_curve' => true,
