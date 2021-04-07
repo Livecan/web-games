@@ -160,20 +160,24 @@
         );
         
     };
-    var foClearOptions = function() {
+    var foRemoveMoveOptions = function() {
         $("#formula_board .move_option").remove();
         $("#board .damage_table").remove();
         $("#gears").remove();
+    };
+    var foRemoveEventHandlers = function() {
         $("#board").off();
         $("#formula_board").off();
-    };
+    }
     var foReloadBoard = function() {
         let url = '<?= \Cake\Routing\Router::url(
                 ['action' => 'getBoardUpdateJson', $formulaGame->id]) ?>';
         $.getJSON(url, function(data) {
+            foRemoveMoveOptions();
+            foRemoveEventHandlers();
             foInsertCarsOnBoard(data["fo_cars"]);
             foInsertCarInfo(data["fo_cars"], data["users"]);
-            foClearOptions();
+            //TODO: display debris as well
             if ("actions" in data) {
                 switch (data["actions"]["type"]) {
                     case ("choose_move"):
