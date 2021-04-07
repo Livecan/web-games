@@ -77,8 +77,7 @@ class MovementLogic {
         }
         //TODO: after this is finished, do drafting if conditions for drafting are met
         $moveOptions = $this->adjustBrakeDamage($moveOptions);
-        //TODO: check if tire damage doesn't exceed car available damage, when it does, remove the MoveOption
-        //TODO: save the final options to db before returning
+        
         $moveOptions = $moveOptions->filter(function($moveOption) {
             return $this->isCarDamageOK($moveOption);
         });
@@ -197,7 +196,7 @@ class MovementLogic {
                     $_moveOption->np_allowed_left != $moveOption2->np_allowed_left ||
                     $_moveOption->np_allowed_right != $moveOption2->np_allowed_right ||
                     $_moveOption->np_moves_left != $moveOption2->np_moves_left ||
-                    !$this->compareDamages($_moveOption->fo_damages, $moveOption2->fo_damages); //TODO: compare also damages
+                    !$this->compareDamages($_moveOption->fo_damages, $moveOption2->fo_damages);
         })) {
             return $moveOptions->appendItem($moveOption2);
         } else {

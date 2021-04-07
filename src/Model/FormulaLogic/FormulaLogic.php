@@ -248,8 +248,9 @@ class FormulaLogic {
             'gear' => $gear,
             'roll' => $this->DiceLogic->getRoll($gear),
             'type' => 'M',
-        ]); //TODO: deal damages when downshifting too much!
+        ]);
         $this->FoCars->save($currentCar);
+        //damage for too much downshifting:
         $foLog->fo_damages = $this->FoDamages->processGearChangeDamage($currentCar, $gearDiff);
         $this->FoLogs->save($foLog, ['associated' => ['FoDamages']]);
     }
