@@ -93,7 +93,7 @@ class MovementLogic {
         
         //debug($moveOptions->first()->np_traverse->np_traverse->np_traverse->np_traverse);
         
-        return $moveOptions->each(function(FoMoveOption $moveOption) {
+        $moveOptions->each(function(FoMoveOption $moveOption) {
             unset($moveOption->np_traverse);
             unset($moveOption->np_allowed_left);
             unset($moveOption->np_allowed_right);
@@ -102,7 +102,8 @@ class MovementLogic {
             $moveOption->stops++;
             $moveOption->fo_position =
                     $this->FoPositions->get($moveOption->fo_position_id);
-        })->toList();
+        });
+        return $moveOptions->toList();
     }
     
     private function getNextAvailablePositions(int $game_id, int $fo_position_id, bool $is_allowed_left = true, bool $is_allowed_right = true) {

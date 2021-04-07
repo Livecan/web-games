@@ -11,6 +11,8 @@ use Cake\Validation\Validator;
 use App\Model\FormulaLogic\DiceLogic;
 use App\Model\Entity\FoDamage;
 use App\Model\Entity\FoLog;
+use App\Model\Entity\FoCar;
+use Cake\Collection\CollectionInterface;
 
 /**
  * FoDamages Model
@@ -150,5 +152,37 @@ class FoDamagesTable extends Table {
         }
         
         return $damageWearPoints;
+    }
+    
+    /**
+     * 
+     * @param CollectionInterface $foCarDamages
+     * @param int $foEDamageTypeId
+     * 
+     * @return FoDamage damage that was dealt to the car for FoLog
+     */    
+    private function processDamage(CollectionInterface $foCarDamages, $foEDamageTypeId) {
+        $foCarDamages->firstMatch(['fo_e_damage_type_id' => $foEDamageTypeId])
+            ->wear_points--;
+        return new FoDamage([
+            'fo_e_damage_type_id' => $foEDamageTypeId,
+            'wear_points' => 1,
+        ]);
+    }
+    
+    public function processGearChangeDamage(FoCar $foCar, int $gearDiff) {
+        $foLogDamages = [];
+        $carDamages = collection($foCar->fo_damages);
+        switch ($gearDiff) {
+            case (-4):  //engine damage
+                $foLogDamages[] = $this->processDamage($carDamages, 4);
+            case (-3):  //brakes damage
+                $foLogDamages[] = $this->processDamage($carDamages, 3);
+            case (-2):  //gearbox damage
+                $foLogDamages[] = $this->processDamage($carDamages, 2);
+                break;
+        }
+        $this->saveMany($carDamages->toList());
+        return $foLogDamages;
     }
 }

@@ -73,7 +73,7 @@ class FormulaLogic {
     }
     
     public function getBoard(FormulaGame $formulaGame, $user_id = null) {
-        $board = $this->FormulaGames->  //TODO: retrieve Debris as well!
+        $board = $this->FormulaGames->
                 find('all')->
                 contain([
                     'Users' => function(Query $q) {
@@ -89,6 +89,12 @@ class FormulaLogic {
                                 order(['fo_e_damage_type_id' => 'ASC']);
                     },
                     'FoCars.FoPositions' => function(Query $q) {
+                        return $q->select(['pos_x', 'pos_y', 'angle']);
+                    },
+                    'FoDebris' => function(Query $q) {
+                        return $q->select(['game_id', 'fo_position_id']);
+                    },
+                    'FoDebris.FoPositions' => function(Query $q) {
                         return $q->select(['pos_x', 'pos_y', 'angle']);
                     }
                     ])->
@@ -154,7 +160,7 @@ class FormulaLogic {
         $foPositionId = $foMoveOption->fo_position_id;
         $foCar->fo_position_id = $foPositionId;
         $foCar->fo_curve_id = $foMoveOption->fo_curve_id;
-        $foCar->stops = $foMoveOption->stops;
+        $foCar->stops = $foMoveOption->stops + 1;
         $foCar->order = null;
         
         $damagesSuffered = [];
@@ -234,6 +240,8 @@ class FormulaLogic {
         if ($gear < max($currentCar->gear - 4, 1) || $gear > min($currentCar->gear + 1, 6)) {
             return;
         }
+        $currentCar = $this->FoCars->get($currentCar->id, ['contain' => ['FoDamages']]);
+        $gearDiff = $gear - $currentCar->gear;
         $currentCar->gear = $gear;
         $foLog = new FoLog([
             'fo_car_id' => $currentCar->id,
@@ -242,6 +250,7 @@ class FormulaLogic {
             'type' => 'M',
         ]); //TODO: deal damages when downshifting too much!
         $this->FoCars->save($currentCar);
-        $this->FoLogs->save($foLog);
+        $foLog->fo_damages = $this->FoDamages->processGearChangeDamage($currentCar, $gearDiff);
+        $this->FoLogs->save($foLog, ['associated' => ['FoDamages']]);
     }
 }
