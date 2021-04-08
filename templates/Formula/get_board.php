@@ -1,24 +1,22 @@
 <?php
+    $this->Html->css('formula-game/formula-game', ['block' => true]);
 ?>
 <button onclick="foReloadBoard()">Refresh</button>  <!--TODO: <--remove the temporary button and replace with reloading-->
-<div id="board" style="position: relative; width: 200%">    <!--//TODO: temporary width only-->
+<div id="board">    <!--//TODO: temporary width only-->
     <?= $this->Html->image('/img/formula/' . $formulaGame->fo_game->fo_track->game_plan,
             ['alt' => 'Formula track map']) ?>
-    <svg id="formula_board" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;" />
+    <svg id="formula_board" />
 </div>
-<div class="carStats" onmouseenter="elmtVisibilityToggle(this, false)" 
-     onmouseleave="elmtVisibilityToggle(this, true)"
-     style="position: fixed; right: 20px; bottom: 20px; opacity: .9;
-     transition-property: opacity; transition-duration: .5s;">
-    <table id="carStatsTable" style="background-color: white; color: black; font-weight: bold">
+<div id="car_stats" onmouseenter="elmtVisibilityToggle(this, false)" 
+     onmouseleave="elmtVisibilityToggle(this, true)">
+    <table id="car_stats_table" class="damage_table">
     </table>
 </div>
 <script>
     var foUserCarsColors = ["DarkRed", "Red", "DarkGreen", "LightGreen", "DarkBlue", "Blue", "DarkYellow", "Yellow"];
-    var foDamageColors = ["SlateBlue", "SeaGreen", "Turquoise", "Tomato", "Orange", "Orchid"];
     var foDamageTypeClass = ["tires", "gearbox", "brakes", "engine", "chassis", "shocks"];
     var foHandlerMoveOptionDamageDisplay = function(event) {
-        $(".damage_table").css("visibility", "hidden");
+        $(".move_option_damage").css("visibility", "hidden");
         $("#damage_table_" + event.data.positionId).css("visibility", "visible");
     };
     var foHandlerMoveOptionDamageHide = function(event) {
@@ -69,14 +67,13 @@
                 $(document.createElement("td"))
                     .addClass("damage")
                     .addClass(foDamageTypeClass[damage["fo_e_damage_type_id"] - 1])
-                    .css("background-color", foDamageColors[damage["fo_e_damage_type_id"] - 1])
                     .html(damage["wear_points"])
                 );
         }
         return damageTdElements;
     };
     var foInsertCarInfo = function(cars, users) {
-        let carStatsTable = $("#carStatsTable").empty();
+        let carStatsTable = $("#car_stats_table").empty();
         for (let carIndex in cars) {
             let car = cars[carIndex];
             let carStatRow = $(document.createElement("tr"));
@@ -114,14 +111,8 @@
             
             let damageOptionsTableElement = $(document.createElement("table"))
                     .attr("id", "damage_table_" + positionId)
+                    .addClass("move_option_damage")
                     .addClass("damage_table")
-                    .css("display", "inline-block")
-                    .css("position", "fixed")
-                    .css("left", "20px")
-                    .css("top", "20px")
-                    .css("visibility", "hidden")
-                    .css("background-color", "white")
-                    .css("width", "auto")
                     .append($(document.createElement("button"))
                             .attr("id", "button_" + positionId)
                             .html("Close options"));
