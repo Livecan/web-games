@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Apr 09, 2021 at 12:40 PM
+-- Generation Time: Apr 10, 2021 at 07:20 PM
 -- Server version: 5.7.26
 -- PHP Version: 7.3.21
 
@@ -159,7 +159,7 @@ CREATE TABLE IF NOT EXISTS `fo_cars` (
   `game_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `lap` int(11) NOT NULL DEFAULT '0',
-  `fo_position_id` int(11) NOT NULL,
+  `fo_position_id` int(11) DEFAULT NULL,
   `gear` int(11) NOT NULL DEFAULT '-1' COMMENT '1-6 - actual gear\r\n-1 - start\r\n0 - is used if for any reason next turn needs to be in 1st gear',
   `order` int(11) DEFAULT NULL COMMENT 'Player order in the current turn, when the player finished turn, it''s NULL.',
   `fo_curve_id` int(11) DEFAULT NULL,
@@ -173,7 +173,15 @@ CREATE TABLE IF NOT EXISTS `fo_cars` (
   KEY `lap` (`lap`),
   KEY `order` (`order`),
   KEY `fo_curve_id` (`fo_curve_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=71 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+--
+-- Dumping data for table `fo_cars`
+--
+
+INSERT INTO `fo_cars` (`id`, `game_id`, `user_id`, `lap`, `fo_position_id`, `gear`, `order`, `fo_curve_id`, `stops`, `created`, `modified`) VALUES
+(71, 60, 1, 0, NULL, -1, NULL, NULL, NULL, '2021-04-10 19:18:20', '2021-04-10 19:18:20'),
+(72, 60, 1, 0, NULL, -1, NULL, NULL, NULL, '2021-04-10 19:18:20', '2021-04-10 19:18:20');
 
 -- --------------------------------------------------------
 
@@ -232,7 +240,25 @@ CREATE TABLE IF NOT EXISTS `fo_damages` (
   KEY `fo_e_damage_type_id` (`fo_e_damage_type_id`),
   KEY `created` (`created`),
   KEY `modified` (`modified`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+--
+-- Dumping data for table `fo_damages`
+--
+
+INSERT INTO `fo_damages` (`id`, `fo_car_id`, `fo_move_option_id`, `fo_log_id`, `wear_points`, `fo_e_damage_type_id`, `created`, `modified`) VALUES
+(1, 71, NULL, NULL, 6, 1, '2021-04-10 19:18:20', '2021-04-10 19:18:20'),
+(2, 71, NULL, NULL, 3, 2, '2021-04-10 19:18:20', '2021-04-10 19:18:20'),
+(3, 71, NULL, NULL, 3, 3, '2021-04-10 19:18:20', '2021-04-10 19:18:20'),
+(4, 71, NULL, NULL, 3, 4, '2021-04-10 19:18:20', '2021-04-10 19:18:20'),
+(5, 71, NULL, NULL, 3, 5, '2021-04-10 19:18:20', '2021-04-10 19:18:20'),
+(6, 71, NULL, NULL, 3, 6, '2021-04-10 19:18:20', '2021-04-10 19:18:20'),
+(7, 72, NULL, NULL, 6, 1, '2021-04-10 19:18:20', '2021-04-10 19:18:20'),
+(8, 72, NULL, NULL, 3, 2, '2021-04-10 19:18:20', '2021-04-10 19:18:20'),
+(9, 72, NULL, NULL, 3, 3, '2021-04-10 19:18:20', '2021-04-10 19:18:20'),
+(10, 72, NULL, NULL, 3, 4, '2021-04-10 19:18:20', '2021-04-10 19:18:20'),
+(11, 72, NULL, NULL, 3, 5, '2021-04-10 19:18:20', '2021-04-10 19:18:20'),
+(12, 72, NULL, NULL, 3, 6, '2021-04-10 19:18:20', '2021-04-10 19:18:20');
 
 -- --------------------------------------------------------
 
@@ -291,11 +317,39 @@ CREATE TABLE IF NOT EXISTS `fo_games` (
   `game_id` int(11) NOT NULL,
   `fo_track_id` int(11) NOT NULL,
   `cars_per_player` int(11) NOT NULL DEFAULT '1' COMMENT 'Number of cars each player will get',
+  `wear_points` int(11) NOT NULL DEFAULT '21',
+  `laps` int(11) NOT NULL DEFAULT '2',
+  `pit_rule_id` int(11) DEFAULT NULL,
   `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `game_id` (`game_id`),
   KEY `track_id` (`fo_track_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+--
+-- Dumping data for table `fo_games`
+--
+
+INSERT INTO `fo_games` (`id`, `game_id`, `fo_track_id`, `cars_per_player`, `wear_points`, `laps`, `pit_rule_id`, `created`) VALUES
+(22, 42, 1, 1, 21, 2, NULL, '2021-04-10 20:30:39'),
+(23, 43, 1, 1, 21, 2, NULL, '2021-04-10 18:31:52'),
+(24, 44, 1, 1, 21, 2, NULL, '2021-04-10 18:32:01'),
+(25, 45, 1, 1, 21, 2, NULL, '2021-04-10 18:33:27'),
+(26, 46, 1, 1, 21, 2, NULL, '2021-04-10 18:41:17'),
+(27, 47, 1, 1, 21, 2, NULL, '2021-04-10 18:41:30'),
+(28, 48, 1, 1, 21, 2, NULL, '2021-04-10 18:48:16'),
+(29, 49, 1, 1, 21, 2, NULL, '2021-04-10 18:55:05'),
+(30, 50, 1, 1, 21, 2, NULL, '2021-04-10 18:55:28'),
+(31, 51, 1, 1, 21, 2, NULL, '2021-04-10 18:56:47'),
+(32, 52, 1, 1, 21, 2, NULL, '2021-04-10 18:57:49'),
+(33, 53, 1, 1, 21, 2, NULL, '2021-04-10 18:58:09'),
+(34, 54, 1, 1, 21, 2, NULL, '2021-04-10 19:13:30'),
+(35, 55, 1, 1, 21, 2, NULL, '2021-04-10 19:13:36'),
+(36, 56, 1, 1, 21, 2, NULL, '2021-04-10 19:15:45'),
+(37, 57, 1, 1, 21, 2, NULL, '2021-04-10 19:15:45'),
+(38, 58, 1, 1, 21, 2, NULL, '2021-04-10 19:16:14'),
+(39, 59, 1, 2, 21, 2, NULL, '2021-04-10 19:17:33'),
+(40, 60, 1, 2, 21, 2, NULL, '2021-04-10 19:18:20');
 
 -- --------------------------------------------------------
 
@@ -2241,6 +2295,8 @@ DROP TABLE IF EXISTS `games`;
 CREATE TABLE IF NOT EXISTS `games` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(30) COLLATE utf8_bin NOT NULL,
+  `min_players` int(11) DEFAULT NULL,
+  `max_players` int(11) DEFAULT NULL,
   `creator_id` int(11) NOT NULL,
   `game_state_id` int(11) NOT NULL DEFAULT '1',
   `game_type_id` int(11) NOT NULL,
@@ -2250,7 +2306,33 @@ CREATE TABLE IF NOT EXISTS `games` (
   KEY `game_state_id` (`game_state_id`),
   KEY `creator_id` (`creator_id`),
   KEY `game_type_id` (`game_type_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+--
+-- Dumping data for table `games`
+--
+
+INSERT INTO `games` (`id`, `name`, `min_players`, `max_players`, `creator_id`, `game_state_id`, `game_type_id`, `created`, `modified`) VALUES
+(41, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 18:28:18', '2021-04-10 18:28:18'),
+(42, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 18:28:37', '2021-04-10 18:28:37'),
+(43, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 18:31:52', '2021-04-10 18:31:52'),
+(44, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 18:32:01', '2021-04-10 18:32:01'),
+(45, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 18:33:27', '2021-04-10 18:33:27'),
+(46, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 18:41:17', '2021-04-10 18:41:17'),
+(47, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 18:41:30', '2021-04-10 18:41:30'),
+(48, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 18:48:16', '2021-04-10 18:48:16'),
+(49, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 18:55:05', '2021-04-10 18:55:05'),
+(50, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 18:55:28', '2021-04-10 18:55:28'),
+(51, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 18:56:47', '2021-04-10 18:56:47'),
+(52, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 18:57:49', '2021-04-10 18:57:49'),
+(53, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 18:58:09', '2021-04-10 18:58:09'),
+(54, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 19:13:30', '2021-04-10 19:13:30'),
+(55, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 19:13:36', '2021-04-10 19:13:36'),
+(56, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 19:15:45', '2021-04-10 19:15:45'),
+(57, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 19:15:45', '2021-04-10 19:15:45'),
+(58, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 19:16:14', '2021-04-10 19:16:14'),
+(59, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 19:17:33', '2021-04-10 19:17:33'),
+(60, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 19:18:20', '2021-04-10 19:18:20');
 
 -- --------------------------------------------------------
 
@@ -2269,7 +2351,24 @@ CREATE TABLE IF NOT EXISTS `games_users` (
   KEY `Game_ID` (`game_id`),
   KEY `Player_ID` (`user_id`),
   KEY `next_user_id` (`next_user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+--
+-- Dumping data for table `games_users`
+--
+
+INSERT INTO `games_users` (`id`, `game_id`, `user_id`, `order_number`, `next_user_id`) VALUES
+(45, 46, 1, NULL, NULL),
+(46, 47, 1, NULL, NULL),
+(47, 48, 1, NULL, NULL),
+(48, 53, 1, NULL, NULL),
+(49, 54, 1, NULL, NULL),
+(50, 55, 1, NULL, NULL),
+(51, 56, 1, NULL, NULL),
+(52, 57, 1, NULL, NULL),
+(53, 58, 1, NULL, NULL),
+(54, 59, 1, NULL, NULL),
+(55, 60, 1, NULL, NULL);
 
 -- --------------------------------------------------------
 
