@@ -111,9 +111,9 @@ class FormulaController extends AppController
     public function createNewGame() {
         $this->Authorization->skipAuthorization();
         $formulaGame;
-        if ($this->request->is('post') || true) {   //TODO: must be POST - remove "|| true"
+        if ($this->request->is('post')) {
             if ($formulaGame = $this->FormulaSetup->createNewGame($this->request->getAttribute('identity')->getOriginalData())) {
-                $this->Flash->success(__('The game has been saved.'));
+                //$this->Flash->success(__('The game has been saved.'));
 
                 return $this->redirect(['action' => 'getWaitingRoom', $formulaGame->id]);
             }
@@ -127,5 +127,18 @@ class FormulaController extends AppController
     public function getWaitingRoom($id) {
         $formulaGame = $this->FormulaGames->get($id, ['contain' => ['Users']]);
         $this->Authorization->authorize($formulaGame);
+        if ($this->request->is('get')) {
+            $this->set(compact('formulaGame'));
+        } else {
+            $this->Flash->error(__('Error occurred while retrieving board. Please, try again.'));
+            $this->redirect(['controller' => 'Games', 'action' => 'newGames']);
+        }
+    }
+    
+    public function getSetupUpdateJson($id) {
+        $formulaGame = $this->FormulaGames->get($id, ['contain' => ['Users']]);
+        $this->Authorization->authorize($formulaGame);
+        
+        $this->viewBuilder()->setOption('serialize', '');
     }
 }

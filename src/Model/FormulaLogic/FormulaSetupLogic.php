@@ -70,7 +70,7 @@ class FormulaSetupLogic {
     }
     
     public function addCars(FormulaGame $formulaGame, User $user) {
-        $carCount = debug($formulaGame)->fo_game->cars_per_player;
+        $carCount = $formulaGame->fo_game->cars_per_player;
         $wearPoints = $formulaGame->fo_game->wear_points;
         $foCars = [];
         while ($carCount-- > 0) {
@@ -85,7 +85,7 @@ class FormulaSetupLogic {
                     'fo_e_damage_type_id' => $i,
                 ]);
             }
-            $foCars[] = debug($this->FoCars->createUserCar($formulaGame->id, $user->id, $foDamages, true));
+            $foCars[] = $this->FoCars->createUserCar($formulaGame->id, $user->id, $foDamages, true);
         }
         return $foCars;
     }

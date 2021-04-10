@@ -33,9 +33,7 @@ class FormulaGamePolicy
      */
     public function canGetBoardUpdateJson(IdentityInterface $user, FormulaGame $formulaGame)
     {
-        return collection($formulaGame->users)->some(
-                function($player) use ($user) { return $player->id == $user->id; })
-                || $user->is_admin;
+        return $this->isGamePlayer($user, $formulaGame);
     }
     
     /**
@@ -47,9 +45,7 @@ class FormulaGamePolicy
      */
     public function canGetBoard(IdentityInterface $user, FormulaGame $formulaGame)
     {
-        return collection($formulaGame->users)->some(
-                function($player) use ($user) { return $player->id == $user->id; })
-                || $user->is_admin;
+        return $this->isGamePlayer($user, $formulaGame);
     }
     
     public function canChooseMoveOption(IdentityInterface $user, FormulaGame $formulaGame)
@@ -69,6 +65,16 @@ class FormulaGamePolicy
     }
     
     public function canGetWaitingRoom(IdentityInterface $user, FormulaGame $formulaGame)
+    {
+        return $this->isGamePlayer($user, $formulaGame);
+    }
+    
+    public function canGetSetupUpdateJson(IdentityInterface $user, FormulaGame $formulaGame)
+    {
+        return $this->isGamePlayer($user, $formulaGame);
+    }
+    
+    private function isGamePlayer(IdentityInterface $user, FormulaGame $formulaGame)
     {
         return collection($formulaGame->users)->some(
                 function($player) use ($user) { return $player->id == $user->id; })
