@@ -16,6 +16,7 @@ use Cake\ORM\Entity;
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
  *
+ * @property \App\Model\Entity\User $creator
  * @property \App\Model\Entity\User[] $users
  * @property \App\Model\Entity\GameState $game_state
  * @property \App\Model\Entity\GameType $game_type
@@ -44,6 +45,7 @@ class FormulaGame extends Entity
         'game_type_id' => true,
         'created' => true,
         'modified' => true,
+        'creator' => true,
         'users' => true,
         'game_state' => true,
         'game_type' => true,

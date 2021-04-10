@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use Cake\I18n\Time;
+use App\Model\FormulaLogic\FormulaLogic;
+use App\Model\FormulaLogic\FormulaSetupLogic;
 
 /**
  * Formula Controller
@@ -15,7 +17,8 @@ class FormulaController extends AppController
     public function initialize(): void {
         parent::initialize();
         
-        $this->Formula = new \App\Model\FormulaLogic\FormulaLogic();
+        $this->Formula = new FormulaLogic();
+        $this->FormulaSetup = new FormulaSetupLogic();
         $this->FormulaGames = $this->loadModel('FormulaGames');
     }
 
@@ -109,7 +112,7 @@ class FormulaController extends AppController
         $this->Authorization->skipAuthorization();
         $formulaGame;
         if ($this->request->is('post') || true) {   //TODO: must be POST - remove "|| true"
-            if ($formulaGame = $this->FormulaGames->createNewGame($this->request->getAttribute('identity')->getOriginalData())) {
+            if ($formulaGame = $this->FormulaSetup->createNewGame($this->request->getAttribute('identity')->getOriginalData())) {
                 $this->Flash->success(__('The game has been saved.'));
 
                 return $this->redirect(['action' => 'getWaitingRoom', $formulaGame->id]);

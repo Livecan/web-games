@@ -12,6 +12,9 @@ use Cake\ORM\Entity;
  * @property int $game_id
  * @property int $fo_track_id
  * @property int $cars_per_player
+ * @property int $wear_points
+ * @property int $laps
+ * $property int $pit_rule_id
  * @property \Cake\I18n\FrozenTime $created
  *
  * @property \App\Model\Entity\Game $game
@@ -32,6 +35,9 @@ class FoGame extends Entity
         'game_id' => true,
         'fo_track_id' => true,
         'cars_per_player' => true,
+        'wear_points' => true,
+        'laps' => true,
+        'pit_rule_id' => true,
         'created' => true,
         'game' => true,
         'fo_track' => true,
