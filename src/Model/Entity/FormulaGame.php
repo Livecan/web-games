@@ -23,7 +23,7 @@ use Cake\ORM\Entity;
  * @property \App\Model\Entity\DrTurn[] $dr_turns
  * @property \App\Model\Entity\FoCar[] $fo_cars
  * @property \App\Model\Entity\FoDebri[] $fo_debris
- * @property \App\Model\Entity\FoGame[] $fo_games
+ * @property \App\Model\Entity\FoGame $fo_game
  * @property \App\Model\Entity\DrToken[] $dr_tokens
  */
 class FormulaGame extends Entity
@@ -51,7 +51,7 @@ class FormulaGame extends Entity
         'dr_turns' => true,
         'fo_cars' => true,
         'fo_debris' => true,
-        'fo_games' => true,
+        'fo_game' => true,
         'dr_tokens' => true,
     ];
 }

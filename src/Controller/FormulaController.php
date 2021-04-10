@@ -16,7 +16,7 @@ class FormulaController extends AppController
         parent::initialize();
         
         $this->Formula = new \App\Model\FormulaLogic\FormulaLogic();
-        $this->FormulaGame = $this->loadModel('FormulaGames');
+        $this->FormulaGames = $this->loadModel('FormulaGames');
     }
 
     /**
@@ -92,7 +92,7 @@ class FormulaController extends AppController
     
     public function chooseGear($id)
     {
-        $formulaGame = $this->FormulaGame->get($id, ['contain' => ['FoCars']]);
+        $formulaGame = $this->FormulaGames->get($id, ['contain' => ['FoCars']]);
         
         $this->Authorization->authorize($formulaGame);
         if ($this->request->is('post') && $formulaGame->game_state_id == 2) {
@@ -103,5 +103,26 @@ class FormulaController extends AppController
         }
         
         $this->viewBuilder()->setOption('serialize', '');
+    }
+    
+    public function createNewGame() {
+        $this->Authorization->skipAuthorization();
+        $formulaGame;
+        if ($this->request->is('post') || true) {   //TODO: must be POST - remove "|| true"
+            if ($formulaGame = $this->FormulaGames->createNewGame($this->request->getAttribute('identity')->getOriginalData())) {
+                $this->Flash->success(__('The game has been saved.'));
+
+                return $this->redirect(['action' => 'getWaitingRoom', $formulaGame->id]);
+            }
+            $this->Flash->error(__('The game could not be saved. Please, try again.'));
+        }
+        
+        $formulaGame = $this->FormulaGames->newEmptyEntity();
+        $this->set(compact('formulaGame'));
+    }
+    
+    public function getWaitingRoom($id) {
+        $formulaGame = $this->FormulaGames->get($id, ['contain' => ['Users']]);
+        $this->Authorization->authorize($formulaGame);
     }
 }

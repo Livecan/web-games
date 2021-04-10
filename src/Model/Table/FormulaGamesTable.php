@@ -7,6 +7,9 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
+use App\Model\Entity\FormulaGame;
+use App\Model\Entity\FoGame;
+use App\Model\Entity\User;
 
 /**
  * FormulaGames Model
@@ -119,5 +122,20 @@ class FormulaGamesTable extends Table
         $rules->add($rules->existsIn(['game_type_id'], 'GameTypes'), ['errorField' => 'game_type_id']);
 
         return $rules;
+    }
+    
+    public function createNewGame($user) {
+        $game = new FormulaGame([
+            'name' => $user->name . "'s game",
+            'creator_id' => $user->id,
+            'game_type_id' => 2,   //for Formula Game
+            'fo_game' => 
+                new FoGame([
+                    'fo_track_id' => 1, //for the first track - Monaco
+                ]),
+            'users' => [$user],
+        ]);
+        
+        return $this->save($game, ['associated' => ['FoGames', 'Users']]);
     }
 }
