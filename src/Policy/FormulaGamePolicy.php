@@ -74,6 +74,10 @@ class FormulaGamePolicy
         return $this->isGamePlayer($user, $formulaGame);
     }
     
+    public function canEditSetup(IdentityInterface $user, FormulaGame $formulaGame) {
+        return $user->id == $formulaGame->creator_id || $user->is_admin;
+    }
+    
     private function isGamePlayer(IdentityInterface $user, FormulaGame $formulaGame)
     {
         return collection($formulaGame->users)->some(

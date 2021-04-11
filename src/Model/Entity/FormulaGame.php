@@ -10,6 +10,8 @@ use Cake\ORM\Entity;
  *
  * @property int $id
  * @property string $name
+ * @property int $min_players
+ * @property int $max_players
  * @property int $creator_id
  * @property int $game_state_id
  * @property int $game_type_id
@@ -40,6 +42,8 @@ class FormulaGame extends Entity
      */
     protected $_accessible = [
         'name' => true,
+        'min_players' => true,
+        'max_players' => true,
         'creator_id' => true,
         'game_state_id' => true,
         'game_type_id' => true,

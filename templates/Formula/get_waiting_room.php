@@ -1,7 +1,7 @@
 <?php
 
 ?>
-<button onclick="foSetupReloadBoard()">Refresh Setup</button>
+<button onclick="foReloadSetupBoard()">Refresh Setup</button>
 <h2 id="game-name"></h2>
 <div class="row">
     <div id="player-car-column">
@@ -23,33 +23,46 @@
     <div id="setup-column">
         <div id="track-choice-div">
             <label for="track-choice">Track:</label>
-            <select name="track-choice" id="track-choice">
+            <select name="track-choice" id="track-choice"
+                    onchange="foUpdateSetup('fo_track_id', this.value)">
                 <option value="1">Monaco</option>
             </select>
         </div>
         <div>
             <label>Players number</label>
             <label for="min-players">Minimum:</label>
-            <input type="number" id="min-players" name="min-players" min="1" max="12">
+            <input type="number" id="min-players" name="min-players" min="1" max="12" 
+                   onchange="foUpdateSetup('min_players', this.value)" />
             <label for="max-players">Maximum:</label>
-            <input type="number" id="min-players" name="max-players" min="1" max="12">
+            <input type="number" id="max-players" name="max-players" min="1" max="12"
+                   onchange="foUpdateSetup('max_players', this.value)" />
         </div>
         <div>
             <label for="cars-per-player">Cars per player:</label>
-            <input type="number" id="cars-per-player" name="cars-per-player" min="1" max="12">
+            <input type="number" id="cars-per-player" name="cars-per-player" min="1" max="12"
+                   onchange="foUpdateSetup('cars_per_player', this.value)" />
         </div>
         <div>
             <label for="wear-points-available">Wear points available:</label>
-            <input type="number" id="wear-points-available" name="wear-points-available" min="6">
+            <input type="number" id="wear-points-available" name="wear-points-available" min="6"
+                   onchange="foUpdateSetup('wear_points', this.value)" />
         </div>
         <div>
             <label for="laps">Laps:</label>
-            <input type="number" id="laps" name="laps" min="6">
+            <input type="number" id="laps" name="laps" min="1"
+                   onchange="foUpdateSetup('laps', this.value)" />
         </div>
     </div>
 </div>
 <script>
     var modified;
+    var foUpdateSetup = function(property, value) {
+        let url = '<?= \Cake\Routing\Router::url(
+                ['action' => 'editSetup', $formulaGame->id]) ?>';
+        let data = { _csrfToken: csrfToken };
+        data[property] = value;
+        $.post(url, data, foReloadSetupBoard, 'json');
+    }
     var foInsertTrackImg = function(track) {
         $("#track-choice-div img").remove();
         $("#track-choice-div").append($(document.createElement("img"))
@@ -73,8 +86,8 @@
     };
     var foInsertPlayerCars = function(users) {
         let playerCarTable = $("#player-car-table");
-        playerCarTable.remove(".player-row");
-        playerCarTable.remove(".car-row");
+        $("#player-car-table .player-row").remove();
+        $("#player-car-table .car-row").remove();
         for (let user of users) {
             let playerNameElmt = $(document.createElement("tr"))
                     .addClass("player-row")
@@ -95,7 +108,7 @@
             }
         }
     };
-    var foSetupReloadBoard = function() {
+    var foReloadSetupBoard = function() {
         let url = '<?= \Cake\Routing\Router::url(
                 ['action' => 'getSetupUpdateJson', $formulaGame->id]) ?>';
         $.getJSON(url, {modified: modified}, function(data) {
@@ -105,6 +118,6 @@
         });
     };
     $(document).ready(function() {
-        foSetupReloadBoard();
+        foReloadSetupBoard();
     });
 </script>

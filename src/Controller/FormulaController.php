@@ -139,11 +139,21 @@ class FormulaController extends AppController
             $formulaGame = $this->FormulaSetup->getSetupUpdateJson($formulaGame,
                     $this->request->getAttribute('identity')->getOriginalData());
             $this->set(compact('formulaGame'));
-        $this->viewBuilder()->setOption('serialize', 'formulaGame');
+            $this->viewBuilder()->setOption('serialize', 'formulaGame');
         } else {
             $this->Flash->error(__('Error occurred while retrieving board. Please, try again.'));
             $this->redirect(['controller' => 'Games', 'action' => 'newGames']);
-        }
+        }   
+    }
+    
+    public function editSetup($id) {
+        $formulaGame = $this->FormulaGames->get($id,
+                ['contain' => ['Users', 'FoGames']]);
+        $this->Authorization->authorize($formulaGame);
         
+        if ($this->request->is('post') && $formulaGame->game_state_id == 1) {
+            $this->FormulaSetup->editSetup($formulaGame, $this->request->getData());
+            $this->viewBuilder()->setOption('serialize', '');
+        }
     }
 }

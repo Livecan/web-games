@@ -99,4 +99,11 @@ class FormulaSetupLogic {
         $formulaGame->editable = $user->id === $formulaGame->creator_id;
         return $formulaGame;
     }
+    
+    public function editSetup(FormulaGame $formulaGame, array $data) {
+        $this->FormulaGames->patchEntity($formulaGame, $data);
+        $this->FormulaGames->patchEntity($formulaGame->fo_game, $data);
+        $formulaGame->setDirty('fo_game');
+        $this->FormulaGames->save($formulaGame);
+    }
 }
