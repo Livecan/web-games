@@ -5,14 +5,9 @@ namespace App\Model\FormulaLogic;
 
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\ORM\Query;
-use Cake\I18n\Time;
-use Cake\ORM\Entity;
 use App\Model\Entity\FormulaGame;
 use App\Model\Entity\FoDamage;
-use App\Model\FormulaLogic\DiceLogic;
-use App\Model\Entity\FoCar;
 use App\Model\Entity\FoGame;
-use App\Model\Entity\FoLog;
 use App\Model\Entity\User;
 
 /**
@@ -24,34 +19,32 @@ class FormulaSetupLogic {
     use LocatorAwareTrait;
     
     public function __construct() {
-        $this->FoPositions = $this->getTableLocator()->get('FoPositions');
         $this->FoCars = $this->getTableLocator()->get('FoCars');
         $this->FoDamages = $this->getTableLocator()->get('FoDamages');
-        $this->Users = $this->getTableLocator()->get('Users');
         $this->FormulaGames = $this->getTableLocator()->get('FormulaGames');
         $this->FoLogs = $this->getTableLocator()->get('FoLogs');
-        $this->FoMoveOptions = $this->getTableLocator()->get('FoMoveOptions');
-        $this->FoPosition2Positions = $this->getTableLocator()->get('FoPosition2Positions');
-        $this->FoMoveOptions = $this->getTableLocator()->get('FoMoveOptions');
+        $this->FoTracks = $this->getTableLocator()->get('FoTracks');
     }
     
     public function createNewGame(User $user) {
+        $foTrack = $this->FoTracks->find('all')->first();
+                
         $formulaGame = new FormulaGame([
-            'name' => $user->name . "'s game",
+            'name' => $user->name . "'s " . $foTrack->name . " GP",
             'creator_id' => $user->id,
             'game_type_id' => 2,   //for Formula Game
             'fo_game' => 
                 new FoGame([
-                    'fo_track_id' => 1, //for the first track - Monaco
+                    'fo_track_id' => $foTrack->id, //for the first track - Monaco
                     'cars_per_player' => 2,
                     'wear_points' => 21,
                     'laps' => 2,
                 ]),
             'users' => [],
         ]);
-        
         $formulaGame = $this->FormulaGames->save($formulaGame, ['associated' => ['FoGames', 'Users']]);
         $this->addPlayer($formulaGame, $user);
+        
         return $formulaGame;
     }
     
@@ -90,4 +83,20 @@ class FormulaSetupLogic {
         return $foCars;
     }
 
+    public function getSetupUpdateJson($formulaGame, $user) {
+        $formulaGame = $this->FormulaGames->get($formulaGame->id, ['contain' => [
+            'FoGames', 'FoGames.FoTracks',
+            'Users', 'FoCars', 'FoCars.FoDamages', 'FoGames.FoTracks',
+        ]]);
+        $foUsers = collection($formulaGame->users);
+        $foCars = collection($formulaGame->fo_cars)->groupBy('user_id')->toArray();
+        $foUsers->each(function(User $_user) use ($foCars, $user) {
+            $_user->fo_cars = $foCars[$_user->id];
+            $_user->editable = ($user->id === $_user->id);
+            $_user->unset('_joinData');
+        });
+        $formulaGame->unset('fo_cars');
+        $formulaGame->editable = $user->id === $formulaGame->creator_id;
+        return $formulaGame;
+    }
 }

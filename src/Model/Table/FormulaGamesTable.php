@@ -7,9 +7,6 @@ use Cake\ORM\Query;
 use Cake\ORM\RulesChecker;
 use Cake\ORM\Table;
 use Cake\Validation\Validator;
-use App\Model\Entity\FormulaGame;
-use App\Model\Entity\FoGame;
-use App\Model\Entity\User;
 
 /**
  * FormulaGames Model
@@ -62,7 +59,7 @@ class FormulaGamesTable extends Table
         $this->belongsTo('Users', [
             'foreignKey' => 'creator_id',
             'joinType' => 'INNER',
-        ])->setName('Creator');
+        ])->setName('creator');
         $this->belongsTo('GameStates', [
             'foreignKey' => 'game_state_id',
             'joinType' => 'INNER',

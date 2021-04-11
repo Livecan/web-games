@@ -110,18 +110,13 @@ class FormulaController extends AppController
     
     public function createNewGame() {
         $this->Authorization->skipAuthorization();
-        $formulaGame;
         if ($this->request->is('post')) {
-            if ($formulaGame = $this->FormulaSetup->createNewGame($this->request->getAttribute('identity')->getOriginalData())) {
-                //$this->Flash->success(__('The game has been saved.'));
-
+            if ($formulaGame = $this->FormulaSetup->createNewGame(
+                    $this->request->getAttribute('identity')->getOriginalData())) {
                 return $this->redirect(['action' => 'getWaitingRoom', $formulaGame->id]);
             }
             $this->Flash->error(__('The game could not be saved. Please, try again.'));
         }
-        
-        $formulaGame = $this->FormulaGames->newEmptyEntity();
-        $this->set(compact('formulaGame'));
     }
     
     public function getWaitingRoom($id) {
@@ -136,9 +131,19 @@ class FormulaController extends AppController
     }
     
     public function getSetupUpdateJson($id) {
-        $formulaGame = $this->FormulaGames->get($id, ['contain' => ['Users']]);
+        $formulaGame = $this->FormulaGames->get($id,
+                ['contain' => ['Users']]);
         $this->Authorization->authorize($formulaGame);
         
-        $this->viewBuilder()->setOption('serialize', '');
+        if ($this->request->is('get') && $formulaGame->game_state_id == 1) {
+            $formulaGame = $this->FormulaSetup->getSetupUpdateJson($formulaGame,
+                    $this->request->getAttribute('identity')->getOriginalData());
+            $this->set(compact('formulaGame'));
+        $this->viewBuilder()->setOption('serialize', 'formulaGame');
+        } else {
+            $this->Flash->error(__('Error occurred while retrieving board. Please, try again.'));
+            $this->redirect(['controller' => 'Games', 'action' => 'newGames']);
+        }
+        
     }
 }

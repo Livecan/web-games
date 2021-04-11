@@ -30,7 +30,6 @@ class FormulaLogic {
         $this->FoLogs = $this->getTableLocator()->get('FoLogs');
         $this->FoMoveOptions = $this->getTableLocator()->get('FoMoveOptions');
         $this->FoPosition2Positions = $this->getTableLocator()->get('FoPosition2Positions');
-        $this->FoMoveOptions = $this->getTableLocator()->get('FoMoveOptions');
         $this->DiceLogic = new DiceLogic();
         $this->MovementLogic = new MovementLogic();
     }
