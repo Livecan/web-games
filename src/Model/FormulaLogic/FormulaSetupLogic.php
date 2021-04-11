@@ -5,6 +5,8 @@ namespace App\Model\FormulaLogic;
 
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\ORM\Query;
+use Cake\I18n\Time;
+use Cake\ORM\Entity;
 use App\Model\Entity\FormulaGame;
 use App\Model\Entity\FoDamage;
 use App\Model\Entity\FoGame;
@@ -83,11 +85,14 @@ class FormulaSetupLogic {
         return $foCars;
     }
 
-    public function getSetupUpdateJson($formulaGame, $user) {
+    public function getSetupUpdateJson($formulaGame, $user, Time $modifiedDate = null) {
         $formulaGame = $this->FormulaGames->get($formulaGame->id, ['contain' => [
             'FoGames', 'FoGames.FoTracks',
             'Users', 'FoCars', 'FoCars.FoDamages', 'FoGames.FoTracks',
         ]]);
+        if ($modifiedDate >= $formulaGame->modified) {
+            return new Entity(['has_updated' => false]);
+        }
         $foUsers = collection($formulaGame->users);
         $foCars = collection($formulaGame->fo_cars)->groupBy('user_id')->toArray();
         $foUsers->each(function(User $_user) use ($foCars, $user) {
@@ -97,6 +102,7 @@ class FormulaSetupLogic {
         });
         $formulaGame->unset('fo_cars');
         $formulaGame->editable = $user->id === $formulaGame->creator_id;
+        $formulaGame->has_updated = true;
         return $formulaGame;
     }
     

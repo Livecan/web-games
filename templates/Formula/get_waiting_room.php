@@ -55,7 +55,7 @@
     </div>
 </div>
 <script>
-    var modified;
+    var modifiedSetup;
     var foUpdateSetup = function(property, value) {
         let url = '<?= \Cake\Routing\Router::url(
                 ['action' => 'editSetup', $formulaGame->id]) ?>';
@@ -111,13 +111,17 @@
     var foReloadSetupBoard = function() {
         let url = '<?= \Cake\Routing\Router::url(
                 ['action' => 'getSetupUpdateJson', $formulaGame->id]) ?>';
-        $.getJSON(url, {modified: modified}, function(data) {
-            $("#game-name").text(data['name']);
-            foInsertPlayerCars(data["users"]);
-            foInsertSetup(data);
+        $.getJSON(url, { 'modified-setup': modifiedSetup }, function(data) {
+            if (data["has_updated"]) {
+                modifiedSetup = data["modified"];
+                $("#game-name").text(data['name']);
+                foInsertPlayerCars(data["users"]);
+                foInsertSetup(data);
+            }
         });
     };
     $(document).ready(function() {
         foReloadSetupBoard();
+        setInterval(foReloadSetupBoard, 2000);
     });
 </script>

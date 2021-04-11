@@ -136,8 +136,13 @@ class FormulaController extends AppController
         $this->Authorization->authorize($formulaGame);
         
         if ($this->request->is('get') && $formulaGame->game_state_id == 1) {
+            
+            $modifiedDateQueryParam = $this->request->getQuery('modified-setup');
+            $modifiedDate = $modifiedDateQueryParam == null ? null : 
+                    new Time($modifiedDateQueryParam);
             $formulaGame = $this->FormulaSetup->getSetupUpdateJson($formulaGame,
-                    $this->request->getAttribute('identity')->getOriginalData());
+                    $this->request->getAttribute('identity')->getOriginalData(),
+                    $modifiedDate);
             $this->set(compact('formulaGame'));
             $this->viewBuilder()->setOption('serialize', 'formulaGame');
         } else {
