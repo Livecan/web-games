@@ -110,6 +110,14 @@ class FormulaSetupLogic {
         $this->FormulaGames->patchEntity($formulaGame, $data);
         $this->FormulaGames->patchEntity($formulaGame->fo_game, $data);
         $formulaGame->setDirty('fo_game');
+        return $this->FormulaGames->save($formulaGame);
+    }
+    
+    public function editDamage(FormulaGame $formulaGame, FoDamage $foDamage, int $wearPoints) {
+        $foDamage->wear_points = $wearPoints;
+        $foDamage = $this->FoDamages->save($foDamage);
+        $formulaGame->modified = $foDamage->modified;
         $this->FormulaGames->save($formulaGame);
+        return $foDamage;
     }
 }

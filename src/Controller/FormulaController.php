@@ -6,6 +6,7 @@ namespace App\Controller;
 use Cake\I18n\Time;
 use App\Model\FormulaLogic\FormulaLogic;
 use App\Model\FormulaLogic\FormulaSetupLogic;
+use App\Model\Entity\FoDamage;
 
 /**
  * Formula Controller
@@ -20,6 +21,7 @@ class FormulaController extends AppController
         $this->Formula = new FormulaLogic();
         $this->FormulaSetup = new FormulaSetupLogic();
         $this->FormulaGames = $this->loadModel('FormulaGames');
+        $this->FoDamages = $this->loadModel('FoDamages');
     }
 
     /**
@@ -158,6 +160,18 @@ class FormulaController extends AppController
         
         if ($this->request->is('post') && $formulaGame->game_state_id == 1) {
             $this->FormulaSetup->editSetup($formulaGame, $this->request->getData());
+            $this->viewBuilder()->setOption('serialize', '');
+        }
+    }
+    
+    public function editDamage($id) {
+        $damageId = $this->request->getData('damage_id');
+        $wearPoints = intval($this->request->getData('wear_points'));
+        $foDamage = $this->FoDamages->get($damageId, ['contain' => ['FoCars']]);
+        $formulaGame = $this->FormulaGames->get($id);
+        $this->Authorization->authorize($foDamage);
+        if ($this->request->is('post') && $formulaGame->game_state_id == 1) {
+            $this->FormulaSetup->editDamage($formulaGame, $foDamage, $wearPoints);
             $this->viewBuilder()->setOption('serialize', '');
         }
     }

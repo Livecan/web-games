@@ -61,8 +61,14 @@
                 ['action' => 'editSetup', $formulaGame->id]) ?>';
         let data = { _csrfToken: csrfToken };
         data[property] = value;
-        $.post(url, data, foReloadSetupBoard, 'json');
-    }
+        $.post(url, data, null, 'json');
+    };
+    var foUpdateDamage = function(damageId, wearPoints) {
+        let url = '<?= \Cake\Routing\Router::url(
+                ['action' => 'editDamage', $formulaGame->id]) ?>';
+        let data = { _csrfToken: csrfToken, damage_id: damageId, wear_points: wearPoints };
+        $.post(url, data, null, 'json');
+    };
     var foInsertTrackImg = function(track) {
         $("#track-choice-div img").remove();
         $("#track-choice-div").append($(document.createElement("img"))
@@ -100,9 +106,17 @@
                         .addClass("car-row")
                         .append($(document.createElement("td")))
                         .append($(document.createElement("td")));
-                for (let damage of _.sortBy(car["fo_damages"], 'fo_e_damage_type_id')) {
+                for (let damage of _.sortBy(car["fo_damages"], 'fo_e_damage_type_id')) {                    
                     carElmt.append($(document.createElement("td"))
-                            .text(damage["wear_points"]));
+                            .html($(document.createElement("input"))
+                                    .attr("id", "damage" + damage["id"])
+                                    .attr("type", "number")
+                                    .val(damage["wear_points"])
+                                    .on("change",
+                                        function() {
+                                            foUpdateDamage(damage["id"], this.value);
+                                        })
+                                    ));
                 }
                 playerCarTable.append(carElmt);
             }
