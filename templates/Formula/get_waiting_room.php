@@ -1,7 +1,6 @@
 <?php
-
+    $this->Html->css('formula-game/formula-setup', ['block' => true]);
 ?>
-<button onclick="foReloadSetupBoard()">Refresh Setup</button>
 <h2 id="game-name"></h2>
 <div class="row">
     <div id="player-car-column">
@@ -103,7 +102,13 @@
                     .addClass("player-row")
                     .append($(document.createElement("td"))
                             .attr("colspan", 8)
-                            .text(user['name']));
+                            .append(
+                                $(document.createElement("span")).text(user['name']))
+                            .append(
+                                $(document.createElement("button"))
+                                        .addClass("ready-button")
+                                        .text("READY?"))
+                            );
             playerCarTable.append(playerNameElmt);
             for (let car of user["fo_cars"].slice(0, carsPerPlayer)) {
                 let carElmt = $(document.createElement("tr"))

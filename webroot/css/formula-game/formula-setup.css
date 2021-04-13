@@ -1,0 +1,34 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/*
+    Created on : Apr 13, 2021, 5:13:32 PM
+    Author     : roman
+*/
+#player-car-column {
+  width: 100%;
+  margin: 20px;
+}
+
+#setup-column {
+  width: 100%;
+  margin: 20px;
+}
+
+.ready-button {
+  float: right;
+}
+
+@media (min-width: 768px) {
+  #player-car-column {
+    width: 75%;
+  }
+
+  #setup-column {
+    width: 25%;
+  }
+}
+
+/*# sourceMappingURL=formula-setup.css.map */
