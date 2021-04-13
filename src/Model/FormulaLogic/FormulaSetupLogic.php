@@ -61,28 +61,34 @@ class FormulaSetupLogic {
         $formulaGame->users[] = $user;
         $formulaGame->setDirty('users');
         $this->FormulaGames->save($formulaGame, ['associated' => ['Users']]);
-        $this->addCars($formulaGame, $user);
+        $this->addCars($formulaGame, $user->id);
     }
     
-    public function addCars(FormulaGame $formulaGame, User $user) {
-        $carCount = $formulaGame->fo_game->cars_per_player;
-        $wearPoints = $formulaGame->fo_game->wear_points;
+    public function addCars(FormulaGame $formulaGame, int $user_id, int $carCount = null) {
+        if ($carCount == null) {
+            $carCount = $formulaGame->fo_game->cars_per_player;
+        }
         $foCars = [];
         while ($carCount-- > 0) {
-            $foDamages = [];
-            $foDamages[] = new FoDamage([
-                'wear_points' => $wearPoints - 5 * 3,
-                'fo_e_damage_type_id' => 1, //tires get the remaining damage after 3 is assigned to everything else
-            ]);
-            for ($i = 2; $i <= 6; $i++) {
-                $foDamages[] = new FoDamage([
-                    'wear_points' => 3,
-                    'fo_e_damage_type_id' => $i,
-                ]);
-            }
-            $foCars[] = $this->FoCars->createUserCar($formulaGame->id, $user->id, $foDamages, true);
+            $foCars[] = $this->addCar($formulaGame, $user_id);
         }
         return $foCars;
+    }
+    
+    public function addCar(FormulaGame $formulaGame, int $user_id) {
+        $wearPoints = $formulaGame->fo_game->wear_points;
+        $foDamages = [];
+        $foDamages[] = new FoDamage([
+            'wear_points' => $wearPoints - 5 * 3,
+            'fo_e_damage_type_id' => 1, //tires get the remaining damage after 3 is assigned to everything else
+        ]);
+        for ($i = 2; $i <= 6; $i++) {
+            $foDamages[] = new FoDamage([
+                'wear_points' => 3,
+                'fo_e_damage_type_id' => $i,
+            ]);
+        }
+        return $this->FoCars->createUserCar($formulaGame->id, $user_id, $foDamages, true);
     }
 
     public function getSetupUpdateJson($formulaGame, $user, Time $modifiedDate = null) {
@@ -110,6 +116,20 @@ class FormulaSetupLogic {
         $this->FormulaGames->patchEntity($formulaGame, $data);
         $this->FormulaGames->patchEntity($formulaGame->fo_game, $data);
         $formulaGame->setDirty('fo_game');
+        
+        $carsMissing = 0;
+        if (array_key_exists('cars_per_player', $data)) {
+            $foUserCars = collection($this->FoCars->find('all')->
+                    where(['game_id' => $formulaGame->id]))->
+                    groupBy('user_id');
+            $carsMissing = $formulaGame->fo_game->cars_per_player - count($foUserCars->first());
+        }
+        if ($carsMissing > 0) {
+            foreach ($formulaGame->users as $_user) {
+                $this->addCars($formulaGame, $_user->id, $carsMissing);
+            }
+        }
+        
         return $this->FormulaGames->save($formulaGame);
     }
     

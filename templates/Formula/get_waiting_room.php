@@ -90,7 +90,7 @@
                     .text("Start"));
         }
     };
-    var foInsertPlayerCars = function(users) {
+    var foInsertPlayerCars = function(users, carsPerPlayer) {
         let playerCarTable = $("#player-car-table");
         $("#player-car-table .player-row").remove();
         $("#player-car-table .car-row").remove();
@@ -101,7 +101,7 @@
                             .attr("colspan", 8)
                             .text(user['name']));
             playerCarTable.append(playerNameElmt);
-            for (let car of user["fo_cars"]) {
+            for (let car of user["fo_cars"].slice(0, carsPerPlayer)) {
                 let carElmt = $(document.createElement("tr"))
                         .addClass("car-row")
                         .append($(document.createElement("td")))
@@ -129,7 +129,7 @@
             if (data["has_updated"]) {
                 modifiedSetup = data["modified"];
                 $("#game-name").text(data['name']);
-                foInsertPlayerCars(data["users"]);
+                foInsertPlayerCars(data["users"], data["fo_game"]["cars_per_player"]);
                 foInsertSetup(data);
             }
         });
