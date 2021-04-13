@@ -95,6 +95,7 @@
         $("#player-car-table .player-row").remove();
         $("#player-car-table .car-row").remove();
         for (let user of users) {
+            let editable = user["editable"];
             let playerNameElmt = $(document.createElement("tr"))
                     .addClass("player-row")
                     .append($(document.createElement("td"))
@@ -111,6 +112,7 @@
                             .html($(document.createElement("input"))
                                     .attr("id", "damage" + damage["id"])
                                     .attr("type", "number")
+                                    .attr("disabled", !editable)
                                     .val(damage["wear_points"])
                                     .on("change",
                                         function() {
