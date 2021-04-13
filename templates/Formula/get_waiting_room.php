@@ -76,6 +76,9 @@
                 .attr("src", "/img/formula/" + track["game_plan"]));
     }
     var foInsertSetup = function(formulaGame) {
+        if (!formulaGame["editable"]) {
+            $("#setup-column *").attr("disabled", true);
+        }
         $("#track-choice").val(formulaGame["fo_game"]["fo_track_id"]);
         foInsertTrackImg(formulaGame["fo_game"]["fo_track"]);
         $("#min-players").val(formulaGame["min_players"]);

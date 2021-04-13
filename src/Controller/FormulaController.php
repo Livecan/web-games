@@ -23,6 +23,18 @@ class FormulaController extends AppController
         $this->FormulaGames = $this->loadModel('FormulaGames');
         $this->FoDamages = $this->loadModel('FoDamages');
     }
+    
+    public function index()
+    {
+        $formulaGames = $this->paginate(
+                $this->FormulaGames->find('all')->
+                where(['game_type_id' => 2])->
+                contain(['FoGames'])->
+                order(['FormulaGames.created' => 'DESC']));
+        $this->Authorization->skipAuthorization();
+
+        $this->set(compact('formulaGames'));
+    }
 
     /**
      * Start method
@@ -173,6 +185,16 @@ class FormulaController extends AppController
         if ($this->request->is('post') && $formulaGame->game_state_id == 1) {
             $this->FormulaSetup->editDamage($formulaGame, $foDamage, $wearPoints);
             $this->viewBuilder()->setOption('serialize', '');
+        }
+    }
+    
+    public function joinGame($id) {
+        $formulaGame = $this->FormulaGames->get($id, ['contain' => ['Users', 'FoGames']]);
+        $this->Authorization->skipAuthorization();
+        if ($this->request->is('post')) {
+            $this->FormulaSetup->joinGame($formulaGame,
+                    $this->request->getAttribute('identity')->getOriginalData());
+            $this->redirect(['action' => 'getWaitingRoom', $id]);
         }
     }
 }

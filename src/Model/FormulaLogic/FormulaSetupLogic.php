@@ -140,4 +140,17 @@ class FormulaSetupLogic {
         $this->FormulaGames->save($formulaGame);
         return $foDamage;
     }
+    
+    public function joinGame(FormulaGame $formulaGame, User $user) {
+        $isUserJoined = collection($formulaGame->users)->firstMatch(['user_id' => $user->id]) != null;
+        if ($isUserJoined) {
+            return;
+        }
+        
+        $this->addCars($formulaGame, $user->id, $formulaGame->fo_game->cars_per_player);
+        
+        $formulaGame->users[] = $user;
+        $formulaGame->setDirty('users');
+        $this->FormulaGames->save($formulaGame, ['associated' => ['Users']]);
+    }
 }
