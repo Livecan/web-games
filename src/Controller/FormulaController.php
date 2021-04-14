@@ -43,11 +43,11 @@ class FormulaController extends AppController
      */
     public function start($id)
     {
-        $formulaGame = $this->FormulaGames->get($id, ['contain' => ['FoGames', 'Users'],
+        $formulaGame = $this->FormulaGames->get($id, ['contain' => ['FoGames', 'Users', 'FoCars'],
             ]);
         $this->Authorization->authorize($formulaGame);
         if ($formulaGame->game_state_id == 1) {
-            if ($this->request->is('post') && $formulaGame = $this->Formula->start($formulaGame, $this->request->getData())) {
+            if ($this->request->is('post') && $formulaGame = $this->FormulaSetup->startGame($formulaGame)) {
                 $this->Flash->success(__('The formula has been saved.'));
                 return $this->redirect(['action' => 'getBoard', $id]);
             }

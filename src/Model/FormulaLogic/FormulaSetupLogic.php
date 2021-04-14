@@ -26,6 +26,7 @@ class FormulaSetupLogic {
         $this->FormulaGames = $this->getTableLocator()->get('FormulaGames');
         $this->FoLogs = $this->getTableLocator()->get('FoLogs');
         $this->FoTracks = $this->getTableLocator()->get('FoTracks');
+        $this->FoPositions = $this->getTableLocator()->get('FoPositions');
     }
     
     public function createNewGame(User $user) {
@@ -117,16 +118,21 @@ class FormulaSetupLogic {
         $this->FormulaGames->patchEntity($formulaGame->fo_game, $data);
         $formulaGame->setDirty('fo_game');
         
-        $carsMissing = 0;
+        $carsMissing = false;
         if (array_key_exists('cars_per_player', $data)) {
-            $foUserCars = collection($this->FoCars->find('all')->
+            $foUsersCarCount = collection($this->FoCars->find('all')->
                     where(['game_id' => $formulaGame->id]))->
-                    groupBy('user_id');
-            $carsMissing = $formulaGame->fo_game->cars_per_player - count($foUserCars->first());
+                    groupBy('user_id')->
+                    map(function($foUserCar) {
+                        return count($foUserCar);
+                    });
+            $carsMissing = $foUsersCarCount->some(function($foUserCarCount) use ($formulaGame) {
+                return $foUserCarCount < $formulaGame->fo_game->cars_per_player;
+            });
         }
-        if ($carsMissing > 0) {
-            foreach ($formulaGame->users as $_user) {
-                $this->addCars($formulaGame, $_user->id, $carsMissing);
+        if ($carsMissing) {
+            foreach ($foUsersCarCount as $user_id => $foUserCarCount) {
+                $this->addCars($formulaGame, $user_id, $formulaGame->fo_game->cars_per_player - $foUserCarCount);
             }
         }
         
@@ -142,6 +148,10 @@ class FormulaSetupLogic {
     }
     
     public function joinGame(FormulaGame $formulaGame, User $user) {
+        if ($formulaGame->max_players != null && count($formulaGame->users) >= $formulaGame->max_players) {
+            return;
+        }
+        
         $isUserJoined = collection($formulaGame->users)->firstMatch(['user_id' => $user->id]) != null;
         if ($isUserJoined) {
             return;
@@ -153,4 +163,46 @@ class FormulaSetupLogic {
         $formulaGame->setDirty('users');
         $this->FormulaGames->save($formulaGame, ['associated' => ['Users']]);
     }
+    
+    public function startGame(FormulaGame $formulaGame) {
+        $foExcessCars = collection($formulaGame->fo_cars)->
+                groupBy('user_id')->
+                map(function($foUserCars) use ($formulaGame) {
+                    return collection($foUserCars)->reject(function($value, $key) use ($formulaGame) {
+                        return $key < $formulaGame->fo_game->cars_per_player;
+                    })->toList();
+                })->unfold();
+        $this->FoCars->deleteMany($foExcessCars);
+        $formulaGame->fo_cars = $this->FoCars->find('all')->
+                where(['game_id' => $formulaGame->id])->
+                toList();
+        //debug($formulaGame);
+        
+        $formulaGame->fo_cars = collection($formulaGame->fo_cars)->shuffle();
+        
+        $startingPositions = $this->FoPositions->find('all')->
+                select('id')->
+                where(['fo_track_id' => $formulaGame->fo_game->fo_track_id])->
+                whereNotNull('starting_position')->
+                order(['starting_position' => 'ASC']);
+        $formulaGame->fo_cars = $formulaGame->fo_cars->zip($startingPositions)->
+                map(function($carPositionPair) {
+                    $carPositionPair[0]->fo_position_id = $carPositionPair[1]->id;
+                    return $carPositionPair[0];
+                })->toList();
+        
+        $formulaGame->game_state_id = 2;
+        
+        $formulaGame->setDirty('fo_cars', true);
+        $formulaGame = $this->FormulaGames->save($formulaGame,
+                        ['associated' => ['FoCars']]);
+        $formulaGame->fo_cars = $this->FoCars->generateCarOrder($formulaGame->id)->toList();
+        
+        $this->FoLogs->logGameStart($formulaGame->fo_cars);
+        
+        return $formulaGame;
+        //TODO: initialize car positions, logs, generate player order by positions
+    }
+    
+    //TODO: before game starts, check damage points add up and do ready buttons functionality
 }

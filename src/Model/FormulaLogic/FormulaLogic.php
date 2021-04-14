@@ -34,7 +34,7 @@ class FormulaLogic {
         $this->MovementLogic = new MovementLogic();
     }
     
-    public function start(FormulaGame $formulaGame) {
+    /*public function start(FormulaGame $formulaGame) {
         $formulaGame->fo_cars = collection($formulaGame->users)->map(function($user) use ($formulaGame) {
             $playerCarsLeft = $formulaGame->fo_game->cars_per_player;
             while ($playerCarsLeft-- > 0) {
@@ -70,7 +70,7 @@ class FormulaLogic {
         $this->FoLogs->logGameStart($formulaGame->fo_cars);
         
         return $formulaGame;
-    }
+    }*/
     
     public function getBoard(FormulaGame $formulaGame, $user_id = null, Time $modifiedDateParam = null) {
         $foLogLastModified = $this->FoLogs->find('all')->

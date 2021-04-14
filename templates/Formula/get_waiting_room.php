@@ -20,37 +20,79 @@
         </table>
     </div>
     <div id="setup-column">
-        <div id="track-choice-div">
-            <label for="track-choice">Track:</label>
-            <select name="track-choice" id="track-choice"
-                    onchange="foUpdateSetup('fo_track_id', this.value)">
-                <option value="1">Monaco</option>
-            </select>
-        </div>
-        <div>
-            <label>Players number</label>
-            <label for="min-players">Minimum:</label>
-            <input type="number" id="min-players" name="min-players" min="1" max="12" 
-                   onchange="foUpdateSetup('min_players', this.value)" />
-            <label for="max-players">Maximum:</label>
-            <input type="number" id="max-players" name="max-players" min="1" max="12"
-                   onchange="foUpdateSetup('max_players', this.value)" />
-        </div>
-        <div>
-            <label for="cars-per-player">Cars per player:</label>
-            <input type="number" id="cars-per-player" name="cars-per-player" min="1" max="12"
-                   onchange="foUpdateSetup('cars_per_player', this.value)" />
-        </div>
-        <div>
-            <label for="wear-points-available">Wear points available:</label>
-            <input type="number" id="wear-points-available" name="wear-points-available" min="6"
-                   onchange="foUpdateSetup('wear_points', this.value)" />
-        </div>
-        <div>
-            <label for="laps">Laps:</label>
-            <input type="number" id="laps" name="laps" min="1"
-                   onchange="foUpdateSetup('laps', this.value)" />
-        </div>
+        <table>
+            <tr>
+                <td>
+                    <label for="track-choice">Track:</label>
+                </td>
+                <td>
+                    <select name="track-choice" id="track-choice"
+                            onchange="foUpdateSetup('fo_track_id', this.value)">
+                        <option value="1">Monaco</option>
+                    </select>
+                </td>
+            <tr>
+            <tr>
+                <td id="track-choice-div" colspan="2"/>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <label>Players number</label>
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="min-players">Minimum:</label>
+                </td>
+                <td>
+                    <input type="number" id="min-players" name="min-players" min="1" max="12" 
+                       onchange="foUpdateSetup('min_players', this.value)" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="max-players">Maximum:</label>
+                </td>
+                <td>
+                    <input type="number" id="max-players" name="max-players" min="1" max="12"
+                       onchange="foUpdateSetup('max_players', this.value)" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="cars-per-player">Cars per player:</label>
+                </td>
+                <td>
+                    <input type="number" id="cars-per-player" name="cars-per-player" min="1" max="12"
+                       onchange="foUpdateSetup('cars_per_player', this.value)" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="wear-points-available">Wear points available:</label>
+                </td>
+                <td>
+                    <input type="number" id="wear-points-available" name="wear-points-available" min="6"
+                       onchange="foUpdateSetup('wear_points', this.value)" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <label for="laps">Laps:</label>
+                </td>
+                <td>
+                    <input type="number" id="laps" name="laps" min="1"
+                       onchange="foUpdateSetup('laps', this.value)" />
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    <?= $this->Form->postButton(__('Start'),
+                            ['action' => 'start', $formulaGame->id],
+                            ['id' => 'start-button']) ?>
+                </td>
+            </tr>
+        </table>
     </div>
 </div>
 <script>
@@ -68,6 +110,12 @@
         let data = { _csrfToken: csrfToken, damage_id: damageId, wear_points: wearPoints };
         $.post(url, data, null, 'json');
     };
+    var foStartGame = function() {
+        let url = '<?= \Cake\Routing\Router::url(
+                ['action' => 'start', $formulaGame->id]) ?>';
+        let data = { _csrfToken: csrfToken };
+        $.post(url, data, null, 'json');
+    }
     var foInsertTrackImg = function(track) {
         $("#track-choice-div img").remove();
         $("#track-choice-div").append($(document.createElement("img"))
@@ -85,11 +133,8 @@
         $("#cars-per-player").val(formulaGame["fo_game"]["cars_per_player"]);
         $("#wear-points-available").val(formulaGame["fo_game"]["wear_points"]);
         $("#laps").val(formulaGame["fo_game"]["laps"]);
-        if (formulaGame["editable"] && $("#start-button").length === 0) {
-            $("#setup-column").append($(document.createElement("button"))
-                    .attr("id", "start-button")
-                    .attr("disabled", true)
-                    .text("Start"));
+        if (formulaGame["editable"]) {
+            //TODO: disable start-button if not editable or not ready
         }
     };
     var foInsertPlayerCars = function(users, carsPerPlayer) {
@@ -122,7 +167,7 @@
                                     .attr("type", "number")
                                     .attr("disabled", !editable)
                                     .val(damage["wear_points"])
-                                    .on("change",
+                                    .change(
                                         function() {
                                             foUpdateDamage(damage["id"], this.value);
                                         })

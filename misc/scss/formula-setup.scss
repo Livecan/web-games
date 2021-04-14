@@ -22,6 +22,18 @@ and open the template in the editor.
     float: right;
 }
 
+label {
+    font-size: medium;
+}
+
+input[type=number] {
+    text-align: right;
+}
+
+td {
+    padding: 0;
+}
+
 @media (min-width: 768px) {
     #player-car-column {
         width: 75%;
