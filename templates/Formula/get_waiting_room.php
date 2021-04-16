@@ -182,6 +182,10 @@
                 ['action' => 'getSetupUpdateJson', $formulaGame->id]) ?>';
         $.getJSON(url, { 'modified-setup': modifiedSetup }, function(data) {
             if (data["has_updated"]) {
+                if (data["has_started"]) {
+                    window.location.href = '<?= \Cake\Routing\Router::url(
+                        ['action' => 'getBoard', $formulaGame->id]) ?>';
+                }
                 modifiedSetup = data["modified"];
                 $("#game-name").text(data['name']);
                 foInsertPlayerCars(data["users"], data["fo_game"]["cars_per_player"]);

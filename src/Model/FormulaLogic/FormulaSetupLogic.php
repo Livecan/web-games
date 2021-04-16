@@ -92,11 +92,16 @@ class FormulaSetupLogic {
         return $this->FoCars->createUserCar($formulaGame->id, $user_id, $foDamages, true);
     }
 
-    public function getSetupUpdateJson($formulaGame, $user, Time $modifiedDate = null) {
+    public function getSetupUpdateJson(FormulaGame $formulaGame, $user, Time $modifiedDate = null) {
         $formulaGame = $this->FormulaGames->get($formulaGame->id, ['contain' => [
             'FoGames', 'FoGames.FoTracks',
             'Users', 'FoCars', 'FoCars.FoDamages', 'FoGames.FoTracks',
         ]]);
+        if ($formulaGame->game_state_id == 2) {
+            return new Entity([
+                'has_updated' => true,
+                'has_started' => true,]);
+        }
         if ($modifiedDate >= $formulaGame->modified) {
             return new Entity(['has_updated' => false]);
         }

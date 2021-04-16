@@ -149,7 +149,7 @@ class FormulaController extends AppController
                 ['contain' => ['Users']]);
         $this->Authorization->authorize($formulaGame);
         
-        if ($this->request->is('get') && $formulaGame->game_state_id == 1) {
+        if ($this->request->is('get')) {
             
             $modifiedDateQueryParam = $this->request->getQuery('modified-setup');
             $modifiedDate = $modifiedDateQueryParam == null ? null : 
