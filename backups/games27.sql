@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: Apr 10, 2021 at 07:20 PM
+-- Generation Time: Apr 16, 2021 at 08:06 AM
 -- Server version: 5.7.26
 -- PHP Version: 7.3.21
 
@@ -164,6 +164,7 @@ CREATE TABLE IF NOT EXISTS `fo_cars` (
   `order` int(11) DEFAULT NULL COMMENT 'Player order in the current turn, when the player finished turn, it''s NULL.',
   `fo_curve_id` int(11) DEFAULT NULL,
   `stops` int(11) DEFAULT NULL,
+  `state` char(1) COLLATE utf8_bin NOT NULL DEFAULT 'N' COMMENT 'N - not ready,\r\nR - racing,\r\nX - retired,\r\nF - finished',
   `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `modified` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -173,15 +174,25 @@ CREATE TABLE IF NOT EXISTS `fo_cars` (
   KEY `lap` (`lap`),
   KEY `order` (`order`),
   KEY `fo_curve_id` (`fo_curve_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=103 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 --
 -- Dumping data for table `fo_cars`
 --
 
-INSERT INTO `fo_cars` (`id`, `game_id`, `user_id`, `lap`, `fo_position_id`, `gear`, `order`, `fo_curve_id`, `stops`, `created`, `modified`) VALUES
-(71, 60, 1, 0, NULL, -1, NULL, NULL, NULL, '2021-04-10 19:18:20', '2021-04-10 19:18:20'),
-(72, 60, 1, 0, NULL, -1, NULL, NULL, NULL, '2021-04-10 19:18:20', '2021-04-10 19:18:20');
+INSERT INTO `fo_cars` (`id`, `game_id`, `user_id`, `lap`, `fo_position_id`, `gear`, `order`, `fo_curve_id`, `stops`, `state`, `created`, `modified`) VALUES
+(71, 60, 1, 0, NULL, -1, NULL, NULL, NULL, 'N', '2021-04-10 19:18:20', '2021-04-16 10:01:10'),
+(72, 60, 1, 0, NULL, -1, NULL, NULL, NULL, 'N', '2021-04-10 19:18:20', '2021-04-16 10:01:10'),
+(73, 61, 1, 0, NULL, -1, NULL, NULL, NULL, 'N', '2021-04-10 19:22:47', '2021-04-16 10:01:10'),
+(74, 61, 1, 0, NULL, -1, NULL, NULL, NULL, 'N', '2021-04-10 19:22:47', '2021-04-16 10:01:10'),
+(75, 62, 1, 0, NULL, -1, NULL, NULL, NULL, 'N', '2021-04-11 14:27:17', '2021-04-16 10:01:10'),
+(76, 62, 1, 0, NULL, -1, NULL, NULL, NULL, 'N', '2021-04-11 14:27:18', '2021-04-16 10:01:10'),
+(77, 63, 1, 0, 490, -1, 6, NULL, NULL, 'N', '2021-04-11 14:27:37', '2021-04-16 10:01:10'),
+(78, 63, 1, 0, 501, -1, 3, NULL, NULL, 'N', '2021-04-11 14:27:37', '2021-04-16 10:01:10'),
+(79, 63, 1, 0, 508, -1, 2, NULL, NULL, 'N', '2021-04-13 09:20:56', '2021-04-16 10:01:10'),
+(81, 63, 3, 0, 510, -1, 1, NULL, NULL, 'N', '2021-04-13 15:07:17', '2021-04-16 10:01:10'),
+(82, 63, 3, 0, 499, -1, 4, NULL, NULL, 'N', '2021-04-13 15:07:18', '2021-04-16 10:01:10'),
+(83, 63, 3, 0, 492, -1, 5, NULL, NULL, 'N', '2021-04-13 15:07:18', '2021-04-16 10:01:10');
 
 -- --------------------------------------------------------
 
@@ -240,7 +251,7 @@ CREATE TABLE IF NOT EXISTS `fo_damages` (
   KEY `fo_e_damage_type_id` (`fo_e_damage_type_id`),
   KEY `created` (`created`),
   KEY `modified` (`modified`)
-) ENGINE=InnoDB AUTO_INCREMENT=13 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=229 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 --
 -- Dumping data for table `fo_damages`
@@ -258,7 +269,103 @@ INSERT INTO `fo_damages` (`id`, `fo_car_id`, `fo_move_option_id`, `fo_log_id`, `
 (9, 72, NULL, NULL, 3, 3, '2021-04-10 19:18:20', '2021-04-10 19:18:20'),
 (10, 72, NULL, NULL, 3, 4, '2021-04-10 19:18:20', '2021-04-10 19:18:20'),
 (11, 72, NULL, NULL, 3, 5, '2021-04-10 19:18:20', '2021-04-10 19:18:20'),
-(12, 72, NULL, NULL, 3, 6, '2021-04-10 19:18:20', '2021-04-10 19:18:20');
+(12, 72, NULL, NULL, 3, 6, '2021-04-10 19:18:20', '2021-04-10 19:18:20'),
+(13, 73, NULL, NULL, 6, 1, '2021-04-10 19:22:47', '2021-04-10 19:22:47'),
+(14, 73, NULL, NULL, 3, 2, '2021-04-10 19:22:47', '2021-04-10 19:22:47'),
+(15, 73, NULL, NULL, 3, 3, '2021-04-10 19:22:47', '2021-04-10 19:22:47'),
+(16, 73, NULL, NULL, 3, 4, '2021-04-10 19:22:47', '2021-04-10 19:22:47'),
+(17, 73, NULL, NULL, 3, 5, '2021-04-10 19:22:47', '2021-04-10 19:22:47'),
+(18, 73, NULL, NULL, 3, 6, '2021-04-10 19:22:47', '2021-04-10 19:22:47'),
+(19, 74, NULL, NULL, 6, 1, '2021-04-10 19:22:47', '2021-04-10 19:22:47'),
+(20, 74, NULL, NULL, 3, 2, '2021-04-10 19:22:47', '2021-04-10 19:22:47'),
+(21, 74, NULL, NULL, 3, 3, '2021-04-10 19:22:47', '2021-04-10 19:22:47'),
+(22, 74, NULL, NULL, 3, 4, '2021-04-10 19:22:47', '2021-04-10 19:22:47'),
+(23, 74, NULL, NULL, 3, 5, '2021-04-10 19:22:47', '2021-04-10 19:22:47'),
+(24, 74, NULL, NULL, 3, 6, '2021-04-10 19:22:47', '2021-04-10 19:22:47'),
+(25, 75, NULL, NULL, 6, 1, '2021-04-11 14:27:18', '2021-04-11 14:27:18'),
+(26, 75, NULL, NULL, 3, 2, '2021-04-11 14:27:18', '2021-04-11 14:27:18'),
+(27, 75, NULL, NULL, 3, 3, '2021-04-11 14:27:18', '2021-04-11 14:27:18'),
+(28, 75, NULL, NULL, 3, 4, '2021-04-11 14:27:18', '2021-04-11 14:27:18'),
+(29, 75, NULL, NULL, 3, 5, '2021-04-11 14:27:18', '2021-04-11 14:27:18'),
+(30, 75, NULL, NULL, 3, 6, '2021-04-11 14:27:18', '2021-04-11 14:27:18'),
+(31, 76, NULL, NULL, 6, 1, '2021-04-11 14:27:18', '2021-04-11 14:27:18'),
+(32, 76, NULL, NULL, 3, 2, '2021-04-11 14:27:18', '2021-04-11 14:27:18'),
+(33, 76, NULL, NULL, 3, 3, '2021-04-11 14:27:18', '2021-04-11 14:27:18'),
+(34, 76, NULL, NULL, 3, 4, '2021-04-11 14:27:18', '2021-04-11 14:27:18'),
+(35, 76, NULL, NULL, 3, 5, '2021-04-11 14:27:18', '2021-04-11 14:27:18'),
+(36, 76, NULL, NULL, 3, 6, '2021-04-11 14:27:18', '2021-04-11 14:27:18'),
+(37, 77, NULL, NULL, 8, 1, '2021-04-11 14:27:37', '2021-04-13 15:51:55'),
+(38, 77, NULL, NULL, 3, 2, '2021-04-11 14:27:37', '2021-04-12 18:13:29'),
+(39, 77, NULL, NULL, 3, 3, '2021-04-11 14:27:37', '2021-04-12 18:17:13'),
+(40, 77, NULL, NULL, 3, 4, '2021-04-11 14:27:37', '2021-04-11 14:27:37'),
+(41, 77, NULL, NULL, 3, 5, '2021-04-11 14:27:37', '2021-04-11 14:27:37'),
+(42, 77, NULL, NULL, 3, 6, '2021-04-11 14:27:37', '2021-04-11 14:27:37'),
+(43, 78, NULL, NULL, 6, 1, '2021-04-11 14:27:37', '2021-04-11 14:27:37'),
+(44, 78, NULL, NULL, 3, 2, '2021-04-11 14:27:37', '2021-04-11 14:27:37'),
+(45, 78, NULL, NULL, 3, 3, '2021-04-11 14:27:37', '2021-04-11 14:27:37'),
+(46, 78, NULL, NULL, 3, 4, '2021-04-11 14:27:37', '2021-04-11 14:27:37'),
+(47, 78, NULL, NULL, 3, 5, '2021-04-11 14:27:37', '2021-04-11 14:27:37'),
+(48, 78, NULL, NULL, 3, 6, '2021-04-11 14:27:37', '2021-04-11 14:27:37'),
+(49, 79, NULL, NULL, 6, 1, '2021-04-13 09:20:56', '2021-04-13 09:20:56'),
+(50, 79, NULL, NULL, 3, 2, '2021-04-13 09:20:56', '2021-04-13 09:20:56'),
+(51, 79, NULL, NULL, 3, 3, '2021-04-13 09:20:56', '2021-04-13 09:20:56'),
+(52, 79, NULL, NULL, 3, 4, '2021-04-13 09:20:56', '2021-04-13 09:20:56'),
+(53, 79, NULL, NULL, 3, 5, '2021-04-13 09:20:56', '2021-04-13 09:20:56'),
+(54, 79, NULL, NULL, 3, 6, '2021-04-13 09:20:56', '2021-04-13 09:20:56'),
+(61, 81, NULL, NULL, 6, 1, '2021-04-13 15:07:18', '2021-04-13 15:07:18'),
+(62, 81, NULL, NULL, 3, 2, '2021-04-13 15:07:18', '2021-04-13 15:07:18'),
+(63, 81, NULL, NULL, 3, 3, '2021-04-13 15:07:18', '2021-04-13 15:07:18'),
+(64, 81, NULL, NULL, 3, 4, '2021-04-13 15:07:18', '2021-04-13 15:07:18'),
+(65, 81, NULL, NULL, 3, 5, '2021-04-13 15:07:18', '2021-04-13 15:07:18'),
+(66, 81, NULL, NULL, 3, 6, '2021-04-13 15:07:18', '2021-04-13 15:07:18'),
+(67, 82, NULL, NULL, 6, 1, '2021-04-13 15:07:18', '2021-04-13 15:07:18'),
+(68, 82, NULL, NULL, 3, 2, '2021-04-13 15:07:18', '2021-04-13 15:07:18'),
+(69, 82, NULL, NULL, 3, 3, '2021-04-13 15:07:18', '2021-04-13 15:07:18'),
+(70, 82, NULL, NULL, 3, 4, '2021-04-13 15:07:18', '2021-04-13 15:07:18'),
+(71, 82, NULL, NULL, 3, 5, '2021-04-13 15:07:18', '2021-04-13 15:07:18'),
+(72, 82, NULL, NULL, 3, 6, '2021-04-13 15:07:18', '2021-04-13 15:07:18'),
+(73, 83, NULL, NULL, 6, 1, '2021-04-13 15:07:18', '2021-04-13 15:07:18'),
+(74, 83, NULL, NULL, 3, 2, '2021-04-13 15:07:18', '2021-04-13 15:07:18'),
+(75, 83, NULL, NULL, 3, 3, '2021-04-13 15:07:18', '2021-04-13 15:07:18'),
+(76, 83, NULL, NULL, 3, 4, '2021-04-13 15:07:18', '2021-04-13 15:07:18'),
+(77, 83, NULL, NULL, 3, 5, '2021-04-13 15:07:18', '2021-04-13 15:07:18'),
+(78, 83, NULL, NULL, 3, 6, '2021-04-13 15:07:18', '2021-04-13 15:07:18'),
+(193, NULL, NULL, 122, 6, 1, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(194, NULL, NULL, 122, 3, 2, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(195, NULL, NULL, 122, 3, 3, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(196, NULL, NULL, 122, 3, 4, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(197, NULL, NULL, 122, 3, 5, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(198, NULL, NULL, 122, 3, 6, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(199, NULL, NULL, 123, 6, 1, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(200, NULL, NULL, 123, 3, 2, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(201, NULL, NULL, 123, 3, 3, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(202, NULL, NULL, 123, 3, 4, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(203, NULL, NULL, 123, 3, 5, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(204, NULL, NULL, 123, 3, 6, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(205, NULL, NULL, 124, 6, 1, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(206, NULL, NULL, 124, 3, 2, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(207, NULL, NULL, 124, 3, 3, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(208, NULL, NULL, 124, 3, 4, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(209, NULL, NULL, 124, 3, 5, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(210, NULL, NULL, 124, 3, 6, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(211, NULL, NULL, 125, 6, 1, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(212, NULL, NULL, 125, 3, 2, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(213, NULL, NULL, 125, 3, 3, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(214, NULL, NULL, 125, 3, 4, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(215, NULL, NULL, 125, 3, 5, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(216, NULL, NULL, 125, 3, 6, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(217, NULL, NULL, 126, 6, 1, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(218, NULL, NULL, 126, 3, 2, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(219, NULL, NULL, 126, 3, 3, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(220, NULL, NULL, 126, 3, 4, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(221, NULL, NULL, 126, 3, 5, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(222, NULL, NULL, 126, 3, 6, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(223, NULL, NULL, 127, 8, 1, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(224, NULL, NULL, 127, 3, 2, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(225, NULL, NULL, 127, 3, 3, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(226, NULL, NULL, 127, 3, 4, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(227, NULL, NULL, 127, 3, 5, '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(228, NULL, NULL, 127, 3, 6, '2021-04-14 18:59:37', '2021-04-14 18:59:37');
 
 -- --------------------------------------------------------
 
@@ -324,7 +431,7 @@ CREATE TABLE IF NOT EXISTS `fo_games` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `game_id` (`game_id`),
   KEY `track_id` (`fo_track_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=44 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 --
 -- Dumping data for table `fo_games`
@@ -349,7 +456,10 @@ INSERT INTO `fo_games` (`id`, `game_id`, `fo_track_id`, `cars_per_player`, `wear
 (37, 57, 1, 1, 21, 2, NULL, '2021-04-10 19:15:45'),
 (38, 58, 1, 1, 21, 2, NULL, '2021-04-10 19:16:14'),
 (39, 59, 1, 2, 21, 2, NULL, '2021-04-10 19:17:33'),
-(40, 60, 1, 2, 21, 2, NULL, '2021-04-10 19:18:20');
+(40, 60, 1, 2, 21, 2, NULL, '2021-04-10 19:18:20'),
+(41, 61, 1, 2, 21, 2, NULL, '2021-04-10 19:22:47'),
+(42, 62, 1, 2, 21, 2, NULL, '2021-04-11 14:27:17'),
+(43, 63, 1, 3, 21, 2, NULL, '2021-04-11 14:27:37');
 
 -- --------------------------------------------------------
 
@@ -373,7 +483,19 @@ CREATE TABLE IF NOT EXISTS `fo_logs` (
   KEY `fo_position_id` (`fo_position_id`),
   KEY `modified` (`modified`),
   KEY `created` (`created`)
-) ENGINE=InnoDB AUTO_INCREMENT=122 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=128 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+--
+-- Dumping data for table `fo_logs`
+--
+
+INSERT INTO `fo_logs` (`id`, `fo_car_id`, `fo_position_id`, `gear`, `roll`, `ranking`, `type`, `created`, `modified`) VALUES
+(122, 81, 510, -1, NULL, NULL, 'I', '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(123, 79, 508, -1, NULL, NULL, 'I', '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(124, 78, 501, -1, NULL, NULL, 'I', '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(125, 82, 499, -1, NULL, NULL, 'I', '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(126, 83, 492, -1, NULL, NULL, 'I', '2021-04-14 18:59:37', '2021-04-14 18:59:37'),
+(127, 77, 490, -1, NULL, NULL, 'I', '2021-04-14 18:59:37', '2021-04-14 18:59:37');
 
 -- --------------------------------------------------------
 
@@ -2306,7 +2428,7 @@ CREATE TABLE IF NOT EXISTS `games` (
   KEY `game_state_id` (`game_state_id`),
   KEY `creator_id` (`creator_id`),
   KEY `game_type_id` (`game_type_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=61 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=64 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 --
 -- Dumping data for table `games`
@@ -2332,7 +2454,10 @@ INSERT INTO `games` (`id`, `name`, `min_players`, `max_players`, `creator_id`, `
 (57, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 19:15:45', '2021-04-10 19:15:45'),
 (58, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 19:16:14', '2021-04-10 19:16:14'),
 (59, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 19:17:33', '2021-04-10 19:17:33'),
-(60, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 19:18:20', '2021-04-10 19:18:20');
+(60, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 19:18:20', '2021-04-10 19:18:20'),
+(61, 'Livecan\'s game', NULL, NULL, 1, 1, 2, '2021-04-10 19:22:47', '2021-04-10 19:22:47'),
+(62, '0', NULL, NULL, 1, 1, 2, '2021-04-11 14:27:17', '2021-04-11 14:27:17'),
+(63, 'Livecan\'s Monaco GP', 10, 6, 1, 2, 2, '2021-04-11 14:27:37', '2021-04-14 18:59:37');
 
 -- --------------------------------------------------------
 
@@ -2345,30 +2470,35 @@ CREATE TABLE IF NOT EXISTS `games_users` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `game_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
+  `ready_state` char(1) COLLATE utf8_bin NOT NULL COMMENT 'R - ready,\r\nN - not ready',
   `order_number` int(11) DEFAULT NULL,
   `next_user_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `Game_ID` (`game_id`),
   KEY `Player_ID` (`user_id`),
   KEY `next_user_id` (`next_user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+) ENGINE=InnoDB AUTO_INCREMENT=60 DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
 
 --
 -- Dumping data for table `games_users`
 --
 
-INSERT INTO `games_users` (`id`, `game_id`, `user_id`, `order_number`, `next_user_id`) VALUES
-(45, 46, 1, NULL, NULL),
-(46, 47, 1, NULL, NULL),
-(47, 48, 1, NULL, NULL),
-(48, 53, 1, NULL, NULL),
-(49, 54, 1, NULL, NULL),
-(50, 55, 1, NULL, NULL),
-(51, 56, 1, NULL, NULL),
-(52, 57, 1, NULL, NULL),
-(53, 58, 1, NULL, NULL),
-(54, 59, 1, NULL, NULL),
-(55, 60, 1, NULL, NULL);
+INSERT INTO `games_users` (`id`, `game_id`, `user_id`, `ready_state`, `order_number`, `next_user_id`) VALUES
+(45, 46, 1, '', NULL, NULL),
+(46, 47, 1, '', NULL, NULL),
+(47, 48, 1, '', NULL, NULL),
+(48, 53, 1, '', NULL, NULL),
+(49, 54, 1, '', NULL, NULL),
+(50, 55, 1, '', NULL, NULL),
+(51, 56, 1, '', NULL, NULL),
+(52, 57, 1, '', NULL, NULL),
+(53, 58, 1, '', NULL, NULL),
+(54, 59, 1, '', NULL, NULL),
+(55, 60, 1, '', NULL, NULL),
+(56, 61, 1, '', NULL, NULL),
+(57, 62, 1, '', NULL, NULL),
+(58, 63, 1, '', NULL, NULL),
+(59, 63, 3, '', NULL, NULL);
 
 -- --------------------------------------------------------
 
@@ -2488,7 +2618,7 @@ ALTER TABLE `fo_curves`
 -- Constraints for table `fo_damages`
 --
 ALTER TABLE `fo_damages`
-  ADD CONSTRAINT `fo_damages_ibfk_1` FOREIGN KEY (`fo_car_id`) REFERENCES `fo_cars` (`id`),
+  ADD CONSTRAINT `fo_damages_ibfk_1` FOREIGN KEY (`fo_car_id`) REFERENCES `fo_cars` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
   ADD CONSTRAINT `fo_damages_ibfk_2` FOREIGN KEY (`fo_e_damage_type_id`) REFERENCES `fo_e_damage_types` (`id`),
   ADD CONSTRAINT `fo_damages_ibfk_3` FOREIGN KEY (`fo_log_id`) REFERENCES `fo_logs` (`id`),
   ADD CONSTRAINT `fo_damages_ibfk_4` FOREIGN KEY (`fo_move_option_id`) REFERENCES `fo_move_options` (`id`) ON DELETE CASCADE ON UPDATE CASCADE;
