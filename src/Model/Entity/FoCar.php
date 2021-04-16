@@ -13,10 +13,11 @@ use Cake\ORM\Entity;
  * @property int $user_id
  * @property int $lap
  * @property int|null $fo_position_id
- * @property int|null $fo_curve_id
- * @property int|null stops
  * @property int $gear
  * @property int $order
+ * @property int|null $fo_curve_id
+ * @property int|null $stops
+ * @property string $state
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
  *
@@ -44,10 +45,11 @@ class FoCar extends Entity
         'user_id' => true,
         'lap' => true,
         'fo_position_id' => true,
-        'fo_curve_id' => true,
-        'stops' => true,
         'gear' => true,
         'order' => true,
+        'fo_curve_id' => true,
+        'stops' => true,
+        'state' => true,
         'created' => true,
         'modified' => true,
         'game' => true,

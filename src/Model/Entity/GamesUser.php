@@ -11,7 +11,9 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property int $game_id
  * @property int $user_id
+ * @property string $ready_state
  * @property int|null $order_number
+ * @property int|null $next_user_id
  *
  * @property \App\Model\Entity\Game $game
  * @property \App\Model\Entity\User $user
@@ -30,7 +32,9 @@ class GamesUser extends Entity
     protected $_accessible = [
         'game_id' => true,
         'user_id' => true,
+        'ready_state' => true,
         'order_number' => true,
+        'next_user_id' => true,
         'game' => true,
         'user' => true,
     ];
