@@ -152,6 +152,10 @@ class FormulaLogic {
             }
             $actions->type = "choose_move";
             $actions->available_moves = $this->MovementLogic->getAvailableMoves($currentCar, $movesLeft);
+            if (count($actions->available_moves) == 1) {
+                chooseMoveOption($formulaGame, $actions->available_moves[0]->id);
+                return null;
+            }
         }
         $lastCarTurn;
         if ($lastCarTurn != null && $lastCarTurn['fo_position_id'] != null) {
@@ -174,6 +178,9 @@ class FormulaLogic {
         $foCar->fo_position_id = $foPositionId;
         $foCar->fo_curve_id = $foMoveOption->fo_curve_id;
         $foCar->stops = $foMoveOption->stops + 1;
+        if ($foMoveOption->is_next_lap) {
+            $foCar->lap++;
+        }
         $foCar->order = null;
         
         $damagesSuffered = [];

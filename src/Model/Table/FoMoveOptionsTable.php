@@ -96,6 +96,7 @@ class FoMoveOptionsTable extends Table
             'fo_position_id' => $fo_position_id,
             'fo_curve_id' => $foCar->fo_curve_id,
             'stops' => $foCar->stops,
+            'is_next_lap' => false,
             'np_moves_left' => $movesLeft,
             'np_allowed_left' => true,
             'np_allowed_right' => true,

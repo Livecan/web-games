@@ -13,6 +13,7 @@ use Cake\ORM\Entity;
  * @property int $fo_position_id
  * @property int|null $fo_curve_id
  * @property int|null $stops
+ * @property bool $is_next_lap
  * @property int $np_moves_left
  * @property int $np_allowed_left
  * @property int $np_allowed_right
@@ -41,6 +42,7 @@ class FoMoveOption extends Entity
         'fo_position_id' => true,
         'fo_curve_id' => true,
         'stops' => true,
+        'is_next_lap' => true,
         'np_moves_left' => true,
         'np_allowed_left' => true,
         'np_allowed_right' => true,

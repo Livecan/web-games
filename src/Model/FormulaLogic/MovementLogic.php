@@ -34,7 +34,8 @@ class MovementLogic {
         if ($movesLeft == 0) {
             return [new FoMoveOption(['fo_car_id' => $foCar->id,
                     'fo_position_id' => $foCar->fo_position_id,
-                    'fo_damages' => $this->getZeroDamages([1, 3, 6]),   //Tires, Brakes, Shocks
+                    'is_next_lap' => false,
+                    'fo_damages' => $this->getZeroDamages([1, 3, 6],),   //Tires, Brakes, Shocks
                 ])];
         }
         $savedMoveOptions = $this->FoMoveOptions->find('all')->
@@ -110,8 +111,11 @@ class MovementLogic {
         //following returns all the possible next moves, excluding fields where other cars are
         $query = $this->FoPosition2Positions->find('all')-> 
                 contain([
+                    'FoPositionFrom' => function(Query $q) {
+                        return $q->select(['id', 'is_finish']);
+                    },
                     'FoPositionTo' => function(Query $q) {
-                        return $q->select('id');
+                        return $q->select(['id', 'is_finish']);
                     },
                     'FoPositionTo.FoCars' => function(Query $q) use ($game_id) {
                         return  $q->where(['game_id' => $game_id])->
@@ -138,9 +142,6 @@ class MovementLogic {
             filter(function(FoPosition2Position $foPosition2Position) {
                 return count($foPosition2Position->fo_position_to->fo_cars) == 0;
             })->
-            map(function(FoPosition2Position $foPosition2Position) {
-                return $foPosition2Position->unset(['fo_position_to']);
-            })->
             toList();
     }
     
@@ -166,6 +167,7 @@ class MovementLogic {
             'fo_position_id' => $nextPosition2Positions->fo_position_to_id,
             'fo_curve_id' => $currentMoveOption->fo_curve_id,
             'stops' => $currentMoveOption->stops,
+            'is_next_lap' => $currentMoveOption->is_next_lap,
             'np_moves_left' => ($currentMoveOption->np_moves_left - 1),
             'np_allowed_left' => $currentMoveOption->np_allowed_left,
             'np_allowed_right' => $currentMoveOption->np_allowed_right,
@@ -175,6 +177,11 @@ class MovementLogic {
         
         if ($overtaking == 3 || $overtaking == 2 && $nextPosition2Positions->is_straight) {
             $nextMoveOption->np_overtaking = $overtaking - 1;
+        }
+        
+        if (!$nextPosition2Positions->fo_position_from->is_finish &&
+                $nextPosition2Positions->fo_position_to->is_finish) {
+            $nextMoveOption->is_next_lap = true;
         }
         
         if ($nextPosition2Positions->is_left || $nextPosition2Positions->is_curve) {
@@ -251,6 +258,7 @@ class MovementLogic {
             'fo_position_id' => $moveOption->fo_position_id,
             'fo_curve_id' => $moveOption->fo_curve_id,
             'stops' => $moveOption->stops,
+            'is_next_lap' => $moveOption->is_next_lap,
             'np_overshooting' => $moveOption->np_overshooting,
             'np_moves_left' => $moveOption->np_moves_left - 1,
             'np_allowed_left' => $moveOption->np_allowed_left,
