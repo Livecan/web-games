@@ -50,7 +50,7 @@ class FormulaGamesTable extends Table
     {
         parent::initialize($config);
 
-        $this->setTable('Games');
+        $this->setTable('games');
         $this->setDisplayField('name');
         $this->setPrimaryKey('id');
 
