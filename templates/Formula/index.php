@@ -5,7 +5,7 @@
  */
 ?>
 <div class="games index content">
-    <!--?= $this->Html->link(__('New Game'), ['action' => 'add'], ['class' => 'button float-right']) ?-->
+    <?= $this->Form->postLink(__('New Game'), ['action' => 'create-new-game'], ['class' => 'button float-right']) ?>
     <h3><?= __('Games') ?></h3>
     <div class="table-responsive">
         <table>
