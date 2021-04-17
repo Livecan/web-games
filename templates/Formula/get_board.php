@@ -1,5 +1,6 @@
 <?php
     $this->Html->css('formula-game/formula-game', ['block' => true]);
+    $this->Html->script('/js/jQueryRotate.js', ['block' => true]);
 ?>
 <button onclick="foReloadBoard()">Refresh</button>  <!--TODO: <--remove the temporary button and replace with reloading-->
 <div id="board">    <!--//TODO: temporary width only-->
@@ -15,6 +16,19 @@
 <script>
     var foUserCarsColors = ["DarkRed", "Red", "DarkGreen", "LightGreen", "DarkBlue", "Blue", "DarkYellow", "Yellow"];
     var foDamageTypeClass = ["tires", "gearbox", "brakes", "engine", "chassis", "shocks"];
+    var foCarImages = ["tdrc01_car01_b.png",
+        "tdrc01_car01_e.png",
+        "tdrc01_car01_f.png",
+        "tdrc01_car03_a.png",
+        "tdrc01_car03_c.png",
+        "tdrc01_car03_d.png",
+        "tdrc01_car04_a.png",
+        "tdrc01_car04_d.png",
+        "tdrc01_car04_f.png",
+        "tdrc01_car07_b.png",
+        "tdrc01_car07_d.png",
+        "tdrc01_car07_f.png"
+    ];
     var foHandlerMoveOptionDamageDisplay = function(event) {
         $(".move_option_damage").css("visibility", "hidden");
         $("#damage_table_" + event.data.positionId).css("visibility", "visible");
@@ -48,16 +62,19 @@
     var foInsertCarsOnBoard = function(cars) {
         let carsElement = $("#formula_board");
         $("#formula_board .car").remove();
-        let radius = .8;
+        let carWidth = .8;
         for (let carIndex in cars) {
-            let carElement = $(document.createElementNS("http://www.w3.org/2000/svg", "circle"))
-                    .addClass("car")
-                    .attr("cx", cars[carIndex]["fo_position"]["pos_x"] / 1000 + "%")
-                    .attr("cy", cars[carIndex]["fo_position"]["pos_y"] / 1000 + "%")
-                    .attr("r", radius + "%")
-                    .attr("fill", foUserCarsColors[carIndex])
-                    .css("opacity", "65%");
-            carsElement.append(carElement);
+            let carElement;
+            carElement = $(document.createElement("img"))
+                    .attr("src", "/img/formula/cars/" + foCarImages[carIndex])
+                    .css("position", "absolute")
+                    .css("left", cars[carIndex]["fo_position"]["pos_x"] / 1000 - carWidth / 2 + "%")
+                    .css("top", cars[carIndex]["fo_position"]["pos_y"] / 1000 - 2.5 * carWidth / 2 + "%")
+                    .attr("width", carWidth + "%")
+                    .attr("height", 2.5 * carWidth + "%")
+                    .rotate(cars[carIndex]["fo_position"]["angle"] * 180 / Math.PI - 90);
+            $("#board").append(carElement);
+
         }
     };
     var foGetDamageTdElements = function(damages) {
