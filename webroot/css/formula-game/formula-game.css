@@ -7,9 +7,12 @@ and open the template in the editor.
     Created on : Apr 4, 2021, 12:45:00 PM
     Author     : roman
 */
+#board_parent {
+  max-height: 600px;
+}
+
 #board {
   position: relative;
-  width: 200%;
 }
 
 #formula_board {
@@ -45,6 +48,14 @@ and open the template in the editor.
   font-weight: bold;
 }
 
+#gears {
+  position: fixed;
+  left: 30px;
+  bottom: 20px;
+  background-color: white;
+  width: auto;
+}
+
 .move_option_damage {
   display: inline-block;
   position: fixed;
@@ -53,6 +64,14 @@ and open the template in the editor.
   visibility: hidden;
   background-color: white;
   width: auto;
+}
+
+.move_option {
+  opacity: 65%;
+}
+
+.car_img {
+  position: absolute;
 }
 
 td.damage.tires {

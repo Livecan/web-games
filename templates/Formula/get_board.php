@@ -3,10 +3,14 @@
     $this->Html->script('/js/jQueryRotate.js', ['block' => true]);
 ?>
 <button onclick="foReloadBoard()">Refresh</button>  <!--TODO: <--remove the temporary button and replace with reloading-->
-<div id="board">    <!--//TODO: temporary width only-->
-    <?= $this->Html->image('/img/formula/' . $formulaGame->fo_game->fo_track->game_plan,
-            ['alt' => 'Formula track map']) ?>
-    <svg id="formula_board" />
+<button class="zoom_button" onclick="foHandlerZoomBoard(true)">+</button>
+<button class="zoom_button" onclick="foHandlerZoomBoard(false)">-</button>
+<div id="board_parent" style="overflow: auto">
+    <div id="board">
+        <?= $this->Html->image('/img/formula/' . $formulaGame->fo_game->fo_track->game_plan,
+                ['alt' => 'Formula track map']) ?>
+        <svg id="formula_board" />
+    </div>
 </div>
 <div id="car_stats" onmouseenter="elmtVisibilityToggle(this, false)" 
      onmouseleave="elmtVisibilityToggle(this, true)">
@@ -29,6 +33,17 @@
         "tdrc01_car07_d.png",
         "tdrc01_car07_f.png"
     ];
+    var foBoardZooms = ["100%", "150%", "200%", "300%", "400%"];
+    var foBoardCurrentZoomIndex = 0;
+    var foHandlerZoomBoard = function(zoomIn) {
+        alert(foBoardCurrentZoomIndex);
+        if (zoomIn) {
+            foBoardCurrentZoomIndex = Math.min(foBoardCurrentZoomIndex + 1, foBoardZooms.length - 1);
+        } else {
+            foBoardCurrentZoomIndex = Math.max(foBoardCurrentZoomIndex - 1, 0);
+        }
+        $("#board").css("width", foBoardZooms[foBoardCurrentZoomIndex]);
+    }
     var foHandlerMoveOptionDamageDisplay = function(event) {
         $(".move_option_damage").css("visibility", "hidden");
         $("#damage_table_" + event.data.positionId).css("visibility", "visible");
@@ -63,15 +78,16 @@
         let carsElement = $("#formula_board");
         $("#formula_board .car").remove();
         let carWidth = .8;
+        let carLength = 2.5 * carWidth;
         for (let carIndex in cars) {
             let carElement;
             carElement = $(document.createElement("img"))
+                    .addClass("car_img")
                     .attr("src", "/img/formula/cars/" + foCarImages[carIndex])
-                    .css("position", "absolute")
                     .css("left", cars[carIndex]["fo_position"]["pos_x"] / 1000 - carWidth / 2 + "%")
-                    .css("top", cars[carIndex]["fo_position"]["pos_y"] / 1000 - 2.5 * carWidth / 2 + "%")
+                    .css("top", cars[carIndex]["fo_position"]["pos_y"] / 1000 - carLength / 2 + "%")
                     .attr("width", carWidth + "%")
-                    .attr("height", 2.5 * carWidth + "%")
+                    .attr("height", carLength + "%")
                     .rotate(cars[carIndex]["fo_position"]["angle"] * 180 / Math.PI - 90);
             $("#board").append(carElement);
 
@@ -119,8 +135,7 @@
                     .attr("cx", availableMoves[0]["fo_position"]["pos_x"] / 1000 + "%")
                     .attr("cy", availableMoves[0]["fo_position"]["pos_y"] / 1000 + "%")
                     .attr("r", radius + "%")
-                    .attr("fill", "purple")
-                    .css("opacity", "65%");
+                    .attr("fill", "purple");
             boardSvgElement.append(circle);
             boardSvgElement.on("click", "#" + moveElementId,
                     { positionId: positionId },
@@ -153,12 +168,7 @@
     };
     var foInsertGearChoice = function(actions) {
         let gearsTable = $(document.createElement("table"))
-                .attr("id", "gears")
-                .css("position", "fixed")
-                .css("left", "30px")
-                .css("bottom", "20px")
-                .css("background-color", "white")
-                .css("width", "auto");
+                .attr("id", "gears");
         $("#board").append(gearsTable);
         gearsTable.append(
             _.map(actions["available_gears"], function(gear) {
