@@ -24,7 +24,6 @@
                 <?php
                     echo $this->Form->control('name');
                     echo $this->Form->control('password');
-                    echo $this->Form->control('games._ids', ['options' => $games]);
                 ?>
             </fieldset>
             <?= $this->Form->button(__('Submit')) ?>

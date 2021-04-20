@@ -60,8 +60,7 @@ class UsersController extends AppController
             }
             $this->Flash->error(__('The user could not be saved. Please, try again.'));
         }
-        $games = $this->Users->Games->find('list', ['limit' => 200]);
-        $this->set(compact('user', 'games'));
+        $this->set(compact('user'));
     }
 
     /**
@@ -86,8 +85,7 @@ class UsersController extends AppController
             }
             $this->Flash->error(__('The user could not be saved. Please, try again.'));
         }
-        $games = $this->Users->Games->find('list', ['limit' => 200]);
-        $this->set(compact('user', 'games'));
+        $this->set(compact('user'));
     }
 
     /**
@@ -127,7 +125,7 @@ class UsersController extends AppController
         if ($result->isValid()) {
             // redirect to /articles after login success
             $redirect = $this->request->getQuery('redirect', [
-                'controller' => 'Games',
+                'controller' => 'Formula',
                 'action' => 'index',
             ]);
 
