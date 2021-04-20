@@ -74,8 +74,8 @@
         }
     };
     var foInsertCarsOnBoard = function(cars) {
-        let carsElement = $("#formula_board");
-        $("#formula_board .car").remove();
+        let carsElement = $("#board");
+        $("#board .car_img").remove();
         let carWidth = .8;
         let carLength = 2.5 * carWidth;
         for (let carIndex in cars) {
