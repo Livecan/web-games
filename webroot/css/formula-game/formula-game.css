@@ -10,27 +10,46 @@ and open the template in the editor.
 #board_parent {
   max-height: 600px;
 }
-
-#board {
+#board_parent #board {
   position: relative;
 }
-
-#formula_board {
+#board_parent #board #formula_board {
   position: absolute;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
 }
-
-.car {
-  opacity: 0.65;
+#board_parent #board #gears {
+  position: fixed;
+  left: 30px;
+  bottom: 20px;
+  background-color: white;
+  width: auto;
 }
 
 .damage_table {
   background-color: white;
   color: black;
   font-weight: bold;
+}
+.damage_table td.damage.tires {
+  background-color: blueviolet;
+}
+.damage_table td.damage.gearbox {
+  background-color: seagreen;
+}
+.damage_table td.damage.brakes {
+  background-color: turquoise;
+}
+.damage_table td.damage.engine {
+  background-color: tomato;
+}
+.damage_table td.damage.chassis {
+  background-color: orange;
+}
+.damage_table td.damage.shocks {
+  background-color: orchid;
 }
 
 #car_stats {
@@ -41,19 +60,25 @@ and open the template in the editor.
   transition-property: opacity;
   transition-duration: 0.5s;
 }
-
-#car_stats_table {
+#car_stats #car_stats_table {
   background-color: white;
   color: black;
   font-weight: bold;
 }
-
-#gears {
-  position: fixed;
-  left: 30px;
-  bottom: 20px;
-  background-color: white;
-  width: auto;
+#car_stats #car_stats_table td:first-child {
+  position: relative;
+  width: 50px;
+}
+#car_stats #car_stats_table td:first-child .car_img {
+  position: absolute;
+  top: 0;
+  left: 25px;
+  transform: rotate(90deg);
+  transform-origin: 50% 50%;
+}
+#car_stats #car_stats_table td {
+  padding-left: 15px;
+  padding-right: 15px;
 }
 
 .move_option_damage {
@@ -72,30 +97,6 @@ and open the template in the editor.
 
 .car_img {
   position: absolute;
-}
-
-td.damage.tires {
-  background-color: blueviolet;
-}
-
-td.damage.gearbox {
-  background-color: seagreen;
-}
-
-td.damage.brakes {
-  background-color: turquoise;
-}
-
-td.damage.engine {
-  background-color: tomato;
-}
-
-td.damage.chassis {
-  background-color: orange;
-}
-
-td.damage.shocks {
-  background-color: orchid;
 }
 
 /*# sourceMappingURL=formula-game.css.map */

@@ -36,7 +36,6 @@
     var foBoardZooms = ["100%", "150%", "200%", "300%", "400%"];
     var foBoardCurrentZoomIndex = 0;
     var foHandlerZoomBoard = function(zoomIn) {
-        alert(foBoardCurrentZoomIndex);
         if (zoomIn) {
             foBoardCurrentZoomIndex = Math.min(foBoardCurrentZoomIndex + 1, foBoardZooms.length - 1);
         } else {
@@ -69,11 +68,11 @@
     
     var elmtVisibilityToggle = function(element, visibility) {
         if (visibility) {
-            $(element).css("opacity", .9)
+            $(element).css("opacity", .9);
         } else {
-            $(element).css("opacity", 0)
+            $(element).css("opacity", 0);
         }
-    }
+    };
     var foInsertCarsOnBoard = function(cars) {
         let carsElement = $("#formula_board");
         $("#formula_board .car").remove();
@@ -112,8 +111,15 @@
             let carStatRow = $(document.createElement("tr"));
             let user = users.find((_user) => _user["id"] === car["user_id"]);
             carStatRow.append(
+                $(document.createElement("td")).append(
+                    $(document.createElement("img"))
+                        .addClass("car_img")
+                        .attr("width", "20px")
+                        .attr("height", "50px")
+                        .attr("src", "/img/formula/cars/" + foCarImages[carIndex])
+                        ));
+            carStatRow.append(
                     $(document.createElement("td"))
-                            .css("background-color", foUserCarsColors[carIndex])
                             .html(user["name"]));
             carStatRow.append(foGetDamageTdElements(car["fo_damages"]));
             carStatsTable.append(carStatRow);

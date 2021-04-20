@@ -10,28 +10,47 @@ and open the template in the editor.
 
 #board_parent {
     max-height: 600px;
-}
-
-#board {
-    position: relative;
-}
-
-#formula_board {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-}
-
-.car {
-    opacity: 0.65;
+    #board {
+        position: relative;
+        #formula_board {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #gears {
+            position: fixed;
+            left: 30px;
+            bottom: 20px;
+            background-color: white;
+            width: auto;
+        }
+    }
 }
 
 .damage_table {
     background-color: white;
     color: black;
     font-weight: bold;
+    td.damage.tires {
+        background-color: blueviolet;
+    }
+    td.damage.gearbox {
+        background-color: seagreen;
+    }
+    td.damage.brakes {
+        background-color: turquoise;
+    }
+    td.damage.engine {
+        background-color: tomato;
+    }
+    td.damage.chassis {
+        background-color: orange;
+    }
+    td.damage.shocks {
+        background-color: orchid;
+    }
 }
 
 #car_stats {
@@ -41,20 +60,26 @@ and open the template in the editor.
     opacity: .9;
     transition-property: opacity;
     transition-duration: .5s;
-}
-
-#car_stats_table {
-    background-color: white;
-    color: black;
-    font-weight: bold;
-}
-
-#gears {
-    position: fixed;
-    left: 30px;
-    bottom: 20px;
-    background-color: white;
-    width: auto;
+    #car_stats_table {
+        background-color: white;
+        color: black;
+        font-weight: bold;
+        td:first-child {
+            position: relative;
+            width: 50px;
+            .car_img {
+                position: absolute;
+                top: 0;
+                left: 25px;
+                transform: rotate(90deg);
+                transform-origin: 50% 50%;
+            }
+        }
+        td {
+            padding-left: 15px;
+            padding-right: 15px;
+        }
+    }
 }
 
 .move_option_damage {    
@@ -73,28 +98,4 @@ and open the template in the editor.
 
 .car_img {
     position: absolute;
-}
-
-td.damage.tires {
-    background-color: blueviolet;
-}
-
-td.damage.gearbox {
-    background-color: seagreen;
-}
-
-td.damage.brakes {
-    background-color: turquoise;
-}
-
-td.damage.engine {
-    background-color: tomato;
-}
-
-td.damage.chassis {
-    background-color: orange;
-}
-
-td.damage.shocks {
-    background-color: orchid;
 }
