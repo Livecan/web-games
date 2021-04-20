@@ -106,8 +106,13 @@
     };
     var foInsertCarInfo = function(cars, users) {
         let carStatsTable = $("#car_stats_table").empty();
-        for (let carIndex in cars) {
-            let car = cars[carIndex];
+        _.each(cars, function(car, carIndex) {
+            car["carIndex"] = carIndex;
+        });
+        orderedCars = _.sortBy(cars, function(car) {
+            return car["order"] ?? Infinity;
+        });
+        for (let car of orderedCars) {
             let carStatRow = $(document.createElement("tr"));
             let user = users.find((_user) => _user["id"] === car["user_id"]);
             carStatRow.append(
@@ -116,7 +121,7 @@
                         .addClass("car_img")
                         .attr("width", "20px")
                         .attr("height", "50px")
-                        .attr("src", "/img/formula/cars/" + foCarImages[carIndex])
+                        .attr("src", "/img/formula/cars/" + foCarImages[car["carIndex"]])
                         ));
             carStatRow.append(
                     $(document.createElement("td"))

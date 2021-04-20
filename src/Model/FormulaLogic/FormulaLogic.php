@@ -91,7 +91,7 @@ class FormulaLogic {
                         return $q->select(['id', 'name']);
                     },
                     'FoCars' => function(Query $q) {
-                        return $q->select(['id', 'game_id', 'user_id', 'lap', 'gear'])->
+                        return $q->select(['id', 'game_id', 'user_id', 'lap', 'gear', 'order'])->
                                 order(['user_id' => 'ASC', 'FoCars.id' => 'ASC']);
                     },
                     'FoCars.FoDamages' => function(Query $q) {
