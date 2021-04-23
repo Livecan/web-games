@@ -34,8 +34,10 @@ class FoTracksController extends AppController
     public function view($id = null)
     {
         $foTrack = $this->FoTracks->get($id, [
-            'contain' => ['FoCurves', 'FoPositions', 'FoPositions.FoPosition2PositionsFrom'],
+            'contain' => ['FoCurves', 'FoPositions', 'FoPositions.FoPosition2PositionsFrom',
+                'FoPositions.FoPosition2PositionsFrom.FoPositionTo'],
         ]);
+        debug($foTrack->fo_positions[0]->fo_position2_positions_from);
         $this->Authorization->authorize($foTrack);
         $this->set(compact('foTrack'));
     }

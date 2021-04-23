@@ -20,6 +20,6 @@ class FoTrackPolicy
      */
     public function canView(IdentityInterface $user, FoTrack $foTracks)
     {
-        return $user->is_admin;
+        return $user->is_admin || $user->is_beta;
     }
 }

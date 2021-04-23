@@ -12,6 +12,8 @@ use Cake\ORM\Entity;
  * @property int $id
  * @property string $name
  * @property string $password
+ * @property bool $is_admin
+ * @property bool $is_beta
  *
  * @property \App\Model\Entity\DrTokensGame[] $dr_tokens_games
  * @property \App\Model\Entity\DrTurn[] $dr_turns
@@ -31,6 +33,8 @@ class User extends Entity
     protected $_accessible = [
         'name' => true,
         'password' => true,
+        'is_admin' => true,
+        'is_beta' => true,
         'dr_tokens_games' => true,
         'dr_turns' => true,
         'games' => true,
@@ -43,6 +47,8 @@ class User extends Entity
      */
     protected $_hidden = [
         'password',
+        'is_admin',
+        'is_beta',
     ];
     
     protected function _setPassword(string $password) : ?string
