@@ -83,7 +83,6 @@ class MovementLogic {
             return $this->isCarDamageOK($moveOption);
         });
         
-        $this->FoMoveOptions->saveMany($moveOptions, ['associated' => ['FoDamages']]);
         /*debug($moveOptions->reduce(function($accumulated, FoMoveOption $moveOption) {
             return $accumulated . $moveOption->fo_position_id . ": " .
                     collection($moveOption->fo_damages)->reduce(function($accumulated, FoDamage $foDamage) {
@@ -92,6 +91,10 @@ class MovementLogic {
         }, ""));*/
         
         //debug($moveOptions->first()->np_traverse->np_traverse->np_traverse->np_traverse);
+        
+        $moveOptions = $this->unique($moveOptions);
+        
+        $this->FoMoveOptions->saveMany($moveOptions, ['associated' => ['FoDamages']]);
         
         $moveOptions->each(function(FoMoveOption $moveOption) {
             unset($moveOption->np_traverse);
@@ -232,14 +235,6 @@ class MovementLogic {
         } else {
             return $moveOptions;
         }
-    }
-    
-    private function compareDamages($damages1, $damages2): bool {
-        $damages1 = collection($damages1)->sortBy('fo_e_damage_type_id');
-        $damages2 = collection($damages2)->sortBy('fo_e_damage_type_id');
-        return $damages1->zip($damages2)->every(function($damagePair) {
-            return $damagePair[0]->wear_points == $damagePair[1]->wear_points;
-        });
     }
     
     private function getBrakingOption(FoMoveOption $moveOption): ?FoMoveOption {
@@ -394,5 +389,61 @@ class MovementLogic {
         }
         
         return true;
+    }
+    
+    
+    
+    /**
+     * The input params need to be sets of the same damage types, the function
+     * returns true, if the $compare returns true for each pair of wear_points.
+     * If no $compare function provided, it returns true if the damage sets
+     * have the same wear_points.
+     * 
+     * @param array<FoDamage> $damages1
+     * @param array<FoDamage> $damages2
+     * @param callable $compare
+     * @return bool
+     */
+    public function compareDamages($damages1, $damages2, callable $compare = null): bool {
+        if ($compare == null) {
+            $compare = function($a, $b) { return $a == $b; };
+        }
+        $damages1 = collection($damages1)->sortBy('fo_e_damage_type_id');
+        $damages2 = collection($damages2)->sortBy('fo_e_damage_type_id');
+        return $damages1->zip($damages2)->every(function($damagePair) use ($compare) {
+            return $compare($damagePair[0]->wear_points, $damagePair[1]->wear_points);
+        });
+    }
+    
+    private static function isHigherOrEqualDamage(FoDamage $testDamage, FoDamage $referenceDamage) {
+        return $testDamage->wear_points >= $referenceDamage->wear_points;
+    }
+    
+    /**
+     * 
+     * @param array<FoMoveOption> $moveOptions
+     * @return array
+     */
+    private function unique(CollectionInterface $moveOptions): CollectionInterface {
+        foreach ($moveOptions->toList() as $referenceMoveOption) {
+            $moveOptions = $moveOptions->
+                reject(function(FoMoveOption $moveOption) use ($referenceMoveOption) {
+                    if ($moveOption === $referenceMoveOption) {
+                        return false;
+                    }
+                    if ($moveOption->fo_position_id != $referenceMoveOption->fo_position_id) {
+                        return false;
+                    }
+                    if ($this->compareDamages($moveOption->fo_damages,
+                            $referenceMoveOption->fo_damages,
+                            function (int $testDamagePoints, int $referenceDamagePoints) {
+                                return $testDamagePoints >= $referenceDamagePoints;
+                            })) {
+                        return true;
+                    }
+                    return false;
+                });
+        }
+        return $moveOptions;
     }
 }
