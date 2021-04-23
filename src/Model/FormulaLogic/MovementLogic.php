@@ -62,7 +62,7 @@ class MovementLogic {
             $currentMoveOption = $moveOptions->first();
             $moveOptions = $moveOptions->reject(function($value, $key) { return $key === 0; });
             
-            $overtaking = $this->canOvertake($currentMoveOption) ? 3 : $currentMoveOption->np_overtaking;
+            $overtaking = $this->canOvertake($foCar->game_id, $currentMoveOption) ? 3 : $currentMoveOption->np_overtaking;
             $position2Positions = $this->getNextAvailablePositions(
                     $foCar->game_id,
                     $currentMoveOption,
@@ -145,10 +145,11 @@ class MovementLogic {
             toList();
     }
     
-    private function canOvertake(FoMoveOption $moveOption): bool {
+    private function canOvertake(int $gameId, FoMoveOption $moveOption): bool {
         $foPosition2PositionStraight = $this->FoPosition2Positions->find('all')->
-                contain(['FoPositionTo.FoCars' => function(Query $q) {
-                    return $q->select('FoCars.fo_position_id');
+                contain(['FoPositionTo.FoCars' => function(Query $q) use ($gameId) {
+                    return $q->select('FoCars.fo_position_id')
+                            ->where(['FoCars.game_id' => $gameId]);
                 }])->
                 where(['fo_position_from_id' => $moveOption->fo_position_id,
                     'is_straight' => true])->
