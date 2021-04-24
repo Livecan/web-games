@@ -199,7 +199,6 @@
         
     };
     var foFeedLogger = function(logs, users) {
-        alert(JSON.stringify(logs));
         let logger = $("#logger");
         logger.empty();
         for (let log of logs) {
