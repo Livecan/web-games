@@ -74,6 +74,11 @@ class FormulaLogic {
                 select(['id', 'name', 'game_state_id'])->
                 where(['id' => $formulaGame->id])->
                 first();
+        $board->fo_logs = $this->FoLogs->find('all')->
+                contain(['FoCars'])->
+                select($this->FoLogs)->
+                where(['FoCars.game_id' => $formulaGame->id])->
+                order(['FoLogs.created' => 'DESC']);
         $actions = $this->getActions($formulaGame, $user_id);
         if ($actions != null) {
             $board->actions = $actions;

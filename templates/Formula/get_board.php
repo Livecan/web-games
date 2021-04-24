@@ -5,11 +5,17 @@
 <button onclick="foReloadBoard()">Refresh</button>  <!--TODO: <--remove the temporary button and replace with reloading-->
 <button class="zoom_button" onclick="foHandlerZoomBoard(true)">+</button>
 <button class="zoom_button" onclick="foHandlerZoomBoard(false)">-</button>
-<div id="board_parent" style="overflow: auto">
-    <div id="board">
-        <?= $this->Html->image('/img/formula/' . $formulaGame->fo_game->fo_track->game_plan,
-                ['alt' => 'Formula track map']) ?>
-        <svg id="formula_board" />
+<div class="row">
+    <div id="board_parent" style="overflow: auto">
+        <div id="board">
+            <?= $this->Html->image('/img/formula/' . $formulaGame->fo_game->fo_track->game_plan,
+                    ['alt' => 'Formula track map']) ?>
+            <svg id="formula_board" />
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div id="logger">
     </div>
 </div>
 <div id="car_stats" onmouseenter="elmtVisibilityToggle(this, false)" 
@@ -192,6 +198,18 @@
         );
         
     };
+    var foFeedLogger = function(logs, users) {
+        alert(JSON.stringify(logs));
+        let logger = $("#logger");
+        logger.empty();
+        for (let log of logs) {
+            logger.append(
+                $(document.createElement("div"))
+                    .html("carId: " + log["fo_car_id"] + ", gear: " + log["gear"] +
+                    ", rolled: " + log["roll"] + ", logType: " + log["type"])
+            );
+        }
+    }
     var foRemoveMoveOptions = function() {
         $("#formula_board .move_option").remove();
         $("#board .damage_table").remove();
@@ -211,6 +229,7 @@
                 foRemoveEventHandlers();
                 foInsertCarsOnBoard(data["fo_cars"]);
                 foInsertCarInfo(data["fo_cars"], data["users"]);
+                foFeedLogger(data["fo_logs"], data["users"]);
                 //TODO: display debris as well
                 if ("actions" in data) {
                     switch (data["actions"]["type"]) {
