@@ -120,7 +120,7 @@ class FoLogsTable extends Table
             $foLog = new FoLog(['fo_car_id' => $formulaCar->id,
                         'fo_position_id' => $formulaCar->fo_position_id,
                         'gear' => $formulaCar->gear,
-                        'type' => 'I',
+                        'type' => FoLog::TYPE_INITIAL,
                         'fo_damages' => $logDamages,
                 ]);
             $foLog = $this->save($foLog, ['associated' => ['FoDamages']]);
@@ -131,14 +131,14 @@ class FoLogsTable extends Table
         return $this->save(new FoLog([
             'fo_car_id' => $foCar->id,
             'gear' => $foCar->gear + 1,
-            'type' => 'M',
+            'type' => FoLog::TYPE_MOVE,
         ]));
     }
     
     public function logRoll(FoCar $foCar, $roll, $logType) {
-        if ($logType == 'I') {
+        if ($logType == FoLog::TYPE_INITIAL) {
             $foLog = $this->find('all')->
-                    where(['fo_car_id' => $foCar->id, 'type' => 'I'])->
+                    where(['fo_car_id' => $foCar->id, 'type' => FoLog::TYPE_INITIAL])->
                     toList()[0];
             $this->patchEntity($foLog, ['roll' => $roll]);
             return $this->save($foLog);

@@ -139,7 +139,7 @@ class FoDamagesTable extends Table {
                 $this->save($updatedDamage);
                 $foLog = new FoLog([
                     'fo_car_id' => $updatedDamage->fo_car_id,
-                    'type' => 'D',
+                    'type' => FoLog::TYPE_DAMAGE,
                     'fo_damages' => [
                         new FoDamage([
                             'fo_e_damage_type_id' => $foEDamageTypeId,
