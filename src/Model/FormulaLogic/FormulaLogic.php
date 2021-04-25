@@ -46,6 +46,8 @@ class FormulaLogic {
             return new Entity(['has_updated' => false]);
         }
         
+        $actions = $this->getActions($formulaGame, $user_id);
+        
         $board = $this->FormulaGames->
                 find('all')->
                 contain([
@@ -79,7 +81,6 @@ class FormulaLogic {
                 select($this->FoLogs)->
                 where(['FoCars.game_id' => $formulaGame->id])->
                 order(['FoLogs.created' => 'DESC']);
-        $actions = $this->getActions($formulaGame, $user_id);
         if ($actions != null) {
             $board->actions = $actions;
         }
