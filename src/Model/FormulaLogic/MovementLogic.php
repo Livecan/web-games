@@ -201,7 +201,7 @@ class MovementLogic {
         collection($nextMoveOption->fo_damages)->firstMatch(['fo_e_damage_type_id' => 6])->   //Shocks damage
                 wear_points += $suspentionDamage;
         $nextMoveOption = $this->processCurveHandlingDamage($nextMoveOption);
-        if ($this->isCarDamageOK($nextMoveOption)) {
+        if ($nextMoveOption != null && $this->isCarDamageOK($nextMoveOption)) {
             return $nextMoveOption;
         } else {
             return null;

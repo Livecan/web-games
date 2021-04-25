@@ -48,7 +48,7 @@
             foBoardCurrentZoomIndex = Math.max(foBoardCurrentZoomIndex - 1, 0);
         }
         $("#board").css("width", foBoardZooms[foBoardCurrentZoomIndex]);
-    }
+    };
     var foHandlerMoveOptionDamageDisplay = function(event) {
         $(".move_option_damage").css("visibility", "hidden");
         $("#damage_table_" + event.data.positionId).css("visibility", "visible");
@@ -85,15 +85,19 @@
         let carWidth = .8;
         let carLength = 2.5 * carWidth;
         for (let carIndex in cars) {
+            let car = cars[carIndex];
+            if (car["state"] != 'R') {
+                continue;
+            }
             let carElement;
             carElement = $(document.createElement("img"))
                     .addClass("car_img")
                     .attr("src", "/img/formula/cars/" + foCarImages[carIndex])
-                    .css("left", cars[carIndex]["fo_position"]["pos_x"] / 1000 - carWidth / 2 + "%")
-                    .css("top", cars[carIndex]["fo_position"]["pos_y"] / 1000 - carLength / 2 + "%")
+                    .css("left", car["fo_position"]["pos_x"] / 1000 - carWidth / 2 + "%")
+                    .css("top", car["fo_position"]["pos_y"] / 1000 - carLength / 2 + "%")
                     .attr("width", carWidth + "%")
                     .attr("height", carLength + "%")
-                    .rotate(cars[carIndex]["fo_position"]["angle"] * 180 / Math.PI - 90);
+                    .rotate(car["fo_position"]["angle"] * 180 / Math.PI - 90);
             $("#board").append(carElement);
 
         }
@@ -208,7 +212,7 @@
                     ", rolled: " + log["roll"] + ", logType: " + log["type"])
             );
         }
-    }
+    };
     var foRemoveMoveOptions = function() {
         $("#formula_board .move_option").remove();
         $("#board .damage_table").remove();

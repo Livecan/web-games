@@ -53,7 +53,7 @@ class FormulaLogic {
                         return $q->select(['id', 'name']);
                     },
                     'FoCars' => function(Query $q) {
-                        return $q->select(['id', 'game_id', 'user_id', 'lap', 'gear', 'order'])->
+                        return $q->select(['id', 'game_id', 'user_id', 'lap', 'gear', 'order', 'state'])->
                                 order(['user_id' => 'ASC', 'FoCars.id' => 'ASC']);
                     },
                     'FoCars.FoDamages' => function(Query $q) {
@@ -107,7 +107,7 @@ class FormulaLogic {
                 contain(['FoCars'])->
                 where(['game_id' => $formulaGame->id,
                     "fo_car_id" => $currentCar->id,
-                    "type" => 'M'])->
+                    "type" => FoLog::TYPE_MOVE])->
                 order(['FoLogs.modified' => 'DESC'])->
                 first();
         
@@ -123,8 +123,10 @@ class FormulaLogic {
                 chooseMoveOption($formulaGame, $actions->available_moves[0]->id);
                 return null;
             }
+            if (count($actions->available_moves) == 0) {
+                $this->FoCars->retireCar($currentCar);
+            }
         }
-        $lastCarTurn;
         if ($lastCarTurn != null && $lastCarTurn['fo_position_id'] != null) {
             $actions->type = "choose_gear";
             $actions->current_gear = $currentCar->gear;
@@ -234,7 +236,7 @@ class FormulaLogic {
             'fo_car_id' => $currentCar->id,
             'gear' => $gear,
             'roll' => $this->DiceLogic->getRoll($gear),
-            'type' => 'M',
+            'type' => FoLog::TYPE_MOVE,
         ]);
         $this->FoCars->save($currentCar);
         //damage for too much downshifting:

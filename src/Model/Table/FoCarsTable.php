@@ -9,6 +9,7 @@ use Cake\ORM\Table;
 use Cake\Validation\Validator;
 use App\Model\Entity\FoCar;
 use App\Model\FormulaLogic\DiceLogic;
+use App\Model\Entity\FoLog;
 
 /**
  * FoCars Model
@@ -138,7 +139,7 @@ class FoCarsTable extends Table
                     return $q->select($this->FoPositions);
                 }])->
                 select($this)->
-                where(['game_id' => $game_id])->
+                where(['game_id' => $game_id, 'state' => FoCar::STATE_RACING])->
                 order(['lap' => 'DESC', 'FoPositions.order' => 'DESC']);
         $order = 1;
         foreach ($foCars as $foCar) {
@@ -150,7 +151,7 @@ class FoCarsTable extends Table
     public function getNextMoveLength(FoCar $foCar): int {
         if ($foCar->gear == -1) { //processing start
             $blackDiceRoll = $this->DiceLogic->getRoll(0);
-            $this->FoLogs->logRoll($foCar, $blackDiceRoll, 'I');
+            $this->FoLogs->logRoll($foCar, $blackDiceRoll, FoLog::TYPE_INITIAL);
             if ($blackDiceRoll == 1) {   //slow start
                 $foCar->gear = 0;
                 $this->save($foCar);
@@ -164,7 +165,7 @@ class FoCarsTable extends Table
             }
         }
         $roll = $this->DiceLogic->getRoll($foCar->gear);
-        $this->FoLogs->logRoll($foCar, $roll, 'M');
+        $this->FoLogs->logRoll($foCar, $roll, FoLog::TYPE_MOVE);
         return $roll;
     }
     
@@ -174,5 +175,12 @@ class FoCarsTable extends Table
                 whereNotNull('order')->
                 order(['order' => 'ASC'])->
                 first();
+    }
+    
+    public function retireCar(FoCar $foCar) {
+        $foCar->order = null;
+        $foCar->state = FoCar::STATE_RETIRED;
+        $foCar->fo_position_id = null;
+        $this->save($foCar);
     }
 }
