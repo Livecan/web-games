@@ -60,4 +60,9 @@ class FoCar extends Entity
         'fo_logs' => true,
         'fo_move_options' => true,
     ];
+    
+    const STATE_NOT_READY = 'N';
+    const STATE_RACING = 'R';
+    const STATE_RETIRED = 'X';
+    const STATE_FINISHED = 'F';
 }

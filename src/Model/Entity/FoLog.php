@@ -46,4 +46,10 @@ class FoLog extends Entity
         'fo_position' => true,
         'fo_damages' => true,
     ];
+    
+    const TYPE_INITIAL = 'I';
+    const TYPE_MOVE = 'M';
+    const TYPE_DAMAGE = 'D';
+    const TYPE_REPAIR = 'R';
+    const TYPE_FINISH = 'F';
 }
