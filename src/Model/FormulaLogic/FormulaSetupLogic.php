@@ -10,6 +10,7 @@ use Cake\ORM\Entity;
 use App\Model\Entity\FormulaGame;
 use App\Model\Entity\FoDamage;
 use App\Model\Entity\FoGame;
+use App\Model\Entity\FoCar;
 use App\Model\Entity\User;
 
 /**
@@ -173,9 +174,9 @@ class FormulaSetupLogic {
         $foExcessCars = collection($formulaGame->fo_cars)->
                 groupBy('user_id')->
                 map(function($foUserCars) use ($formulaGame) {
-                    return collection($foUserCars)->reject(function($value, $key) use ($formulaGame) {
-                        return $key < $formulaGame->fo_game->cars_per_player;
-                    })->toList();
+                    return collection($foUserCars)->
+                            takeLast(count($foUserCars) - $formulaGame->fo_game->cars_per_player)->
+                            toList();
                 })->unfold();
         $this->FoCars->deleteMany($foExcessCars);
         $formulaGame->fo_cars = $this->FoCars->find('all')->
@@ -192,7 +193,9 @@ class FormulaSetupLogic {
                 order(['starting_position' => 'ASC']);
         $formulaGame->fo_cars = $formulaGame->fo_cars->zip($startingPositions)->
                 map(function($carPositionPair) {
-                    $carPositionPair[0]->fo_position_id = $carPositionPair[1]->id;
+                    $foCar = $carPositionPair[0];
+                    $foCar->fo_position_id = $carPositionPair[1]->id;
+                    $foCar->state = FoCar::STATE_RACING;
                     return $carPositionPair[0];
                 })->toList();
         
@@ -206,7 +209,6 @@ class FormulaSetupLogic {
         $this->FoLogs->logGameStart($formulaGame->fo_cars);
         
         return $formulaGame;
-        //TODO: initialize car positions, logs, generate player order by positions
     }
     
     //TODO: before game starts, check damage points add up and do ready buttons functionality
