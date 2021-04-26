@@ -4,7 +4,6 @@ UPDATE `games_users` SET `ready_state`='N';
 INSERT INTO `fo_position2positions` (`id`, `fo_position_from_id`, `fo_position_to_id`, `is_left`, `is_straight`, `is_right`, `is_curve`, `is_adjacent`, `is_equal_distance`, `is_pitlane_move`) VALUES (NULL, '392', '396', '0', '0', '0', '1', '1', '0', '0');
 ALTER TABLE `users` ADD `is_beta` BOOLEAN NOT NULL DEFAULT FALSE AFTER `is_admin`;
 UPDATE `fo_positions` SET `order`=`order`-515 WHERE id IN (512, 513, 514, 515);
-
 ALTER TABLE `fo_damages` CHANGE `fo_e_damage_type_id` `fo_e_damage_type` INT(11) NOT NULL COMMENT '1 - Tires,\r\n2 - Gearbox,\r\n3 - Brakes,\r\n4 - Engine,\r\n5 - Chassis,\r\n6 - Shocks';
-ALTER TABLE games.fo_damages DROP FOREIGN KEY fo_damages_ibfk_2`;`
+ALTER TABLE games.fo_damages DROP FOREIGN KEY fo_damages_ibfk_2;
 ALTER TABLE `fo_damages` CHANGE `fo_e_damage_type` `type` INT(11) NOT NULL COMMENT '1 - Tires,\r\n2 - Gearbox,\r\n3 - Brakes,\r\n4 - Engine,\r\n5 - Chassis,\r\n6 - Shocks';
