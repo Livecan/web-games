@@ -108,7 +108,7 @@
             damageTdElements.push(
                 $(document.createElement("td"))
                     .addClass("damage")
-                    .addClass(foDamageTypeClass[damage["fo_e_damage_type_id"] - 1])
+                    .addClass(foDamageTypeClass[damage["type"] - 1])
                     .html(damage["wear_points"])
                 );
         }

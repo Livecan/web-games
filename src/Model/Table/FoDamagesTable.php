@@ -65,10 +65,6 @@ class FoDamagesTable extends Table {
         $this->belongsTo('FoLogs', [
             'foreignKey' => 'fo_log_id',
         ]);
-        $this->belongsTo('FoEDamageTypes', [
-            'foreignKey' => 'fo_e_damage_type_id',
-            'joinType' => 'INNER',
-        ]);
         
         $this->FoLogs = $this->getTableLocator()->get('FoLogs');
         $this->DiceLogic = new DiceLogic();
@@ -106,7 +102,6 @@ class FoDamagesTable extends Table {
         $rules->add($rules->existsIn(['fo_car_id'], 'FoCars'), ['errorField' => 'fo_car_id']);
         $rules->add($rules->existsIn(['fo_move_option_id'], 'FoMoveOptions'), ['errorField' => 'fo_move_option_id']);
         $rules->add($rules->existsIn(['fo_log_id'], 'FoLogs'), ['errorField' => 'fo_log_id']);
-        $rules->add($rules->existsIn(['fo_e_damage_type_id'], 'FoEDamageTypes'), ['errorField' => 'fo_e_damage_type_id']);
 
         return $rules;
     }
@@ -114,11 +109,11 @@ class FoDamagesTable extends Table {
     public function assignDamage($carDamages, FoDamage $damageToAssign, $badRoll = null) : int {
         return $this->assignDamageSimple($carDamages,
                 $damageToAssign->wear_points,
-                $damageToAssign->fo_e_damage_type_id,
+                $damageToAssign->type,
                 $badRoll);
     }
     
-    public function assignDamageSimple($carDamages, int $wearPoints, int $foEDamageTypeId, $badRoll = null, $save = false) : int {
+    public function assignDamageSimple($carDamages, int $wearPoints, int $damageType, $badRoll = null, $save = false) : int {
         $damageWearPoints = 0;
         if ($badRoll == null) {
             $damageWearPoints = $wearPoints;
@@ -132,7 +127,7 @@ class FoDamagesTable extends Table {
         
         if ($damageWearPoints > 0) {
             $updatedDamage = collection($carDamages)->
-                    firstMatch(['fo_e_damage_type_id' => $foEDamageTypeId]);
+                    firstMatch(['type' => $damageType]);
             $updatedDamage->wear_points -= $damageWearPoints;
 
             if ($save) {
@@ -142,7 +137,7 @@ class FoDamagesTable extends Table {
                     'type' => FoLog::TYPE_DAMAGE,
                     'fo_damages' => [
                         new FoDamage([
-                            'fo_e_damage_type_id' => $foEDamageTypeId,
+                            'type' => $damageType,
                             'wear_points' => $damageWearPoints,
                         ])
                     ],
@@ -157,15 +152,15 @@ class FoDamagesTable extends Table {
     /**
      * 
      * @param CollectionInterface $foCarDamages
-     * @param int $foEDamageTypeId
+     * @param int $damageType
      * 
      * @return FoDamage damage that was dealt to the car for FoLog
      */    
-    private function processDamage(CollectionInterface $foCarDamages, $foEDamageTypeId) {
-        $foCarDamages->firstMatch(['fo_e_damage_type_id' => $foEDamageTypeId])
+    private function processDamage(CollectionInterface $foCarDamages, $damageType) {
+        $foCarDamages->firstMatch(['type' => $damageType])
             ->wear_points--;
         return new FoDamage([
-            'fo_e_damage_type_id' => $foEDamageTypeId,
+            'type' => $damageType,
             'wear_points' => 1,
         ]);
     }

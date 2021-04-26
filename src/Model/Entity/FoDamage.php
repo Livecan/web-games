@@ -13,14 +13,13 @@ use Cake\ORM\Entity;
  * @property int|null $fo_move_option_id
  * @property int|null $fo_log_id
  * @property int $wear_points
- * @property int $fo_e_damage_type_id
+ * @property int $type
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
  *
  * @property \App\Model\Entity\FoCar $fo_car
  * @property \App\Model\Entity\FoMoveOption $fo_move_option
  * @property \App\Model\Entity\FoLog $fo_log
- * @property \App\Model\Entity\FoEDamageType $fo_e_damage_type
  */
 class FoDamage extends Entity
 {
@@ -38,12 +37,18 @@ class FoDamage extends Entity
         'fo_move_option_id' => true,
         'fo_log_id' => true,
         'wear_points' => true,
-        'fo_e_damage_type_id' => true,
+        'type' => true,
         'created' => true,
         'modified' => true,
         'fo_car' => true,
         'fo_move_option' => true,
         'fo_log' => true,
-        'fo_e_damage_type' => true,
     ];
+    
+    const TYPE_TIRES = 1;
+    const TYPE_GEARBOX = 2;
+    const TYPE_BRAKES = 3;
+    const TYPE_ENGINE = 4;
+    const TYPE_CHASSIS = 5;
+    const TYPE_SHOCKS = 6;
 }

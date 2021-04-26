@@ -113,7 +113,7 @@ class FoLogsTable extends Table
             $logDamages = collection($formulaCar->fo_damages)->
                     map(function(FoDamage $damage) {
                         return new FoDamage([
-                            'fo_e_damage_type_id' => $damage->fo_e_damage_type_id,
+                            'type' => $damage->type,
                             'wear_points' => $damage->wear_points,
                         ]);
                 })->toList();

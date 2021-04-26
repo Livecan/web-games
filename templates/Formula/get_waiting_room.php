@@ -160,7 +160,7 @@
                         .addClass("car-row")
                         .append($(document.createElement("td")))
                         .append($(document.createElement("td")));
-                for (let damage of _.sortBy(car["fo_damages"], 'fo_e_damage_type_id')) {                    
+                for (let damage of _.sortBy(car["fo_damages"], 'type')) {                    
                     carElmt.append($(document.createElement("td"))
                             .html($(document.createElement("input"))
                                     .attr("id", "damage" + damage["id"])

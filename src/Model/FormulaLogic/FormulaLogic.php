@@ -60,8 +60,8 @@ class FormulaLogic {
                     },
                     'FoCars.FoDamages' => function(Query $q) {
                         return $q->whereNull(['fo_move_option_id'])->
-                                select(['id', 'fo_car_id', 'wear_points', 'fo_e_damage_type_id'])->
-                                order(['fo_e_damage_type_id' => 'ASC']);
+                                select(['id', 'fo_car_id', 'wear_points', 'type'])->
+                                order(['type' => 'ASC']);
                     },
                     'FoCars.FoPositions' => function(Query $q) {
                         return $q->select(['pos_x', 'pos_y', 'angle']);
@@ -157,7 +157,7 @@ class FormulaLogic {
         
         foreach ($foMoveOption->fo_damages as $foDamage) {
             $damageSuffered;
-            switch ($foDamage->fo_e_damage_type_id) {
+            switch ($foDamage->type) {
                 case (1):
                 case (3):   $damageSuffered = $this->FoDamages->assignDamage($foCar->fo_damages, $foDamage);
                     break;
@@ -166,7 +166,7 @@ class FormulaLogic {
             }
             if ($damageSuffered > 0) {
                 $damagesSuffered[] = new FoDamage([
-                    'fo_e_damage_type_id' => $foDamage->fo_e_damage_type_id,
+                    'type' => $foDamage->type,
                     'wear_points' => $damageSuffered,
                 ]);
             }
@@ -190,12 +190,12 @@ class FormulaLogic {
                 })->toList();
         foreach ($collidedCars as $collidedCar) {
             $this->FoDamages->assignDamageSimple($collidedCar->fo_damages,
-                    1, 5, 4, true);   //chassis damage
+                    1, FoDamage::TYPE_CHASSIS, 4, true);   //chassis damage
             $damageSuffered = $this->FoDamages->assignDamageSimple(
-                    $foCar->fo_damages, 1, 5, 4, false);    //chassis damage
+                    $foCar->fo_damages, 1, FoDamage::TYPE_CHASSIS, 4, false);    //chassis damage
             if ($damageSuffered > 0) {
                 $damagesSuffered[] = new FoDamage([
-                    'fo_e_damage_type_id' => 5,
+                    'type' => FoDamage::TYPE_CHASSIS,
                     'wear_points' => $damageSuffered,
                 ]);
             }

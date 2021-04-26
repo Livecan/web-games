@@ -82,12 +82,16 @@ class FormulaSetupLogic {
         $foDamages = [];
         $foDamages[] = new FoDamage([
             'wear_points' => $wearPoints - 5 * 3,
-            'fo_e_damage_type_id' => 1, //tires get the remaining damage after 3 is assigned to everything else
+            'type' => FoDamage::TYPE_TIRES, //tires get the remaining damage after 3 is assigned to everything else
         ]);
-        for ($i = 2; $i <= 6; $i++) {
+        foreach ([ FoDamage::TYPE_GEARBOX,
+                FoDamage::TYPE_BRAKES,
+                FoDamage::TYPE_ENGINE,
+                FoDamage::TYPE_CHASSIS,
+                FoDamage::TYPE_SHOCKS, ] as $damageType) {
             $foDamages[] = new FoDamage([
                 'wear_points' => 3,
-                'fo_e_damage_type_id' => $i,
+                'type' => $damageType,
             ]);
         }
         return $this->FoCars->createUserCar($formulaGame->id, $user_id, $foDamages, true);
@@ -174,8 +178,12 @@ class FormulaSetupLogic {
         $foExcessCars = collection($formulaGame->fo_cars)->
                 groupBy('user_id')->
                 map(function($foUserCars) use ($formulaGame) {
+                    $carsToDeleteCount = count($foUserCars) - $formulaGame->fo_game->cars_per_player;
+                    if ($carsToDeleteCount == 0) {
+                        return [];
+                    }
                     return collection($foUserCars)->
-                            takeLast(count($foUserCars) - $formulaGame->fo_game->cars_per_player)->
+                            takeLast($carsToDeleteCount)->
                             toList();
                 })->unfold();
         $this->FoCars->deleteMany($foExcessCars);
