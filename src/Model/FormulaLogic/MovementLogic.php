@@ -82,15 +82,15 @@ class MovementLogic {
         $moveOptions = $this->adjustBrakeDamage($moveOptions);
         
         $moveOptionsPositionsIsCurve = $this->FoPositions->
-                find('all', [ 'keyField' => 'id', 'valueField' => 'is_curve' ])->
+                find('list', [ 'keyField' => 'id', 'valueField' => 'fo_curve_id' ])->
                 where(function(QueryExpression $exp, Query $q) use ($moveOptions) {
                     return $exp->in('id',
                             collection($moveOptions)->extract('fo_position_id')->toList());
                 })->
-                toarray();
+                toArray();
         //all the move options that are out of a turn need to have curve info nullified
-        $moveOptions->each(function(FoMoveOption $moveOption) use ($moveOptionsPositions) {
-            if (!$moveOptionsPositionsIsCurve[$moveOption->fo_position_id]) {
+        $moveOptions->each(function(FoMoveOption $moveOption) use ($moveOptionsPositionsIsCurve) {
+            if (!$moveOptionsPositionsIsCurve[ $moveOption->fo_position_id ]) {
                 $moveOption->fo_curve_id = null;
                 $moveOption->stops = null;
             }
@@ -110,7 +110,6 @@ class MovementLogic {
         //debug($moveOptions->first()->np_traverse->np_traverse->np_traverse->np_traverse);
         
         $moveOptions = $this->unique($moveOptions);
-        
         $this->FoMoveOptions->saveMany($moveOptions, ['associated' => ['FoDamages']]);
         
         $moveOptions->each(function(FoMoveOption $moveOption) {
@@ -442,7 +441,11 @@ class MovementLogic {
      * @return array
      */
     private function unique(CollectionInterface $moveOptions): CollectionInterface {
-        foreach ($moveOptions->toList() as $referenceMoveOption) {
+        $moveOptionIndex = $moveOptions->count();
+        for ($moveOptionIndex = $moveOptions->count() - 1;
+                $moveOptionIndex >= 0;
+                $moveOptionIndex--) {
+            $referenceMoveOption = $moveOptions->take(1, $moveOptionIndex)->first();
             $moveOptions = $moveOptions->
                 reject(function(FoMoveOption $moveOption) use ($referenceMoveOption) {
                     if ($moveOption === $referenceMoveOption) {
