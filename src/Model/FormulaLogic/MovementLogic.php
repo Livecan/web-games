@@ -35,7 +35,8 @@ class MovementLogic {
             return [new FoMoveOption(['fo_car_id' => $foCar->id,
                     'fo_position_id' => $foCar->fo_position_id,
                     'is_next_lap' => false,
-                    'fo_damages' => $this->getZeroDamages([1, 3, 6],),   //Tires, Brakes, Shocks
+                    'fo_damages' => $this->getZeroDamages([ FoDamage::TYPE_TIRES,
+                        FoDamage::TYPE_BRAKES, FoDamage::TYPE_SHOCKS ],),
                 ])];
         }
         $savedMoveOptions = $this->FoMoveOptions->find('all')->
@@ -54,7 +55,8 @@ class MovementLogic {
                 $foCar->id,
                 $foCar->fo_position_id,
                 $movesLeft,
-                $this->getZeroDamages([1, 3, 6]))]);    //Tires, Brakes, Shocks
+                $this->getZeroDamages([FoDamage::TYPE_TIRES, FoDamage::TYPE_BRAKES,
+                    FoDamage::TYPE_SHOCKS]))]);
         while ($moveOptions->some(function($_moveOption) {
                 return $_moveOption->np_moves_left > 0; })) {
 
@@ -78,6 +80,21 @@ class MovementLogic {
         }
         //TODO: after this is finished, do drafting if conditions for drafting are met
         $moveOptions = $this->adjustBrakeDamage($moveOptions);
+        
+        $moveOptionsPositionsIsCurve = $this->FoPositions->
+                find('all', [ 'keyField' => 'id', 'valueField' => 'is_curve' ])->
+                where(function(QueryExpression $exp, Query $q) use ($moveOptions) {
+                    return $exp->in('id',
+                            collection($moveOptions)->extract('fo_position_id')->toList());
+                })->
+                toarray();
+        //all the move options that are out of a turn need to have curve info nullified
+        $moveOptions->each(function(FoMoveOption $moveOption) use ($moveOptionsPositions) {
+            if (!$moveOptionsPositionsIsCurve[$moveOption->fo_position_id]) {
+                $moveOption->fo_curve_id = null;
+                $moveOption->stops = null;
+            }
+        });
         
         $moveOptions = $moveOptions->filter(function($moveOption) {
             return $this->isCarDamageOK($moveOption);
@@ -110,7 +127,7 @@ class MovementLogic {
         return $moveOptions->toList();
     }
     
-    private function getNextAvailablePositions(int $game_id, FoMoveOption $moveOption, bool $overtaking) {
+    private function getNextAvailablePositions(int $gameId, FoMoveOption $moveOption, bool $overtaking) {
         //following returns all the possible next moves, excluding fields where other cars are
         $query = $this->FoPosition2Positions->find('all')-> 
                 contain([
@@ -120,8 +137,8 @@ class MovementLogic {
                     'FoPositionTo' => function(Query $q) {
                         return $q->select(['id', 'is_finish']);
                     },
-                    'FoPositionTo.FoCars' => function(Query $q) use ($game_id) {
-                        return  $q->where(['game_id' => $game_id])->
+                    'FoPositionTo.FoCars' => function(Query $q) use ($gameId) {
+                        return  $q->where(['game_id' => $gameId])->
                                 select('fo_position_id');
                     },
                 ])->
@@ -327,7 +344,7 @@ class MovementLogic {
             //leaving skipping one stop
             if ($nextMoveOption->stops + 1 == $foCurve->stops) {
                 collection($nextMoveOption->fo_damages)->
-                        firstMatch(['type' => FoDamage::TYPE_TIRES])->   //tires damage
+                        firstMatch(['type' => FoDamage::TYPE_TIRES])->
                         wear_points++;
                 return $nextMoveOption;
             }
@@ -335,7 +352,7 @@ class MovementLogic {
             return null;
         }
         
-        //when overshooting the second curve within one turn - ivalid MoveOption
+        //when overshooting the second curve within one turn - invalid MoveOption
         if ($nextPosition->fo_curve_id == null && $nextMoveOption->np_overshooting) {
             return null;
         }
