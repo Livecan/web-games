@@ -80,21 +80,22 @@ class MovementLogic {
         }
         //TODO: after this is finished, do drafting if conditions for drafting are met
         $moveOptions = $this->adjustBrakeDamage($moveOptions);
-        
-        $moveOptionsPositionsIsCurve = $this->FoPositions->
-                find('list', [ 'keyField' => 'id', 'valueField' => 'fo_curve_id' ])->
-                where(function(QueryExpression $exp, Query $q) use ($moveOptions) {
-                    return $exp->in('id',
-                            collection($moveOptions)->extract('fo_position_id')->toList());
-                })->
-                toArray();
-        //all the move options that are out of a turn need to have curve info nullified
-        $moveOptions->each(function(FoMoveOption $moveOption) use ($moveOptionsPositionsIsCurve) {
-            if (!$moveOptionsPositionsIsCurve[ $moveOption->fo_position_id ]) {
-                $moveOption->fo_curve_id = null;
-                $moveOption->stops = null;
-            }
-        });
+        if ($moveOptions->count() > 0) {
+            $moveOptionsPositionsIsCurve = $this->FoPositions->
+                    find('list', [ 'keyField' => 'id', 'valueField' => 'fo_curve_id' ])->
+                    where(function(QueryExpression $exp, Query $q) use ($moveOptions) {
+                        return $exp->in('id',
+                                collection($moveOptions)->extract('fo_position_id')->toList());
+                    })->
+                    toArray();
+            //all the move options that are out of a turn need to have curve info nullified
+            $moveOptions->each(function(FoMoveOption $moveOption) use ($moveOptionsPositionsIsCurve) {
+                if (!$moveOptionsPositionsIsCurve[ $moveOption->fo_position_id ]) {
+                    $moveOption->fo_curve_id = null;
+                    $moveOption->stops = null;
+                }
+            });
+        }
         
         $moveOptions = $moveOptions->filter(function($moveOption) {
             return $this->isCarDamageOK($moveOption);
