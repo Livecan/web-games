@@ -105,4 +105,16 @@ class FoMoveOptionsTable extends Table
             'np_traverse' => null,
             ]);
     }
+    
+    public function getSavedMoveOptions(int $gameId) {
+        return $this->find('all')->
+                contain(['FoCars', 'FoPositions'])->
+                contain(['FoDamages' => function(Query $q) {
+                    return $q->select(['fo_move_option_id', 'type', 'wear_points']);
+                }])->
+                where(['FoCars.game_id' => $gameId])->
+                select($this->FoPositions)->
+                select($this)->
+                toList();
+        }
 }

@@ -178,12 +178,11 @@ class FormulaSetupLogic {
         $foExcessCars = collection($formulaGame->fo_cars)->
                 groupBy('user_id')->
                 map(function($foUserCars) use ($formulaGame) {
-                    $carsToDeleteCount = count($foUserCars) - $formulaGame->fo_game->cars_per_player;
-                    if ($carsToDeleteCount == 0) {
+                    if (count($foUserCars) <= $formulaGame->fo_game->cars_per_player) {
                         return [];
                     }
                     return collection($foUserCars)->
-                            takeLast($carsToDeleteCount)->
+                            skip($formulaGame->fo_game->cars_per_player)->
                             toList();
                 })->unfold();
         $this->FoCars->deleteMany($foExcessCars);
