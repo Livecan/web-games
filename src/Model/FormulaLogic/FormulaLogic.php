@@ -12,6 +12,7 @@ use App\Model\Entity\FoDamage;
 use App\Model\FormulaLogic\DiceLogic;
 use App\Model\Entity\FoCar;
 use App\Model\Entity\FoLog;
+use App\Model\Entity\FoMoveOption;
 
 /**
  * Description of FormulaLogic
@@ -109,9 +110,8 @@ class FormulaLogic {
                 where(['game_id' => $formulaGame->id,
                     "fo_car_id" => $currentCar->id,
                     "type" => FoLog::TYPE_MOVE])->
-                order(['FoLogs.modified' => 'DESC'])->
+                order(['FoLogs.id' => 'DESC'])->
                 first();
-        
         if ($lastCarTurn == null || $lastCarTurn['fo_position_id'] == null) {
             if ($lastCarTurn != null) {
                 $movesLeft = $lastCarTurn['roll'];
@@ -121,14 +121,19 @@ class FormulaLogic {
             $actions->type = "choose_move";
             $actions->available_moves = $this->MovementLogic->getAvailableMoves($currentCar, $movesLeft);
             if (count($actions->available_moves) == 1) {
-                chooseMoveOption($formulaGame, $actions->available_moves[0]->id);
-                return null;
+                $this->chooseMoveOption($formulaGame, $actions->available_moves[0]);
+                return $this->getActions($formulaGame, $user_id);
             }
             if (count($actions->available_moves) == 0) {
                 $this->FoCars->retireCar($currentCar);
             }
         }
         if ($lastCarTurn != null && $lastCarTurn['fo_position_id'] != null) {
+            if ($currentCar->gear == 0) {
+                $this->chooseGear($formulaGame, 1);
+                $formulaGame = $this->FormulaGame->get($formulaGame->id, ['contains' => ['FoCars']]);
+                return $this->getActions($formulaGame, $user_id);
+            }
             $actions->type = "choose_gear";
             $actions->current_gear = $currentCar->gear;
             $actions->available_gears = [];
@@ -141,9 +146,13 @@ class FormulaLogic {
         return $actions;
     }
     
-    public function chooseMoveOption(FormulaGame $formulaGame, int $foMoveOptionId) {
-        $foMoveOption = $this->FoMoveOptions->get($foMoveOptionId, ['contain' => ['FoDamages', 'FoCars', 'FoCars.FoDamages']]);
-        $foCar = $foMoveOption->fo_car;
+    public function chooseMoveOptionById(FormulaGame $formulaGame, int $foMoveOptionId) {
+        $foMoveOption = $this->FoMoveOptions->get($foMoveOptionId, ['contain' => ['FoDamages']]);
+        $this->chooseMoveOption($formulaGame, $foMoveOption);
+    }
+    
+    public function chooseMoveOption(FormulaGame $formulaGame, FoMoveOption $foMoveOption) {
+        $foCar = $this->FoCars->get($foMoveOption->fo_car_id, ['contain' => ['FoDamages']]);
         $foPositionId = $foMoveOption->fo_position_id;
         $foCar->fo_position_id = $foPositionId;
         $foCar->fo_curve_id = $foMoveOption->fo_curve_id;

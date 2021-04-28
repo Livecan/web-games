@@ -96,8 +96,6 @@ class MovementLogic {
         });
         
         $moveOptions = $this->makeUnique($moveOptions);
-        $this->FoMoveOptions->saveMany($moveOptions, ['associated' => ['FoDamages']]);
-        
         $moveOptions->each(function(FoMoveOption $moveOption) {
             unset($moveOption->np_traverse);
             unset($moveOption->np_allowed_left);
@@ -109,7 +107,10 @@ class MovementLogic {
             $moveOption->fo_position =
                     $this->FoPositions->get($moveOption->fo_position_id);
         });
-        return $moveOptions->toList();
+        
+        return $this->FoMoveOptions->
+                saveMany($moveOptions, ['associated' => ['FoDamages', 'FoPositions']])->
+                toList();
     }
     
     private function getNextAvailablePositions(int $gameId, FoMoveOption $moveOption, bool $overtaking) : CollectionInterface {

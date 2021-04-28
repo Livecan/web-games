@@ -60,7 +60,7 @@ class FormulaController extends AppController
     
     public function getBoardUpdateJson($id)
     {
-        $formulaGame = $this->FormulaGames->get($id, ['contain' => ['Users']]);
+        $formulaGame = $this->FormulaGames->get($id, ['contain' => ['Users', 'FoCars']]);
         $this->Authorization->authorize($formulaGame);
         $formulaBoard;
         if ($this->request->is('get')) {
@@ -99,7 +99,7 @@ class FormulaController extends AppController
         $this->Authorization->authorize($formulaGame);
         if ($this->request->is('post') && $formulaGame->game_state_id == 2) {
             $data = $this->request->getData();
-            $this->Formula->chooseMoveOption($formulaGame, intval($data["move_option_id"]));
+            $this->Formula->chooseMoveOptionById($formulaGame, intval($data["move_option_id"]));
         } else {
             $this->Flash->error(__('Invalid operation.'));
         }

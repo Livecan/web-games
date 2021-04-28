@@ -155,12 +155,14 @@ class FoCarsTable extends Table
             if ($blackDiceRoll == 1) {   //slow start
                 $foCar->gear = 0;
                 $this->save($foCar);
+                $this->FoLogs->logRoll($foCar, 0, FoLog::TYPE_MOVE);
                 return 0;
             }
             $foCar->gear = 1;
             $this->save($foCar);
 
-            if ($blackDiceRoll == 20) {
+            if ($blackDiceRoll == 20) { //fast start
+                $this->FoLogs->logRoll($foCar, 4, FoLog::TYPE_MOVE);
                 return 4;
             }
         }
