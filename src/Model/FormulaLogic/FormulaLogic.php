@@ -156,7 +156,7 @@ class FormulaLogic {
         $foPositionId = $foMoveOption->fo_position_id;
         $foCar->fo_position_id = $foPositionId;
         $foCar->fo_curve_id = $foMoveOption->fo_curve_id;
-        $foCar->stops = $foMoveOption->stops + 1;
+        $foCar->stops = $foMoveOption->stops;
         if ($foMoveOption->is_next_lap) {
             $foCar->lap++;
         }

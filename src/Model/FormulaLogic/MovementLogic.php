@@ -97,17 +97,22 @@ class MovementLogic {
         
         $moveOptions = $this->makeUnique($moveOptions);
         $moveOptions->each(function(FoMoveOption $moveOption) {
-            unset($moveOption->np_traverse);
+            /*$traversedMoveOption = $moveOption->np_traverse;
+            $moveOption->np_traverse_positions = [];
+            while ($traversedMoveOption != null) {
+                $moveOption->np_traverse_positions[] = $traversedMoveOption->fo_position_id;
+                $traversedMoveOption = $traversedMoveOption->np_traverse;
+            }*/
+            /*unset($moveOption->np_traverse);
             unset($moveOption->np_allowed_left);
             unset($moveOption->np_allowed_right);
             unset($moveOption->np_moves_left);
             unset($moveOption->np_overshooting);
-            unset($moveOption->np_overtaking);
+            unset($moveOption->np_overtaking);*/
             $moveOption->stops++;
             $moveOption->fo_position =
                     $this->FoPositions->get($moveOption->fo_position_id);
         });
-        
         return $this->FoMoveOptions->
                 saveMany($moveOptions, ['associated' => ['FoDamages', 'FoPositions']])->
                 toList();
