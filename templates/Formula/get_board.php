@@ -9,8 +9,8 @@
     <div id="board_parent" style="overflow: auto">
         <div id="board">
             <?= $this->Html->image('/img/formula/' . $formulaGame->fo_game->fo_track->game_plan,
-                    ['alt' => 'Formula track map']) ?>
-            <svg id="formula_board" />
+                    ['class' => 'board__track', 'alt' => 'Formula track map']) ?>
+            <svg id="formula_board" class='board__svg' />
         </div>
     </div>
 </div>
@@ -24,6 +24,12 @@
     </table>
 </div>
 <script>
+    var foPositions = {
+    <?php foreach ($formulaGame->fo_game->fo_track->fo_positions as $foPosition) : ?>
+        <?= '"' . $foPosition->id . '": { posX: "' . $foPosition->pos_x . '", posY: "' .
+            $foPosition->pos_y . '", angle: "' . $foPosition->angle . '"}, ' ?>
+    <?php endforeach; ?>
+    };
     var foUserCarsColors = ["DarkRed", "Red", "DarkGreen", "LightGreen", "DarkBlue", "Blue", "DarkYellow", "Yellow"];
     var foDamageTypeClass = ["tires", "gearbox", "brakes", "engine", "chassis", "shocks"];
     var foCarImages = ["tdrc01_car01_b.png",
@@ -93,11 +99,11 @@
             carElement = $(document.createElement("img"))
                     .addClass("car_img")
                     .attr("src", "/img/formula/cars/" + foCarImages[carIndex])
-                    .css("left", car["fo_position"]["pos_x"] / 1000 - carWidth / 2 + "%")
-                    .css("top", car["fo_position"]["pos_y"] / 1000 - carLength / 2 + "%")
+                    .css("left", foPositions[car["fo_position_id"]].posX / 1000 - carWidth / 2 + "%")
+                    .css("top", foPositions[car["fo_position_id"]].posY / 1000 - carLength / 2 + "%")
                     .attr("width", carWidth + "%")
                     .attr("height", carLength + "%")
-                    .rotate(car["fo_position"]["angle"] * 180 / Math.PI - 90);
+                    .rotate(foPositions[car["fo_position_id"]].angle * 180 / Math.PI - 90);
             $("#board").append(carElement);
 
         }
@@ -153,8 +159,8 @@
             let circle = $(document.createElementNS("http://www.w3.org/2000/svg", "circle"))
                     .attr("id", moveElementId)
                     .addClass("move_option")
-                    .attr("cx", availableMoves[0]["fo_position"]["pos_x"] / 1000 + "%")
-                    .attr("cy", availableMoves[0]["fo_position"]["pos_y"] / 1000 + "%")
+                    .attr("cx", foPositions[availableMoves[0]["fo_position_id"]].posX / 1000 + "%")
+                    .attr("cy", foPositions[availableMoves[0]["fo_position_id"]].posY / 1000 + "%")
                     .attr("r", radius + "%")
                     .attr("fill", "purple");
             boardSvgElement.append(circle);

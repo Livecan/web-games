@@ -81,7 +81,8 @@ class FormulaController extends AppController
     
     public function getBoard($id)
     {
-        $formulaGame = $this->FormulaGames->get($id, ['contain' => ['Users', 'FoGames.FoTracks']]);
+        $formulaGame = $this->FormulaGames->get($id, ['contain' =>
+            ['Users', 'FoGames.FoTracks', 'FoGames.FoTracks.FoPositions']]);
         
         $this->Authorization->authorize($formulaGame);
         if ($this->request->is('get') && $formulaGame->game_state_id != 1) {
