@@ -13,7 +13,10 @@ and open the template in the editor.
 #board_parent #board {
   position: relative;
 }
-#board_parent #board #formula_board {
+#board_parent #board .board__track {
+  display: block;
+}
+#board_parent #board .board__svg {
   position: absolute;
   top: 0;
   left: 0;

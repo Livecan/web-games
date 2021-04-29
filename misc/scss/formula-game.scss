@@ -12,7 +12,10 @@ and open the template in the editor.
     max-height: 600px;
     #board {
         position: relative;
-        #formula_board {
+        .board__track {
+            display: block;
+        }
+        .board__svg {
             position: absolute;
             top: 0;
             left: 0;
