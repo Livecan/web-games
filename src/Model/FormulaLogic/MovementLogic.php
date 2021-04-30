@@ -90,19 +90,15 @@ class MovementLogic {
             });
         }
         
-        $moveOptions = $moveOptions->filter(function($moveOption) {
-            return $this->isCarDamageOK($moveOption,
-                    [FoDamage::TYPE_TIRES => 0, FoDamage::TYPE_BRAKES => 1]);
+        $foCar->fo_damages = $this->FoDamages->findByFoCarId($foCar->id);
+        
+        $moveOptions = $moveOptions->filter(function(FoMoveOption $moveOption) use ($foCar) {
+            return $foCar->isDamageOk(collection($moveOption->fo_damages),
+                    collection([FoDamage::TYPE_TIRES, FoDamage::TYPE_BRAKES]));
         });
         
         $moveOptions = $this->makeUnique($moveOptions);
         $moveOptions->each(function(FoMoveOption $moveOption) {
-            /*$traversedMoveOption = $moveOption->np_traverse;
-            $moveOption->np_traverse_positions = [];
-            while ($traversedMoveOption != null) {
-                $moveOption->np_traverse_positions[] = $traversedMoveOption->fo_position_id;
-                $traversedMoveOption = $traversedMoveOption->np_traverse;
-            }*/
             $moveOption->stops++;
         });
         return $this->FoMoveOptions->
@@ -201,7 +197,9 @@ class MovementLogic {
         collection($nextMoveOption->fo_damages)->firstMatch(['type' => FoDamage::TYPE_SHOCKS])->
                 wear_points += $shocksDamage;
         $nextMoveOption = $this->processCurveHandlingDamage($nextMoveOption);
-        if ($nextMoveOption != null && $this->isCarDamageOK($nextMoveOption, [FoDamage::TYPE_TIRES => 0])) {
+        $foCar = $this->FoCars->get($currentMoveOption->fo_car_id, ['contain' => ['FoDamages']]);
+        if ($nextMoveOption != null &&
+                $foCar->isDamageOk(collection($nextMoveOption->fo_damages), collection([FoDamage::TYPE_TIRES]))) {
             return $nextMoveOption;
         } else {
             return null;
@@ -363,23 +361,6 @@ class MovementLogic {
             }
         }
         return $moveOptions;
-    }
-    
-    private function isCarDamageOK(FoMoveOption $foMoveOption,
-            array $damageTypeConditions = [FoDamage::TYPE_TIRES => 0, FoDamage::TYPE_BRAKES => 1,]) : bool {
-        $foCarDamages = collection($this->FoCars->get($foMoveOption->fo_car_id,
-                ['contain' => ['FoDamages']])->fo_damages);
-        $foMoveOptionDamages = collection($foMoveOption->fo_damages);
-        
-        foreach ($damageTypeConditions as $type => $value) {
-            $carWearPoints = $foCarDamages->firstMatch(['type' => $type])->wear_points;
-            $damageToTake = $foMoveOptionDamages->firstMatch(['type' => $type])->wear_points;
-            if ($carWearPoints - $damageToTake < $value) {
-                return false;
-            }
-        }
-        
-        return true;
     }
     
     /**

@@ -5,6 +5,7 @@ namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
 use App\Model\Entity\FoDamage;
+use Cake\Collection\CollectionInterface;
 
 /**
  * FoCar Entity
@@ -66,15 +67,34 @@ class FoCar extends Entity
     const STATE_RACING = 'R';
     const STATE_RETIRED = 'X';
     const STATE_FINISHED = 'F';
-    
-    public function isOk() {
+
+    public function isOk() : bool {
         foreach ($this->fo_damages as $foDamage) {
-            if ($foDamage->type == FoDamage::TYPE_TIRES && $foDamage->wear_points < 0) {
-                return false;
-            } else if ($foDamage->wear_points < 1) {
+            if (!$foDamage->isOk()) {
                 return false;
             }
         }
+        return true;
+    }
+    
+    public function isDamageOk(CollectionInterface $foDamages, CollectionInterface $foDamageTypes = null) : bool {
+        if ($foDamageTypes != null) {
+            $foDamages = $foDamages->
+                    filter(function(FoDamage $foDamage) use ($foDamageTypes) {
+                        return $foDamageTypes->contains($foDamage->type);
+                    });
+        }
+        
+        foreach ($this->fo_damages as $foCarDamage) {
+            $matchingDamage = $foDamages->firstMatch(['type' => $foCarDamage->type]);
+            if ($matchingDamage == null) {
+                continue;
+            }
+            if (!FoDamage::isDamageOk($foCarDamage->type, $foCarDamage->wear_points - $matchingDamage->wear_points)) {
+                return false;
+            }
+        }
+        
         return true;
     }
 }

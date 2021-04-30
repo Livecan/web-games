@@ -51,4 +51,18 @@ class FoDamage extends Entity
     const TYPE_ENGINE = 4;
     const TYPE_CHASSIS = 5;
     const TYPE_SHOCKS = 6;
+    
+    public function isOk() : bool {
+        return self::isDamageOk($this->type, $this->wear_points);
+    }
+    
+    public static function isDamageOk(int $ype, int $wearPoints) : bool {
+        if ($wearPoints < 0) {
+            return false;
+        }
+        if ($ype != self::TYPE_TIRES && $wearPoints < 1) {
+            return false;
+        }
+        return true;
+    }
 }
