@@ -93,6 +93,8 @@ class FormulaLogic {
         if ($currentCar == null) {
             $this->FoCars->generateCarOrder($formulaGame->id);
             $currentCar = $this->FoCars->getNextCar($formulaGame->id);
+            $formulaGame->modified = new Time();
+            $this->FormulaGames->save($formulaGame);
         }
         
         if ($currentCar["user_id"] != $user_id) {
@@ -164,10 +166,14 @@ class FormulaLogic {
         foreach ($foMoveOption->fo_damages as $foDamage) {
             $damageSuffered;
             switch ($foDamage->type) {
-                case (1):
-                case (3):   $damageSuffered = $this->FoDamages->assignDamage($foCar->fo_damages, $foDamage);
+                case (FoDamage::TYPE_TIRES):
+                    $damageSuffered = $this->FoDamages->assignDamage($foCar->fo_damages, $foDamage);
                     break;
-                case (6):   $damageSuffered = $this->FoDamages->assignDamage($foCar->fo_damages, $foDamage, 4);
+                case (FoDamage::TYPE_BRAKES):
+                    $damageSuffered = $this->FoDamages->assignDamage($foCar->fo_damages, $foDamage);
+                    break;
+                case (FoDamage::TYPE_SHOCKS):
+                    $damageSuffered = $this->FoDamages->assignDamage($foCar->fo_damages, $foDamage, 4);
                     break;
             }
             if ($damageSuffered > 0) {
@@ -177,28 +183,21 @@ class FormulaLogic {
                 ]);
             }
         }
-        
-        $collidedCars = collection($this->FoCars->find('all')->
-                    contain(['FoPositions.FoPosition2PositionsFrom' => function(Query $q) use ($foPositionId) {
-                        return $q->where(['is_adjacent' => true])->
-                                where(['OR' => ['fo_position_from_id' => $foPositionId,
-                                    'fo_position_to_id' => $foPositionId]]);
-                    }, 'FoPositions.FoPosition2PositionsTo' => function(Query $q) use ($foPositionId) {
-                        return $q->where(['is_adjacent' => true])->
-                                where(['OR' => ['fo_position_from_id' => $foPositionId,
-                                    'fo_position_to_id' => $foPositionId]]);
-                    }, 'FoDamages'])->
-                    where(['game_id' => $formulaGame->id]))->
-                filter(function(FoCar $collidedCar) use ($foCar) {
-                    return $collidedCar->id != $foCar->id &&
-                        ($collidedCar->fo_position->fo_position2_positions_from != null ||
-                            $collidedCar->fo_position->fo_position2_positions_to != null);
-                })->toList();
+        $foCarTireDamage = collection($foCar->fo_damages)->firstMatch(['type' => FoDamage::TYPE_TIRES]);
+        if ($foCarTireDamage->wear_points == 0) {
+            $foCar->gear = 0;
+            $foCarTireDamage->wear_points = 1;
+        }
+        if (!$foCar->isOk()) {
+            $foCar->state = FoCar::STATE_RETIRED;
+        }
+        debug($foCar);
+        $collidedCars = $this->getCollidedCars($formulaGame->id, $foPositionId);
         foreach ($collidedCars as $collidedCar) {
             $this->FoDamages->assignDamageSimple($collidedCar->fo_damages,
-                    1, FoDamage::TYPE_CHASSIS, 4, true);   //chassis damage
+                    1, FoDamage::TYPE_CHASSIS, DiceLogic::BLACK_COLLISION_THRESHOLD, true);
             $damageSuffered = $this->FoDamages->assignDamageSimple(
-                    $foCar->fo_damages, 1, FoDamage::TYPE_CHASSIS, 4, false);    //chassis damage
+                    $foCar->fo_damages, 1, FoDamage::TYPE_CHASSIS, DiceLogic::BLACK_COLLISION_THRESHOLD, false);
             if ($damageSuffered > 0) {
                 $damagesSuffered[] = new FoDamage([
                     'type' => FoDamage::TYPE_CHASSIS,
@@ -210,7 +209,7 @@ class FormulaLogic {
         $this->FoCars->save($foCar, ['associated' => ['FoDamages']]);
         $foLog = $this->FoLogs->find('all')->
                 contain(['FoCars'])->
-                where(['fo_car_id' => $foCar->id])->
+                where(['fo_car_id' => $foCar->id, 'type' => FoLog::TYPE_MOVE])->
                 order(['FoLogs.id' => 'DESC'])->
                 first();
         $foLog->fo_position_id = $foPositionId;
@@ -223,7 +222,25 @@ class FormulaLogic {
                 toList();
         $this->FoMoveOptions->deleteMany($moveOptionsToDelete);
         
-        //TODO: check if any car is retired and if tires at 0, get in 0-gear
+        //TODO: check if any car is retired
+    }
+    
+    public function getCollidedCars(int $gameId, int $foPositionId) {
+        return collection($this->FoCars->find('all')->
+            contain(['FoPositions.FoPosition2PositionsFrom' => function(Query $q) use ($foPositionId) {
+                return $q->where(['is_adjacent' => true])->
+                        where(['OR' => ['fo_position_from_id' => $foPositionId,
+                            'fo_position_to_id' => $foPositionId]]);
+            }, 'FoPositions.FoPosition2PositionsTo' => function(Query $q) use ($foPositionId) {
+                return $q->where(['is_adjacent' => true])->
+                        where(['OR' => ['fo_position_from_id' => $foPositionId,
+                            'fo_position_to_id' => $foPositionId]]);
+            }, 'FoDamages'])->
+            where(['game_id' => $gameId]))->
+        filter(function(FoCar $collidedCar) {
+            return $collidedCar->fo_position->fo_position2_positions_from != null ||
+                    $collidedCar->fo_position->fo_position2_positions_to != null;
+        })->toList();
     }
     
     public function chooseGear(FormulaGame $formulaGame, int $gear) {

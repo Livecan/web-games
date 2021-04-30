@@ -20,6 +20,9 @@ class DiceLogic {
         6 => [21, 22, 23, 24, 25, 26, 27, 28, 29, 30],  //blue - gear 6
     ];
     
+    const BLACK_SHOCKS_THRESHOLD = 4;
+    const BLACK_COLLISION_THRESHOLD = 4;
+    
     public function getRoll($diceNumber) {
         return $this->dice[$diceNumber][random_int(0, count($this->dice[$diceNumber]) - 1)];
     }

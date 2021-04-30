@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
+use App\Model\Entity\FoDamage;
 
 /**
  * FoCar Entity
@@ -65,4 +66,15 @@ class FoCar extends Entity
     const STATE_RACING = 'R';
     const STATE_RETIRED = 'X';
     const STATE_FINISHED = 'F';
+    
+    public function isOk() {
+        foreach ($this->fo_damages as $foDamage) {
+            if ($foDamage->type == FoDamage::TYPE_TIRES && $foDamage->wear_points < 0) {
+                return false;
+            } else if ($foDamage->wear_points < 1) {
+                return false;
+            }
+        }
+        return true;
+    }
 }
