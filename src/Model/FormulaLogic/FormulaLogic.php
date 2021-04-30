@@ -136,7 +136,18 @@ class FormulaLogic {
             $actions->type = "choose_gear";
             $actions->current_gear = $currentCar->gear;
             $actions->available_gears = [];
-            for ($availableGear = max(1, $currentCar->gear - 4);
+            $foCarDamages = collection($currentCar->fo_damages);
+            $downshiftAvailable = 4;
+            if ($foCarDamages->firstMatch(['type' => FoDamage::TYPE_ENGINE])) {
+                $downshiftAvailable = 3;
+            }
+            if ($foCarDamages->firstMatch(['type' => FoDamage::TYPE_BRAKES])) {
+                $downshiftAvailable = 2;
+            }
+            if ($foCarDamages->firstMatch(['type' => FoDamage::TYPE_GEARBOX])) {
+                $downshiftAvailable = 1;
+            }
+            for ($availableGear = max(1, $currentCar->gear - $downshiftAvailable);
                     $availableGear <= min(6, $currentCar->gear + 1);
                     $availableGear++) {
                 $actions->available_gears[] = $availableGear;
@@ -244,12 +255,8 @@ class FormulaLogic {
     }
     
     public function chooseGear(FormulaGame $formulaGame, int $gear) {
-        $currentCar = collection($formulaGame->fo_cars)->
-                reject(function(FoCar $foCar) {
-                    return $foCar->order == null;
-                })->
-                sortBy('order', SORT_ASC)->
-                first();
+        $currentCar = $this->FoCars->getNextCar($formulaGame->id);
+        //TODO: include checking if the player chose an option that doesn't destroy him - the check is already in getActions(), so might not be necessary here
         if ($gear < max($currentCar->gear - 4, 1) || $gear > min($currentCar->gear + 1, 6)) {
             return;
         }

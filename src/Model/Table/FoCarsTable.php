@@ -173,6 +173,7 @@ class FoCarsTable extends Table
     
     public function getNextCar(int $game_id) : ?FoCar {
         return $this->find('all')->
+                contain(['FoDamages'])->
                 where(['game_id' => $game_id])->
                 whereNotNull('order')->
                 order(['order' => 'ASC'])->
