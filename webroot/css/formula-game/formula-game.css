@@ -98,8 +98,12 @@ and open the template in the editor.
   opacity: 65%;
 }
 
-.car_img {
+.car_img, .debris_img {
   position: absolute;
+}
+
+.debris_img {
+  opacity: 50%;
 }
 
 /*# sourceMappingURL=formula-game.css.map */

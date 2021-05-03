@@ -67,9 +67,6 @@ class FormulaLogic {
                     'FoDebris' => function(Query $q) {
                         return $q->select(['game_id', 'fo_position_id']);
                     },
-                    'FoDebris.FoPositions' => function(Query $q) {
-                        return $q->select(['pos_x', 'pos_y', 'angle']);
-                    }
                     ])->
                 select(['id', 'name', 'game_state_id'])->
                 where(['id' => $formulaGame->id])->

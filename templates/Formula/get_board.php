@@ -85,27 +85,54 @@
             $(element).css("opacity", 0);
         }
     };
+    var foGetSprite = function(elementClass, imgSrc, posX, posY, angle, width, length) {
+        spriteElement = $(document.createElement("img"))
+                    .addClass(elementClass)
+                    .attr("src", imgSrc)
+                    .css("left", posX - width / 2 + "%")
+                    .css("top", posY - length / 2 + "%")
+                    .attr("width", width + "%")
+                    .attr("height", length + "%")
+                    .rotate(angle);
+        return spriteElement;
+    };
     var foInsertCarsOnBoard = function(cars) {
-        let carsElement = $("#board");
+        let boardElement = $("#board");
         $("#board .car_img").remove();
         let carWidth = .8;
         let carLength = 2.5 * carWidth;
         for (let carIndex in cars) {
             let car = cars[carIndex];
-            if (car["state"] != 'R') {
+            if (car["state"] !== 'R') {
                 continue;
             }
-            let carElement;
-            carElement = $(document.createElement("img"))
-                    .addClass("car_img")
-                    .attr("src", "/img/formula/cars/" + foCarImages[carIndex])
-                    .css("left", foPositions[car["fo_position_id"]].posX / 1000 - carWidth / 2 + "%")
-                    .css("top", foPositions[car["fo_position_id"]].posY / 1000 - carLength / 2 + "%")
-                    .attr("width", carWidth + "%")
-                    .attr("height", carLength + "%")
-                    .rotate(foPositions[car["fo_position_id"]].angle * 180 / Math.PI - 90);
-            $("#board").append(carElement);
+            let carElement = foGetSprite("car_img",
+                "/img/formula/cars/" + foCarImages[carIndex],
+                foPositions[car["fo_position_id"]].posX / 1000,
+                foPositions[car["fo_position_id"]].posY / 1000,
+                foPositions[car["fo_position_id"]].angle * 180 / Math.PI - 90,
+                carWidth,
+                carLength
+                );
+            boardElement.append(carElement);
 
+        }
+    };
+    var foInsertDebrisOnBoard = function(debriss) {
+        let boardElement = $("#board");
+        $("#board .debris_img").remove();
+        let length = .9;
+        let width = 2 * length;
+        for (let debris of debriss) {
+            let debrisElement = foGetSprite("debris_img",
+                "/img/formula/track-objects/oil.png",
+                foPositions[debris["fo_position_id"]].posX / 1000,
+                foPositions[debris["fo_position_id"]].posY / 1000,
+                foPositions[debris["fo_position_id"]].angle * 180 / Math.PI,
+                width,
+                length
+                );
+            boardElement.append(debrisElement);
         }
     };
     var foGetDamageTdElements = function(damages) {
@@ -239,7 +266,7 @@
                 foInsertCarsOnBoard(data["fo_cars"]);
                 foInsertCarInfo(data["fo_cars"], data["users"]);
                 foFeedLogger(data["fo_logs"], data["users"]);
-                //TODO: display debris as well
+                foInsertDebrisOnBoard(data["fo_debris"]);
                 if ("actions" in data) {
                     switch (data["actions"]["type"]) {
                         case ("choose_move"):
