@@ -53,11 +53,8 @@ class FormulaGame extends Entity
         'users' => true,
         'game_state' => true,
         'game_type' => true,
-        'dr_results' => true,
-        'dr_turns' => true,
         'fo_cars' => true,
         'fo_debris' => true,
         'fo_game' => true,
-        'dr_tokens' => true,
     ];
 }
