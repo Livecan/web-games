@@ -13,6 +13,7 @@ use App\Model\FormulaLogic\DiceLogic;
 use App\Model\Entity\FoCar;
 use App\Model\Entity\FoLog;
 use App\Model\Entity\FoMoveOption;
+use App\Model\Entity\FoDebri;
 
 /**
  * Description of FormulaLogic
@@ -31,6 +32,7 @@ class FormulaLogic {
         $this->FoLogs = $this->getTableLocator()->get('FoLogs');
         $this->FoMoveOptions = $this->getTableLocator()->get('FoMoveOptions');
         $this->FoPosition2Positions = $this->getTableLocator()->get('FoPosition2Positions');
+        $this->FoDebris = $this->getTableLocator()->get('FoDebris');
         $this->DiceLogic = new DiceLogic();
         $this->MovementLogic = new MovementLogic();
     }
@@ -202,8 +204,13 @@ class FormulaLogic {
         debug($foCar);
         $collidedCars = $this->getCollidedCars($formulaGame->id, $foPositionId);
         foreach ($collidedCars as $collidedCar) {
-            $this->FoDamages->assignDamageSimple($collidedCar->fo_damages,
+            $isCausedDamage = $this->FoDamages->assignDamageSimple($collidedCar->fo_damages,
                     1, FoDamage::TYPE_CHASSIS, DiceLogic::BLACK_COLLISION_THRESHOLD, true);
+            if ($isCausedDamage) {
+                $this->FoDebris->save(new FoDebri([
+                    'game_id' => $formulaGame->id,
+                    'fo_position_id' => $collidedCar->fo_position_id]));
+            }
             $damageSuffered = $this->FoDamages->assignDamageSimple(
                     $foCar->fo_damages, 1, FoDamage::TYPE_CHASSIS, DiceLogic::BLACK_COLLISION_THRESHOLD, false);
             if ($damageSuffered > 0) {
@@ -211,6 +218,9 @@ class FormulaLogic {
                     'type' => FoDamage::TYPE_CHASSIS,
                     'wear_points' => $damageSuffered,
                 ]);
+                $this->FoDebris->save(new FoDebri([
+                    'game_id' => $formulaGame->id,
+                    'fo_position_id' => $foCar->fo_position_id]));
             }
         }
         $foCar->setDirty('fo_damages', true);
