@@ -8,7 +8,6 @@ use Cake\ORM\Entity;
 /**
  * FoGame Entity
  *
- * @property int $id
  * @property int $game_id
  * @property int $fo_track_id
  * @property int $cars_per_player

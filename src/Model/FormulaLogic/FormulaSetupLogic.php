@@ -25,6 +25,7 @@ class FormulaSetupLogic {
         $this->FoCars = $this->getTableLocator()->get('FoCars');
         $this->FoDamages = $this->getTableLocator()->get('FoDamages');
         $this->FormulaGames = $this->getTableLocator()->get('FormulaGames');
+        $this->FoGames = $this->getTableLocator()->get('FoGames');
         $this->FoLogs = $this->getTableLocator()->get('FoLogs');
         $this->FoTracks = $this->getTableLocator()->get('FoTracks');
         $this->FoPositions = $this->getTableLocator()->get('FoPositions');
@@ -125,7 +126,7 @@ class FormulaSetupLogic {
     
     public function editSetup(FormulaGame $formulaGame, array $data) {
         $this->FormulaGames->patchEntity($formulaGame, $data);
-        $this->FormulaGames->patchEntity($formulaGame->fo_game, $data);
+        $this->FoGames->patchEntity($formulaGame->fo_game, $data);
         $formulaGame->setDirty('fo_game');
         
         $carsMissing = false;
@@ -189,7 +190,6 @@ class FormulaSetupLogic {
         $formulaGame->fo_cars = $this->FoCars->find('all')->
                 where(['game_id' => $formulaGame->id])->
                 toList();
-        //debug($formulaGame);
         
         $formulaGame->fo_cars = collection($formulaGame->fo_cars)->shuffle();
         

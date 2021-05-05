@@ -43,8 +43,8 @@ class FoGamesTable extends Table
         parent::initialize($config);
 
         $this->setTable('fo_games');
-        $this->setDisplayField('id');
-        $this->setPrimaryKey('id');
+        $this->setDisplayField('game_id');
+        $this->setPrimaryKey('game_id');
 
         $this->addBehavior('Timestamp');
 
@@ -66,10 +66,6 @@ class FoGamesTable extends Table
      */
     public function validationDefault(Validator $validator): Validator
     {
-        $validator
-            ->integer('id')
-            ->allowEmptyString('id', null, 'create');
-
         $validator
             ->integer('cars_per_player')
             ->notEmptyString('cars_per_player');

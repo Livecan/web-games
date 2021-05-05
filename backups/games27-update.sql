@@ -7,3 +7,6 @@ UPDATE `fo_positions` SET `order`=`order`-515 WHERE id IN (512, 513, 514, 515);
 ALTER TABLE `fo_damages` CHANGE `fo_e_damage_type_id` `fo_e_damage_type` INT(11) NOT NULL COMMENT '1 - Tires,\r\n2 - Gearbox,\r\n3 - Brakes,\r\n4 - Engine,\r\n5 - Chassis,\r\n6 - Shocks';
 ALTER TABLE games.fo_damages DROP FOREIGN KEY fo_damages_ibfk_2;
 ALTER TABLE `fo_damages` CHANGE `fo_e_damage_type` `type` INT(11) NOT NULL COMMENT '1 - Tires,\r\n2 - Gearbox,\r\n3 - Brakes,\r\n4 - Engine,\r\n5 - Chassis,\r\n6 - Shocks';
+
+ALTER TABLE `fo_games` DROP `id`;
+ALTER TABLE `games`.`fo_games` DROP INDEX `game_id`, ADD PRIMARY KEY (`game_id`) USING BTREE;
