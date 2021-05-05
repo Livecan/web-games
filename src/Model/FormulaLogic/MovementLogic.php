@@ -89,9 +89,7 @@ class MovementLogic {
                 }
             });
         }
-        
-        $foCar->fo_damages = $this->FoDamages->findByFoCarId($foCar->id);
-        
+                
         $moveOptions = $moveOptions->filter(function(FoMoveOption $moveOption) use ($foCar) {
             return $foCar->isDamageOk(collection($moveOption->fo_damages),
                     collection([FoDamage::TYPE_TIRES, FoDamage::TYPE_BRAKES]));
@@ -192,7 +190,8 @@ class MovementLogic {
         }
         $nextMoveOption->fo_damages = $this->getDamagesCopy($currentMoveOption->fo_damages);
         $shocksDamage =collection(
-                $this->FoDebris->findByFoPositionId($nextMoveOption->fo_position_id))->
+                $this->FoDebris->findByFoPositionIdAndGameId($nextMoveOption->fo_position_id,
+                        $currentMoveOption->fo_car->game_id))->
             count();
         collection($nextMoveOption->fo_damages)->firstMatch(['type' => FoDamage::TYPE_SHOCKS])->
                 wear_points += $shocksDamage;

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Model\Entity;
 
+use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\ORM\Entity;
 
 /**
@@ -28,6 +29,7 @@ use Cake\ORM\Entity;
  */
 class FoMoveOption extends Entity
 {
+    use LocatorAwareTrait;
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
      *
@@ -54,4 +56,21 @@ class FoMoveOption extends Entity
         'fo_damages' => true,
         'np_traverse' => true,
     ];
+    
+    public function &__get(string $field)
+    {
+        if ($field == 'fo_position' && !$this->has($field)) {
+            $foPosition = $this->getTableLocator()->get('FoPositions')->get($this->fo_position_id);
+            if ($foPosition != null) {
+                $this->set($field, $foPosition);
+            }
+        }
+        if ($field == 'fo_car' && !$this->has($field)) {
+            $foCar = $this->getTableLocator()->get('FoCars')->get($this->fo_car_id);
+            if ($foCar != null) {
+                $this->set($field, $foCar);
+            }
+        }
+        return $this->get($field);
+    }
 }
