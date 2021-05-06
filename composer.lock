@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "e3624759de6411f54763b8f51d0253a4",
+    "content-hash": "c5695d3d1edf574410aa8eb9577091fd",
     "packages": [
         {
             "name": "cakephp/authentication",
@@ -486,6 +486,47 @@
                 }
             ],
             "time": "2021-01-12T12:10:35+00:00"
+        },
+        {
+            "name": "jeremyharris/cakephp-lazyload",
+            "version": "4.0.1",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/jeremyharris/cakephp-lazyload.git",
+                "reference": "1319c1ff51476176f5b7d0231c0970085be9cbd3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/jeremyharris/cakephp-lazyload/zipball/1319c1ff51476176f5b7d0231c0970085be9cbd3",
+                "reference": "1319c1ff51476176f5b7d0231c0970085be9cbd3",
+                "shasum": ""
+            },
+            "require": {
+                "cakephp/orm": "^4.0"
+            },
+            "require-dev": {
+                "cakephp/cakephp": "^4.0",
+                "cakephp/cakephp-codesniffer": "dev-master",
+                "phpunit/phpunit": "^8.5"
+            },
+            "type": "cakephp-plugin",
+            "autoload": {
+                "psr-4": {
+                    "JeremyHarris\\LazyLoad\\": "src"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "description": "An association lazy-loader for CakePHP",
+            "keywords": [
+                "cakephp",
+                "lazy load",
+                "plugin"
+            ],
+            "support": {
+                "issues": "https://github.com/jeremyharris/cakephp-lazyload/issues",
+                "source": "https://github.com/jeremyharris/cakephp-lazyload/tree/4.0.1"
+            },
+            "time": "2020-02-25T20:29:20+00:00"
         },
         {
             "name": "laminas/laminas-diactoros",
