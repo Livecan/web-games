@@ -7,6 +7,7 @@ use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\ORM\Entity;
 use App\Model\Entity\FoDamage;
 use Cake\Collection\CollectionInterface;
+use JeremyHarris\LazyLoad\ORM\LazyLoadEntityTrait;
 
 /**
  * FoCar Entity
@@ -35,6 +36,7 @@ use Cake\Collection\CollectionInterface;
 class FoCar extends Entity
 {
     use LocatorAwareTrait;
+    use LazyLoadEntityTrait;
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
      *
@@ -64,23 +66,6 @@ class FoCar extends Entity
         'fo_logs' => true,
         'fo_move_options' => true,
     ];
-    
-    public function &__get(string $field)
-    {
-        if ($field == 'fo_position' && !$this->has($field)) {
-            $foPosition = $this->getTableLocator()->get('FoPositions')->findByFoCarId($this->id)->first();
-            if ($foPosition != null) {
-                $this->set($field, $foPosition);
-            }
-        }
-        if ($field == 'fo_damages' && !$this->has($field)) {
-            $foDamages = $this->getTableLocator()->get('FoDamages')->findByFoCarId($this->id)->first();
-            if ($foDamages != null) {
-                $this->set($field, $foDamages);
-            }
-        }
-        return $this->get($field);
-    }
     
     const STATE_NOT_READY = 'N';
     const STATE_RACING = 'R';
