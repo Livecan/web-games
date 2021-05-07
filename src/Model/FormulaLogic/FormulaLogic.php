@@ -137,13 +137,13 @@ class FormulaLogic {
             $actions->available_gears = [];
             $foCarDamages = collection($currentCar->fo_damages);
             $downshiftAvailable = 4;
-            if ($foCarDamages->firstMatch(['type' => FoDamage::TYPE_ENGINE])) {
+            if ($foCarDamages->firstMatch(['type' => FoDamage::TYPE_ENGINE])->wear_points <= 1) {
                 $downshiftAvailable = 3;
             }
-            if ($foCarDamages->firstMatch(['type' => FoDamage::TYPE_BRAKES])) {
+            if ($foCarDamages->firstMatch(['type' => FoDamage::TYPE_BRAKES])->wear_points <= 1) {
                 $downshiftAvailable = 2;
             }
-            if ($foCarDamages->firstMatch(['type' => FoDamage::TYPE_GEARBOX])) {
+            if ($foCarDamages->firstMatch(['type' => FoDamage::TYPE_GEARBOX])->wear_points <= 1) {
                 $downshiftAvailable = 1;
             }
             for ($availableGear = max(1, $currentCar->gear - $downshiftAvailable);
