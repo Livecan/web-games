@@ -180,10 +180,10 @@ class FoCarsTable extends Table
                 first();
     }
     
-    public function retireCar(FoCar $foCar) {
+    /*public function retireCar(FoCar $foCar) {
         $foCar->order = null;
         $foCar->state = FoCar::STATE_RETIRED;
         $foCar->fo_position_id = null;
         $this->save($foCar);
-    }
+    }*/
 }

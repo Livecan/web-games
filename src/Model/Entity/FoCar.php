@@ -101,4 +101,11 @@ class FoCar extends Entity
         
         return true;
     }
+    
+    public function retire() {
+        $this->order = null;
+        $this->state = FoCar::STATE_RETIRED;
+        $this->fo_position_id = null;
+        return $this->getTableLocator()->get($this->getSource())->save($this);
+    }
 }

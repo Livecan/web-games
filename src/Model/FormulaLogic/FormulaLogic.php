@@ -123,7 +123,7 @@ class FormulaLogic {
                 return $this->getActions($formulaGame, $user_id);
             }
             if (count($actions->available_moves) == 0) {
-                $this->FoCars->retireCar($currentCar);
+                $currentCar = $currentCar->retire();
             }
         }
         if ($lastCarTurn != null && $lastCarTurn['fo_position_id'] != null) {
@@ -160,6 +160,7 @@ class FormulaLogic {
         $this->chooseMoveOption($formulaGame, $foMoveOption);
     }
     
+    //FIX & //REFACTORING: tidy the function, rewrite methods to OO and do move, then collisions
     public function chooseMoveOption(FormulaGame $formulaGame, FoMoveOption $foMoveOption) {
         $foCar = $this->FoCars->get($foMoveOption->fo_car_id, ['contain' => ['FoDamages']]);
         $foPositionId = $foMoveOption->fo_position_id;
@@ -198,10 +199,6 @@ class FormulaLogic {
             $foCar->gear = 0;
             $foCarTireDamage->wear_points = 1;
         }
-        if (!$foCar->isOk()) {
-            $foCar->state = FoCar::STATE_RETIRED;
-        }
-        debug($foCar);
         $collidedCars = $this->getCollidedCars($formulaGame->id, $foPositionId);
         foreach ($collidedCars as $collidedCar) {
             $isCausedDamage = $this->FoDamages->assignDamageSimple($collidedCar->fo_damages,
@@ -210,6 +207,9 @@ class FormulaLogic {
                 $this->FoDebris->save(new FoDebri([
                     'game_id' => $formulaGame->id,
                     'fo_position_id' => $collidedCar->fo_position_id]));
+                if (!$collidedCar->isOk()) {
+                    $collidedCar = $collidedCar->retire();
+                }
             }
             $damageSuffered = $this->FoDamages->assignDamageSimple(
                     $foCar->fo_damages, 1, FoDamage::TYPE_CHASSIS, DiceLogic::BLACK_COLLISION_THRESHOLD, false);
@@ -224,6 +224,11 @@ class FormulaLogic {
             }
         }
         $foCar->setDirty('fo_damages', true);
+        
+        if (!$foCar->isOk()) {
+            $foCar = $foCar->retire();
+        }
+        
         $this->FoCars->save($foCar, ['associated' => ['FoDamages']]);
         $foLog = $this->FoLogs->find('all')->
                 contain(['FoCars'])->
@@ -243,6 +248,7 @@ class FormulaLogic {
         //TODO: check if any car is retired
     }
     
+    //FIX: returning even own car, need to rewrite the whole calling function
     public function getCollidedCars(int $gameId, int $foPositionId) {
         return collection($this->FoCars->find('all')->
             contain(['FoPositions.FoPosition2PositionsFrom' => function(Query $q) use ($foPositionId) {
