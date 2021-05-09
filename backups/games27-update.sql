@@ -10,3 +10,4 @@ ALTER TABLE `fo_damages` CHANGE `fo_e_damage_type` `type` INT(11) NOT NULL COMME
 
 ALTER TABLE `fo_games` DROP `id`;
 ALTER TABLE `games`.`fo_games` DROP INDEX `game_id`, ADD PRIMARY KEY (`game_id`) USING BTREE;
+ALTER TABLE `fo_logs` ADD `damage_type` INT NULL DEFAULT NULL COMMENT 'values according to fo_damages.type' AFTER `ranking`;
