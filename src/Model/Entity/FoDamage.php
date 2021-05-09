@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
+use \Livecan\EntityUtility\EntitySaveTrait;
 
 /**
  * FoDamage Entity
@@ -23,6 +24,7 @@ use Cake\ORM\Entity;
  */
 class FoDamage extends Entity
 {
+    use EntitySaveTrait;
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
      *

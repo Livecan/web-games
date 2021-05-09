@@ -182,12 +182,6 @@ class FormulaLogic {
         $foCar->order = null;
         
         $foCar->assignMovementDamages($foMoveOption->fo_damages);
-
-        $foCarTireDamage = $foCar->getDamageByType(FoDamage::TYPE_TIRES);
-        if ($foCarTireDamage->wear_points == 0) {
-            $foCar->gear = 0;
-            $foCarTireDamage->wear_points = 1;
-        }
         
         $foCar->save();
 

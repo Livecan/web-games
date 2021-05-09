@@ -111,6 +111,20 @@ class FoCar extends Entity
         return collection($this->fo_damages)->firstMatch(['type' => $foDamageType]);
     }
     
+    /**
+     * Checks if tire damage dropped to zero and if it did, then puts the car
+     * in 0 gear and restores tire damage to 1.
+     */
+    private function spinTireDamage() {
+        $tireDamage = $this->getDamageByType(FoDamage::TYPE_TIRES);
+        if ($tireDamage->wear_points == 0) {
+            $tireDamage->wear_points = 1;
+            $tireDamage->save();
+            $this->gear = 0;
+            $this->save();
+        }
+    }
+    
     public function assignMovementDamages(array $movementDamages) : FoCar {
         foreach ($movementDamages as $movementDamage) {
             switch ($movementDamage->type) {
@@ -123,6 +137,7 @@ class FoCar extends Entity
                     break;
             }
         }
+        $this->spinTireDamage();
         return $this;
     }
     
