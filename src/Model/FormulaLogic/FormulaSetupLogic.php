@@ -214,7 +214,7 @@ class FormulaSetupLogic {
         $formulaGame->fo_cars = $this->FoCars->generateCarOrder($formulaGame->id)->toList();
         
         $this->FoLogs->logGameStart($formulaGame->fo_cars);
-        
+
         return $formulaGame;
     }
     
