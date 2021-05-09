@@ -4,7 +4,6 @@ declare(strict_types=1);
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
-use Cake\Collection\Collection;
 
 /**
  * FoDamage Entity
@@ -69,14 +68,12 @@ class FoDamage extends Entity
     }
     
     public static function getOneDamage(int $damageType) {
-        $oneDamage = self::$oneDamages[$damageType];
-        if ($oneDamage == null) {
-            $oneDamage = new FoDamage([
+        if (!array_key_exists($damageType, self::$oneDamages)) {
+            self::$oneDamages[$damageType] = new FoDamage([
                 'wear_points' => 1,
                 'type' => $damageType,
             ]);
-            self::$oneDamages[$damageType] = $oneDamage;
         }
-        return $oneDamage;
+        return self::$oneDamages[$damageType];
     }
 }

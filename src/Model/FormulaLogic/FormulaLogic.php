@@ -235,22 +235,10 @@ class FormulaLogic {
     
     public function chooseGear(FormulaGame $formulaGame, int $gear) {
         $currentCar = $this->FoCars->getNextCar($formulaGame->id);
-        //TODO: include checking if the player chose an option that doesn't destroy him - the check is already in getActions(), so might not be necessary here
         if ($gear < max($currentCar->gear - 4, 1) || $gear > min($currentCar->gear + 1, 6)) {
             return;
         }
-        $currentCar = $this->FoCars->get($currentCar->id, ['contain' => ['FoDamages']]);
-        $gearDiff = $gear - $currentCar->gear;
-        $currentCar->gear = $gear;
-        $foLog = new FoLog([
-            'fo_car_id' => $currentCar->id,
-            'gear' => $gear,
-            'roll' => $this->DiceLogic->getRoll($gear),
-            'type' => FoLog::TYPE_MOVE,
-        ]);
-        $this->FoCars->save($currentCar);
-        //damage for too much downshifting:
-        $foLog->fo_damages = $this->FoDamages->processGearChangeDamage($currentCar, $gearDiff);
-        $this->FoLogs->save($foLog, ['associated' => ['FoDamages']]);
+        
+        $currentCar->shift($gear);
     }
 }

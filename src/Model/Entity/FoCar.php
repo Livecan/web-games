@@ -165,6 +165,33 @@ class FoCar extends Entity
         return $totalDamageDealt;
     }
     
+    public function shift(int $gear) {
+        $gearDiff = $gear - $this->gear;
+        if ($gearDiff < -1) {
+            $this->processGearChangeDamage($gearDiff);
+        }
+        (new FoLog([
+            'fo_car_id' => $this->id,
+            'gear' => $gear,
+            'roll' => DiceLogic::getDiceLogic()->getRoll($gear),
+            'type' => FoLog::TYPE_MOVE,
+        ]))->save();
+        $this->gear = $gear;
+        return $this->save();
+    }
+    
+    private function processGearChangeDamage(int $gearDiff) {
+        switch ($gearDiff) {
+            case (-4):
+                $this->assignDamage(FoDamage::getOneDamage(FoDamage::TYPE_ENGINE));
+            case (-3):
+                $this->assignDamage(FoDamage::getOneDamage(FoDamage::TYPE_BRAKES));
+            case (-2):
+                $this->assignDamage(FoDamage::getOneDamage(FoDamage::TYPE_GEARBOX));
+                break;
+        }
+    }
+    
     public function retire() {
         $this->order = null;
         $this->state = FoCar::STATE_RETIRED;
