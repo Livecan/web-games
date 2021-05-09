@@ -18,7 +18,6 @@ trait EntitySaveTrait {
     use EntityRepositoryTrait;
     
     public function save() {
-        $this->_repository()->save($this);
-        debug("Saved!");
+        return $this->_repository()->save($this);
     }
 }

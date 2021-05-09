@@ -9,6 +9,7 @@
 namespace Livecan\EntityUtility;
 
 use Cake\ORM\Locator\LocatorAwareTrait;
+use Cake\Utility\Inflector;
 
 /**
  *
