@@ -106,49 +106,6 @@ class FoDamagesTable extends Table {
         return $rules;
     }
     
-    public function assignDamage($carDamages, FoDamage $damageToAssign, $badRoll = null) : int {
-        return $this->assignDamageSimple($carDamages,
-                $damageToAssign->wear_points,
-                $damageToAssign->type,
-                $badRoll);
-    }
-    
-    public function assignDamageSimple($carDamages, int $wearPoints, int $damageType, $badRoll = null, $save = false) : int {
-        $damageWearPoints = 0;
-        if ($badRoll == null) {
-            $damageWearPoints = $wearPoints;
-        } else {
-            for ($i = 0; $i < $wearPoints; $i++) {
-                if ($this->DiceLogic->getRoll(0) <= $badRoll) {
-                    $damageWearPoints++;
-                }
-            }
-        }
-        
-        if ($damageWearPoints > 0) {
-            $updatedDamage = collection($carDamages)->
-                    firstMatch(['type' => $damageType]);
-            $updatedDamage->wear_points -= $damageWearPoints;
-
-            if ($save) {
-                $this->save($updatedDamage);
-                $foLog = new FoLog([
-                    'fo_car_id' => $updatedDamage->fo_car_id,
-                    'type' => FoLog::TYPE_DAMAGE,
-                    'fo_damages' => [
-                        new FoDamage([
-                            'type' => $damageType,
-                            'wear_points' => $damageWearPoints,
-                        ])
-                    ],
-                ]);
-                $this->FoLogs->save($foLog, ['associated' => ['FoDamages']]);
-            }
-        }
-        
-        return $damageWearPoints;
-    }
-    
     /**
      * 
      * @param CollectionInterface $foCarDamages
