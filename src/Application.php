@@ -58,6 +58,8 @@ class Application extends BaseApplication
      */
     public function bootstrap(): void
     {
+        $this->addPlugin('Livecan');
+
         // Call parent to load bootstrap from files.
         parent::bootstrap();
 
