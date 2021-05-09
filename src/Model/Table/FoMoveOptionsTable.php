@@ -93,6 +93,7 @@ class FoMoveOptionsTable extends Table
             : FoMoveOption {
         $foCar = $this->FoCars->get($fo_car_id);
         return new FoMoveOption(['fo_car_id' => $fo_car_id,
+            'fo_car' => $foCar,
             'fo_position_id' => $fo_position_id,
             'fo_curve_id' => $foCar->fo_curve_id,
             'stops' => $foCar->stops,

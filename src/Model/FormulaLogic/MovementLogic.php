@@ -162,6 +162,7 @@ class MovementLogic {
             FoPosition2Position $nextPosition2Positions,
             int $overtaking = null): ?FoMoveOption {
         $nextMoveOption = new FoMoveOption(['fo_car_id' => $currentMoveOption->fo_car_id,
+            'fo_car' => $currentMoveOption->fo_car,
             'fo_position_id' => $nextPosition2Positions->fo_position_to_id,
             'fo_curve_id' => $currentMoveOption->fo_curve_id,
             'stops' => $currentMoveOption->stops,
@@ -248,6 +249,7 @@ class MovementLogic {
         
         $brakingOption = new FoMoveOption([
             'fo_car_id' => $moveOption->fo_car_id,
+            'fo_car' => $moveOption->fo_car,
             'fo_position_id' => $moveOption->fo_position_id,
             'fo_curve_id' => $moveOption->fo_curve_id,
             'stops' => $moveOption->stops,

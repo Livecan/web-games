@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
+use Cake\Collection\Collection;
 
 /**
  * FoDamage Entity
@@ -51,6 +52,7 @@ class FoDamage extends Entity
     const TYPE_ENGINE = 4;
     const TYPE_CHASSIS = 5;
     const TYPE_SHOCKS = 6;
+    private static $oneDamages = [];
     
     public function isOk() : bool {
         return self::isDamageOk($this->type, $this->wear_points);
@@ -64,5 +66,17 @@ class FoDamage extends Entity
             return false;
         }
         return true;
+    }
+    
+    public static function getOneDamage(int $damageType) {
+        $oneDamage = self::$oneDamages[$damageType];
+        if ($oneDamage == null) {
+            $oneDamage = new FoDamage([
+                'wear_points' => 1,
+                'type' => $damageType,
+            ]);
+            self::$oneDamages[$damageType] = $oneDamage;
+        }
+        return $oneDamage;
     }
 }

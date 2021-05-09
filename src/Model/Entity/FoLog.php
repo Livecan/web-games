@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
+use JeremyHarris\LazyLoad\ORM\LazyLoadEntityTrait;
+use Livecan\EntityUtility\EntitySaveTrait;
 
 /**
  * FoLog Entity
@@ -24,6 +26,10 @@ use Cake\ORM\Entity;
  */
 class FoLog extends Entity
 {
+    use LazyLoadEntityTrait;
+    use EntitySaveTrait {
+        EntitySaveTrait::_repository insteadof LazyLoadEntityTrait;
+    }
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
      *

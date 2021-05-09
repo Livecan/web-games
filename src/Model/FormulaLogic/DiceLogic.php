@@ -23,6 +23,15 @@ class DiceLogic {
     const BLACK_SHOCKS_THRESHOLD = 4;
     const BLACK_COLLISION_THRESHOLD = 4;
     
+    private static $diceLogicSingleton;
+    
+    public static function getDiceLogic() {
+        if (self::$diceLogicSingleton === null) {
+            self::$diceLogicSingleton = new DiceLogic();
+        }
+        return self::$diceLogicSingleton;
+    }
+    
     public function getRoll($diceNumber) {
         return $this->dice[$diceNumber][random_int(0, count($this->dice[$diceNumber]) - 1)];
     }

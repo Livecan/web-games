@@ -3,11 +3,13 @@ declare(strict_types=1);
 
 namespace App\Model\Entity;
 
-use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\ORM\Entity;
 use App\Model\Entity\FoDamage;
 use Cake\Collection\CollectionInterface;
+use App\Model\FormulaLogic\DiceLogic;
 use JeremyHarris\LazyLoad\ORM\LazyLoadEntityTrait;
+use \Livecan\EntityUtility\EntitySaveTrait;
+use App\Model\Entity\FoLog;
 
 /**
  * FoCar Entity
@@ -35,8 +37,11 @@ use JeremyHarris\LazyLoad\ORM\LazyLoadEntityTrait;
  */
 class FoCar extends Entity
 {
-    use LocatorAwareTrait;
     use LazyLoadEntityTrait;
+    use EntitySaveTrait {
+        EntitySaveTrait::_repository insteadof LazyLoadEntityTrait;
+    }
+    
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
      *
@@ -102,10 +107,68 @@ class FoCar extends Entity
         return true;
     }
     
+    public function getDamageByType(int $foDamageType) : FoDamage {
+        return collection($this->fo_damages)->firstMatch(['type' => $foDamageType]);
+    }
+    
+    public function assignMovementDamages(array $movementDamages) : FoCar {
+        foreach ($movementDamages as $movementDamage) {
+            switch ($movementDamage->type) {
+                case (FoDamage::TYPE_TIRES):
+                case (FoDamage::TYPE_BRAKES):
+                    $this->assignDamage($movementDamage);
+                    break;
+                case (FoDamage::TYPE_SHOCKS):
+                    $this->assignDamage($movementDamage, DiceLogic::BLACK_SHOCKS_THRESHOLD);
+                    break;
+            }
+        }
+        return $this;
+    }
+    
+    public function assignDamage(FoDamage $damage, $badRoll = null, $log = true) : int {
+        $carWear = $this->getDamageByType($damage->type);
+        $totalDamageDealt = 0;
+        if ($badRoll !== null) {
+            for ($i = 0; $i < $damage->wear_points; $i++) {
+                $roll = DiceLogic::getDiceLogic()->getRoll(0);
+                (new FoLog([
+                    'fo_car_id' => $this->id,
+                    'roll' => $roll,
+                    'damage_type' => $damage->type,
+                    'type' => FoLog::TYPE_DAMAGE,
+                ]))->save();
+                
+                if ($roll <= $badRoll) {
+                    $carWear->wear_points--;
+                    $totalDamageDealt++;
+                }
+            }
+        } else {
+            $totalDamageDealt = $damage->wear_points;
+            $carWear->wear_points -= $totalDamageDealt;
+            (new FoLog([
+                'fo_car_id' => $this->id,
+                'type' => FoLog::TYPE_DAMAGE,
+                'fo_damages' => [
+                    $damage,
+                ],
+            ]))->save();
+        }
+        
+        $this->setDirty('fo_damages');
+        if (!$this->isOk()) {
+            $this->retire();
+        }
+        $this->save();
+        
+        return $totalDamageDealt;
+    }
+    
     public function retire() {
         $this->order = null;
         $this->state = FoCar::STATE_RETIRED;
         $this->fo_position_id = null;
-        return $this->getTableLocator()->get($this->getSource())->save($this);
+        return $this->save();
     }
 }
