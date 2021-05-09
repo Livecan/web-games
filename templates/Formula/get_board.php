@@ -210,7 +210,7 @@
                 let moveOptionId = "move_option_" + availableMove["id"];
                 let damageOptionRowElement = $(document.createElement("tr"))
                         .attr("id", moveOptionId)
-                        .addClass("damageOption");
+                        .addClass("damage_option");
                 $("#board").on("click", "#" + moveOptionId,
                         { availableMoveId: availableMove["id"] },
                         foHandlerChooseMoveOption);

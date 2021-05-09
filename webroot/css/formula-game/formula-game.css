@@ -30,6 +30,9 @@ and open the template in the editor.
   background-color: white;
   width: auto;
 }
+#board_parent #board #gears * {
+  cursor: pointer;
+}
 
 .damage_table {
   background-color: white;
@@ -93,9 +96,13 @@ and open the template in the editor.
   background-color: white;
   width: auto;
 }
+.move_option_damage .damage_option {
+  cursor: pointer;
+}
 
 .move_option {
   opacity: 65%;
+  cursor: pointer;
 }
 
 .car_img, .debris_img {

@@ -28,6 +28,9 @@ and open the template in the editor.
             bottom: 20px;
             background-color: white;
             width: auto;
+            * {
+                cursor: pointer;
+            }
         }
     }
 }
@@ -93,10 +96,14 @@ and open the template in the editor.
     visibility: hidden;
     background-color: white;
     width: auto;
+    .damage_option {
+        cursor: pointer;
+    }
 }
 
 .move_option {
     opacity: 65%;
+    cursor: pointer;
 }
 
 .car_img, .debris_img {
