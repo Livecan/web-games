@@ -100,6 +100,7 @@ and open the template in the editor.
   visibility: hidden;
   background-color: white;
   width: auto;
+  z-index: 1000;
 }
 .move_option_damage .damage_option {
   cursor: pointer;

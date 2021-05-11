@@ -107,6 +107,7 @@ $onboard-opacity: 65%;
     visibility: hidden;
     background-color: white;
     width: auto;
+    z-index: $move_option_layer-z;
     .damage_option {
         cursor: pointer;
     }
