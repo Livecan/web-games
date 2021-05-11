@@ -3,7 +3,11 @@ declare(strict_types=1);
 
 namespace App\Model\Entity;
 
+use Cake\ORM\Query;
 use Cake\ORM\Entity;
+use Cake\ORM\Locator\LocatorAwareTrait;
+use JeremyHarris\LazyLoad\ORM\LazyLoadEntityTrait;
+use Livecan\EntityUtility\EntitySaveTrait;
 
 /**
  * FormulaGame Entity
@@ -31,6 +35,12 @@ use Cake\ORM\Entity;
  */
 class FormulaGame extends Entity
 {
+    use LocatorAwareTrait;
+    use LazyLoadEntityTrait;
+    use EntitySaveTrait {
+        EntitySaveTrait::_repository insteadof LazyLoadEntityTrait;
+    }
+    
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
      *
@@ -57,4 +67,20 @@ class FormulaGame extends Entity
         'fo_debris' => true,
         'fo_game' => true,
     ];
+    
+    public function generateCarOrder() {
+        $this->fo_cars = $this->getTableLocator()->get('FoCars')->
+                find('all')->
+                contain(['FoPositions'])->
+                where(['game_id' => $this->id, 'state' => FoCar::STATE_RACING])->
+                order(['lap' => 'DESC', 'FoPositions.order' => 'DESC'])->
+                toList();
+        $order = 1;
+        foreach ($this->fo_cars as $foCar) {
+            $foCar->order = $order++;
+        }
+        $this->setDirty('fo_cars');
+        $this->save();
+        return $this->fo_cars;
+    }
 }

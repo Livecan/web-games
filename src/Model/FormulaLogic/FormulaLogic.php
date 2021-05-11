@@ -90,7 +90,7 @@ class FormulaLogic {
         
         $currentCar = $this->FoCars->getNextCar($formulaGame->id);
         if ($currentCar == null) {
-            $this->FoCars->generateCarOrder($formulaGame->id);
+            $formulaGame->generateCarOrder();
             $currentCar = $this->FoCars->getNextCar($formulaGame->id);
             $formulaGame->modified = new Time();
             $this->FormulaGames->save($formulaGame);
@@ -105,9 +105,8 @@ class FormulaLogic {
         $lastCarTurn = $this->FoLogs->
                 find('all')->
                 contain(['FoCars'])->
-                where(['game_id' => $formulaGame->id,
-                    "fo_car_id" => $currentCar->id,
-                    "type" => FoLog::TYPE_MOVE])->
+                where(['fo_car_id' => $currentCar->id,
+                    'type' => FoLog::TYPE_MOVE])->
                 order(['FoLogs.id' => 'DESC'])->
                 first();
         if ($lastCarTurn == null || $lastCarTurn['fo_position_id'] == null) {
@@ -135,15 +134,14 @@ class FormulaLogic {
             $actions->type = "choose_gear";
             $actions->current_gear = $currentCar->gear;
             $actions->available_gears = [];
-            $foCarDamages = collection($currentCar->fo_damages);
             $downshiftAvailable = 4;
-            if ($foCarDamages->firstMatch(['type' => FoDamage::TYPE_ENGINE])->wear_points <= 1) {
+            if ($currentCar->getDamageByType(FoDamage::TYPE_ENGINE)->wear_points <= 1) {
                 $downshiftAvailable = 3;
             }
-            if ($foCarDamages->firstMatch(['type' => FoDamage::TYPE_BRAKES])->wear_points <= 1) {
+            if ($currentCar->getDamageByType(FoDamage::TYPE_BRAKES)->wear_points <= 1) {
                 $downshiftAvailable = 2;
             }
-            if ($foCarDamages->firstMatch(['type' => FoDamage::TYPE_GEARBOX])->wear_points <= 1) {
+            if ($currentCar->getDamageByType(FoDamage::TYPE_GEARBOX)->wear_points <= 1) {
                 $downshiftAvailable = 1;
             }
             for ($availableGear = max(1, $currentCar->gear - $downshiftAvailable);

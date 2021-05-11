@@ -95,7 +95,7 @@ class FormulaSetupLogic {
                 'type' => $damageType,
             ]);
         }
-        return $this->FoCars->createUserCar($formulaGame->id, $user_id, $foDamages, true);
+        return FoCar::createUserCar($formulaGame->id, $user_id, $foDamages);
     }
 
     public function getSetupUpdateJson(FormulaGame $formulaGame, $user, Time $modifiedDate = null) {
@@ -208,10 +208,11 @@ class FormulaSetupLogic {
         
         $formulaGame->game_state_id = 2;
         
-        $formulaGame->setDirty('fo_cars', true);
+        $formulaGame->setDirty('fo_cars');
         $formulaGame = $this->FormulaGames->save($formulaGame,
                         ['associated' => ['FoCars']]);
-        $formulaGame->fo_cars = $this->FoCars->generateCarOrder($formulaGame->id)->toList();
+
+        $formulaGame->generateCarOrder();
         
         $this->FoLogs->logGameStart($formulaGame->fo_cars);
 

@@ -118,36 +118,6 @@ class FoCarsTable extends Table
         return $rules;
     }
     
-    public function createUserCar($game_id, $user_id, $damages, $save = true) {
-        $foCar = $this->newEntity(['game_id' => $game_id,
-            'user_id' => $user_id,
-            ]);
-        $foCar->fo_damages = $damages;
-        
-        if ($save) {
-            return $this->save($foCar, ['associated' => ['FoDamages']]);
-        } else {
-            return $foCar;
-        }
-    }
-    
-    public function generateCarOrder($game_id) {
-        $foCars = $this->find('all')->
-                contain(['FoDamages' => function(Query $q) {
-                    return $q->select($this->FoDamages);
-                }, 'FoPositions' => function(Query $q) {
-                    return $q->select($this->FoPositions);
-                }])->
-                select($this)->
-                where(['game_id' => $game_id, 'state' => FoCar::STATE_RACING])->
-                order(['lap' => 'DESC', 'FoPositions.order' => 'DESC']);
-        $order = 1;
-        foreach ($foCars as $foCar) {
-            $foCar->order = $order++;
-        }
-        return $this->saveMany($foCars);
-    }
-    
     public function getNextMoveLength(FoCar $foCar): int {
         if ($foCar->gear == -1) { //processing start
             $blackDiceRoll = $this->DiceLogic->getRoll(0);
@@ -179,11 +149,4 @@ class FoCarsTable extends Table
                 order(['order' => 'ASC'])->
                 first();
     }
-    
-    /*public function retireCar(FoCar $foCar) {
-        $foCar->order = null;
-        $foCar->state = FoCar::STATE_RETIRED;
-        $foCar->fo_position_id = null;
-        $this->save($foCar);
-    }*/
 }

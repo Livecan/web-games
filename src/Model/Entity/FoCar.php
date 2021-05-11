@@ -121,7 +121,6 @@ class FoCar extends Entity
             $tireDamage->wear_points = 1;
             $tireDamage->save();
             $this->gear = 0;
-            $this->save();
         }
     }
     
@@ -130,18 +129,23 @@ class FoCar extends Entity
             switch ($movementDamage->type) {
                 case (FoDamage::TYPE_TIRES):
                 case (FoDamage::TYPE_BRAKES):
-                    $this->assignDamage($movementDamage);
+                    $this->assignDamageInternal($movementDamage);
                     break;
                 case (FoDamage::TYPE_SHOCKS):
-                    $this->assignDamage($movementDamage, DiceLogic::BLACK_SHOCKS_THRESHOLD);
+                    $this->assignDamageInternal($movementDamage, DiceLogic::BLACK_SHOCKS_THRESHOLD);
                     break;
             }
         }
         $this->spinTireDamage();
+        $this->save();
         return $this;
     }
     
-    public function assignDamage(FoDamage $damage, $badRoll = null, $log = true) : int {
+    public function assignDamage(FoDamage $damage, $badRoll = null) : int {
+        return $this->assignDamageInternal($damage, $badRoll, true);
+    }
+    
+    private function assignDamageInternal(FoDamage $damage, $badRoll = null, $save = false) : int {
         $carWear = $this->getDamageByType($damage->type);
         $totalDamageDealt = 0;
         if ($badRoll !== null) {
@@ -173,9 +177,11 @@ class FoCar extends Entity
         
         $this->setDirty('fo_damages');
         if (!$this->isOk()) {
-            $this->retire();
+            $this->retireInternal(false);
         }
-        $this->save();
+        if ($save) {
+            $this->save();
+        }
         
         return $totalDamageDealt;
     }
@@ -198,19 +204,32 @@ class FoCar extends Entity
     private function processGearChangeDamage(int $gearDiff) {
         switch ($gearDiff) {
             case (-4):
-                $this->assignDamage(FoDamage::getOneDamage(FoDamage::TYPE_ENGINE));
+                $this->assignDamageInternal(FoDamage::getOneDamage(FoDamage::TYPE_ENGINE));
             case (-3):
-                $this->assignDamage(FoDamage::getOneDamage(FoDamage::TYPE_BRAKES));
+                $this->assignDamageInternal(FoDamage::getOneDamage(FoDamage::TYPE_BRAKES));
             case (-2):
-                $this->assignDamage(FoDamage::getOneDamage(FoDamage::TYPE_GEARBOX));
+                $this->assignDamageInternal(FoDamage::getOneDamage(FoDamage::TYPE_GEARBOX));
                 break;
         }
     }
     
     public function retire() {
+        return $this->retireInternal(true);
+    }
+    
+    public function retireInternal($save = false) {
         $this->order = null;
         $this->state = FoCar::STATE_RETIRED;
         $this->fo_position_id = null;
         return $this->save();
+    }
+    
+    public static function createUserCar($game_id, $user_id, $damages) {
+        $foCar = new FoCar(['game_id' => $game_id,
+            'user_id' => $user_id,
+            ]);
+        $foCar->fo_damages = $damages;
+        
+        return $foCar->save();
     }
 }
