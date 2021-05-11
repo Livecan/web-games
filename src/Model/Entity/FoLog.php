@@ -4,8 +4,10 @@ declare(strict_types=1);
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
+use Cake\ORM\TableRegistry;
 use JeremyHarris\LazyLoad\ORM\LazyLoadEntityTrait;
 use Livecan\EntityUtility\EntitySaveTrait;
+use App\Model\Entity\FoDamage;
 
 /**
  * FoLog Entity
@@ -58,4 +60,38 @@ class FoLog extends Entity
     const TYPE_DAMAGE = 'D';
     const TYPE_REPAIR = 'R';
     const TYPE_FINISH = 'F';
+    
+    public static function logGameStart($formulaCars) {
+        foreach ($formulaCars as $formulaCar) {
+            $logDamages = [];
+            foreach ($formulaCar->fo_damages as $foDamage) {
+                $logDamages[] = new FoDamage([
+                        'type' => $foDamage->type,
+                        'wear_points' => $foDamage->wear_points,
+                    ]);
+            };
+            (new FoLog(['fo_car_id' => $formulaCar->id,
+                    'fo_position_id' => $formulaCar->fo_position_id,
+                    'gear' => $formulaCar->gear,
+                    'type' => FoLog::TYPE_INITIAL,
+                    'fo_damages' => $logDamages,
+            ]))->save();
+        };
+    }
+    
+    public static function logRoll(FoCar $foCar, $roll, $logType) {
+        if ($logType == FoLog::TYPE_INITIAL) {
+            $foLog = TableRegistry::getTableLocator()->get('FoLogs')->find('all')->
+                    where(['fo_car_id' => $foCar->id, 'type' => FoLog::TYPE_INITIAL])->
+                    first();
+            $foLog->roll = $roll;
+            return $foLog->save();
+        } else {
+            return (new FoLog(['fo_car_id' => $foCar->id,
+                'gear' => $foCar->gear,
+                'roll' => $roll,
+                'type' => $logType,
+            ]))->save();
+        }
+    }
 }

@@ -12,6 +12,7 @@ use App\Model\Entity\FoDamage;
 use App\Model\Entity\FoGame;
 use App\Model\Entity\FoCar;
 use App\Model\Entity\User;
+use App\Model\Entity\FoLog;
 
 /**
  * Description of FormulaSetupLogic
@@ -214,7 +215,7 @@ class FormulaSetupLogic {
 
         $formulaGame->generateCarOrder();
         
-        $this->FoLogs->logGameStart($formulaGame->fo_cars);
+        FoLog::logGameStart($formulaGame->fo_cars);
 
         return $formulaGame;
     }

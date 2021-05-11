@@ -126,14 +126,16 @@ class FoCar extends Entity
     
     public function assignMovementDamages(array $movementDamages) : FoCar {
         foreach ($movementDamages as $movementDamage) {
-            switch ($movementDamage->type) {
-                case (FoDamage::TYPE_TIRES):
-                case (FoDamage::TYPE_BRAKES):
-                    $this->assignDamageInternal($movementDamage);
-                    break;
-                case (FoDamage::TYPE_SHOCKS):
-                    $this->assignDamageInternal($movementDamage, DiceLogic::BLACK_SHOCKS_THRESHOLD);
-                    break;
+            if ($movementDamage->wear_points > 0) {
+                switch ($movementDamage->type) {
+                    case (FoDamage::TYPE_TIRES):
+                    case (FoDamage::TYPE_BRAKES):
+                        $this->assignDamageInternal($movementDamage);
+                        break;
+                    case (FoDamage::TYPE_SHOCKS):
+                        $this->assignDamageInternal($movementDamage, DiceLogic::BLACK_SHOCKS_THRESHOLD);
+                        break;
+                }
             }
         }
         $this->spinTireDamage();
@@ -235,11 +237,11 @@ class FoCar extends Entity
     
     private function getStartMoveLength(): int {
         $blackDiceStartRoll = DiceLogic::getDiceLogic()->getRoll(0);
-        $this->getTableLocator()->get('FoLogs')->logRoll($this, $blackDiceStartRoll, FoLog::TYPE_INITIAL);
+        FoLog::logRoll($this, $blackDiceStartRoll, FoLog::TYPE_INITIAL);
         if ($blackDiceStartRoll <= DiceLogic::BLACK_POOR_START_TOP) {   //slow start
             $this->gear = 0;
             $this->save();
-            $this->getTableLocator()->get('FoLogs')->logRoll($foCar, 0, FoLog::TYPE_MOVE);
+            FoLog::logRoll($foCar, 0, FoLog::TYPE_MOVE);
             return 0;
         }
         
@@ -247,7 +249,7 @@ class FoCar extends Entity
         $this->save();
 
         if ($blackDiceStartRoll >= DiceLogic::BLACK_FAST_START_LOW) { //fast start
-            $this->getTableLocator()->get('FoLogs')->logRoll($this, 4, FoLog::TYPE_MOVE);
+            FoLog::logRoll($this, 4, FoLog::TYPE_MOVE);
             return 4;
         }
         
@@ -259,7 +261,7 @@ class FoCar extends Entity
             return $this->getStartMoveLength();
         }
         $roll = DiceLogic::getDiceLogic()->getRoll($this->gear);
-        $this->getTableLocator()->get('FoLogs')->logRoll($this, $roll, FoLog::TYPE_MOVE);
+        FoLog::logRoll($this, $roll, FoLog::TYPE_MOVE);
         return $roll;
     }
 }

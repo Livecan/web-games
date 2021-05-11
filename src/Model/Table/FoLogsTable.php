@@ -107,47 +107,4 @@ class FoLogsTable extends Table
 
         return $rules;
     }
-    
-    public function logGameStart($formulaCars) {
-        collection($formulaCars)->each(function(FoCar $formulaCar) {
-            $logDamages = collection($formulaCar->fo_damages)->
-                    map(function(FoDamage $damage) {
-                        return new FoDamage([
-                            'type' => $damage->type,
-                            'wear_points' => $damage->wear_points,
-                        ]);
-                })->toList();
-            $foLog = new FoLog(['fo_car_id' => $formulaCar->id,
-                        'fo_position_id' => $formulaCar->fo_position_id,
-                        'gear' => $formulaCar->gear,
-                        'type' => FoLog::TYPE_INITIAL,
-                        'fo_damages' => $logDamages,
-                ]);
-            $foLog = $this->save($foLog, ['associated' => ['FoDamages']]);
-        });
-    }
-    
-    public function logFirstMove(FoCar $foCar) {
-        return $this->save(new FoLog([
-            'fo_car_id' => $foCar->id,
-            'gear' => $foCar->gear + 1,
-            'type' => FoLog::TYPE_MOVE,
-        ]));
-    }
-    
-    public function logRoll(FoCar $foCar, $roll, $logType) {
-        if ($logType == FoLog::TYPE_INITIAL) {
-            $foLog = $this->find('all')->
-                    where(['fo_car_id' => $foCar->id, 'type' => FoLog::TYPE_INITIAL])->
-                    toList()[0];
-            $this->patchEntity($foLog, ['roll' => $roll]);
-            return $this->save($foLog);
-        } else {
-            return $this->save(new FoLog(['fo_car_id' => $foCar->id,
-                'gear' => $foCar->gear,
-                'roll' => $roll,
-                'type' => $logType,
-            ]));
-        }
-    }
 }
