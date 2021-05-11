@@ -93,4 +93,14 @@ class FormulaGame extends Entity
                 order(['order' => 'ASC'])->
                 first();
     }
+    
+    public function getSavedMoveOptions() {
+        return $this->getTableLocator()->get('FoMoveOptions')->find('all')->
+            contain(['FoCars', 'FoPositions'])->
+            contain(['FoDamages' => function(Query $q) {
+                return $q->select(['fo_move_option_id', 'type', 'wear_points']);
+            }])->
+            where(['FoCars.game_id' => $this->id])->
+            toList();
+    }
 }

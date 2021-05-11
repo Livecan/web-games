@@ -55,7 +55,8 @@ class FoCarsTable extends Table
 
         $this->addBehavior('Timestamp');
 
-        $this->belongsTo('Games', [
+        $this->belongsTo('FormulaGames', [
+            'className' => 'FormulaGames',
             'foreignKey' => 'game_id',
             'joinType' => 'INNER',
         ]);
@@ -111,7 +112,7 @@ class FoCarsTable extends Table
      */
     public function buildRules(RulesChecker $rules): RulesChecker
     {
-        $rules->add($rules->existsIn(['game_id'], 'Games'), ['errorField' => 'game_id']);
+        $rules->add($rules->existsIn(['game_id'], 'FormulaGames'), ['errorField' => 'game_id']);
         $rules->add($rules->existsIn(['user_id'], 'Users'), ['errorField' => 'user_id']);
         $rules->add($rules->existsIn(['fo_position_id'], 'FoPositions'), ['errorField' => 'fo_position_id']);
 

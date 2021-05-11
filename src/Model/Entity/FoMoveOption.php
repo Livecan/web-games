@@ -30,7 +30,6 @@ use JeremyHarris\LazyLoad\ORM\LazyLoadEntityTrait;
  */
 class FoMoveOption extends Entity
 {
-    use LocatorAwareTrait;
     use LazyLoadEntityTrait;
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
@@ -58,4 +57,21 @@ class FoMoveOption extends Entity
         'fo_damages' => true,
         'np_traverse' => true,
     ];
+    
+    public static function getFirstMoveOption(FoCar $foCar, int $movesLeft, $foDamages)
+            : FoMoveOption {
+        return new FoMoveOption(['fo_car_id' => $foCar->id,
+            'fo_car' => $foCar,
+            'fo_position_id' => $foCar->fo_position_id,
+            'fo_curve_id' => $foCar->fo_curve_id,
+            'stops' => $foCar->stops,
+            'is_next_lap' => false,
+            'np_moves_left' => $movesLeft,
+            'np_allowed_left' => true,
+            'np_allowed_right' => true,
+            'np_overshooting' => false,
+            'fo_damages' => $foDamages,
+            'np_traverse' => null,
+            ]);
+    }
 }

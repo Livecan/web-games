@@ -27,7 +27,7 @@ use App\Model\Entity\FoLog;
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
  *
- * @property \App\Model\Entity\Game $game
+ * @property \App\Model\Entity\FormulaGame $formula_game
  * @property \App\Model\Entity\User $user
  * @property \App\Model\Entity\FoPosition $fo_position
  * @property \App\Model\Entity\FoCurve $fo_curve
@@ -63,7 +63,7 @@ class FoCar extends Entity
         'state' => true,
         'created' => true,
         'modified' => true,
-        'game' => true,
+        'formula_game' => true,
         'user' => true,
         'fo_position' => true,
         'fo_curve' =>true,

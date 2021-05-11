@@ -38,13 +38,13 @@ class MovementLogic {
                     'fo_damages' => $this->getZeroDamages(),
                ])];
         }
-        $savedMoveOptions = $this->FoMoveOptions->getSavedMoveOptions($foCar->game_id);
+        $savedMoveOptions = $foCar->formula_game->getSavedMoveOptions();
         if (count($savedMoveOptions) > 0) {
             return $savedMoveOptions;
         }
 
-        $moveOptions = collection([$this->FoMoveOptions->getFirstMoveOption(
-                $foCar->id, $foCar->fo_position_id, $movesLeft, $this->getZeroDamages())]);
+        $moveOptions = collection([FoMoveOption::getFirstMoveOption(
+                $foCar, $movesLeft, $this->getZeroDamages())]);
 
         $currentMoveOption;
         while (($currentMoveOption = $moveOptions->first())->np_moves_left > 0) {

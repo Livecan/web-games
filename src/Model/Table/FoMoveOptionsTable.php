@@ -88,34 +88,4 @@ class FoMoveOptionsTable extends Table
 
         return $rules;
     }
-    
-    public function getFirstMoveOption(int $fo_car_id, int $fo_position_id, int $movesLeft, $foDamages)
-            : FoMoveOption {
-        $foCar = $this->FoCars->get($fo_car_id);
-        return new FoMoveOption(['fo_car_id' => $fo_car_id,
-            'fo_car' => $foCar,
-            'fo_position_id' => $fo_position_id,
-            'fo_curve_id' => $foCar->fo_curve_id,
-            'stops' => $foCar->stops,
-            'is_next_lap' => false,
-            'np_moves_left' => $movesLeft,
-            'np_allowed_left' => true,
-            'np_allowed_right' => true,
-            'np_overshooting' => false,
-            'fo_damages' => $foDamages,
-            'np_traverse' => null,
-            ]);
-    }
-    
-    public function getSavedMoveOptions(int $gameId) {
-        return $this->find('all')->
-                contain(['FoCars', 'FoPositions'])->
-                contain(['FoDamages' => function(Query $q) {
-                    return $q->select(['fo_move_option_id', 'type', 'wear_points']);
-                }])->
-                where(['FoCars.game_id' => $gameId])->
-                select($this->FoPositions)->
-                select($this)->
-                toList();
-        }
 }
