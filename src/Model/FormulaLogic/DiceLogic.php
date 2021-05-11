@@ -22,6 +22,8 @@ class DiceLogic {
     
     const BLACK_SHOCKS_THRESHOLD = 4;
     const BLACK_COLLISION_THRESHOLD = 4;
+    const BLACK_POOR_START_TOP = 1;
+    const BLACK_FAST_START_LOW = 20;
     
     private static $diceLogicSingleton;
     

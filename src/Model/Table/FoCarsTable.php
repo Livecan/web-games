@@ -117,36 +117,4 @@ class FoCarsTable extends Table
 
         return $rules;
     }
-    
-    public function getNextMoveLength(FoCar $foCar): int {
-        if ($foCar->gear == -1) { //processing start
-            $blackDiceRoll = $this->DiceLogic->getRoll(0);
-            $this->FoLogs->logRoll($foCar, $blackDiceRoll, FoLog::TYPE_INITIAL);
-            if ($blackDiceRoll == 1) {   //slow start
-                $foCar->gear = 0;
-                $this->save($foCar);
-                $this->FoLogs->logRoll($foCar, 0, FoLog::TYPE_MOVE);
-                return 0;
-            }
-            $foCar->gear = 1;
-            $this->save($foCar);
-
-            if ($blackDiceRoll == 20) { //fast start
-                $this->FoLogs->logRoll($foCar, 4, FoLog::TYPE_MOVE);
-                return 4;
-            }
-        }
-        $roll = $this->DiceLogic->getRoll($foCar->gear);
-        $this->FoLogs->logRoll($foCar, $roll, FoLog::TYPE_MOVE);
-        return $roll;
-    }
-    
-    public function getNextCar(int $game_id) : ?FoCar {
-        return $this->find('all')->
-                contain(['FoDamages'])->
-                where(['game_id' => $game_id])->
-                whereNotNull('order')->
-                order(['order' => 'ASC'])->
-                first();
-    }
 }

@@ -88,10 +88,10 @@ class FormulaLogic {
     
     private function getActions(FormulaGame $formulaGame, $user_id) {
         
-        $currentCar = $this->FoCars->getNextCar($formulaGame->id);
+        $currentCar = $formulaGame->getNextCar();
         if ($currentCar == null) {
             $formulaGame->generateCarOrder();
-            $currentCar = $this->FoCars->getNextCar($formulaGame->id);
+            $currentCar = $formulaGame->getNextCar($formulaGame->id);
             $formulaGame->modified = new Time();
             $this->FormulaGames->save($formulaGame);
         }
@@ -113,7 +113,7 @@ class FormulaLogic {
             if ($lastCarTurn != null) {
                 $movesLeft = $lastCarTurn['roll'];
             } else {
-                $movesLeft = $this->FoCars->getNextMoveLength($currentCar);
+                $movesLeft = $currentCar->getNextMoveLength();
             }
             $actions->type = "choose_move";
             $actions->available_moves = $this->MovementLogic->getAvailableMoves($currentCar, $movesLeft);
@@ -226,7 +226,7 @@ class FormulaLogic {
     }
     
     public function chooseGear(FormulaGame $formulaGame, int $gear) {
-        $currentCar = $this->FoCars->getNextCar($formulaGame->id);
+        $currentCar = $formulaGame->getNextCar($formulaGame->id);
         if ($gear < max($currentCar->gear - 4, 1) || $gear > min($currentCar->gear + 1, 6)) {
             return;
         }

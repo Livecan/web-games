@@ -232,4 +232,34 @@ class FoCar extends Entity
         
         return $foCar->save();
     }
+    
+    private function getStartMoveLength(): int {
+        $blackDiceStartRoll = DiceLogic::getDiceLogic()->getRoll(0);
+        $this->getTableLocator()->get('FoLogs')->logRoll($this, $blackDiceStartRoll, FoLog::TYPE_INITIAL);
+        if ($blackDiceStartRoll <= DiceLogic::BLACK_POOR_START_TOP) {   //slow start
+            $this->gear = 0;
+            $this->save();
+            $this->getTableLocator()->get('FoLogs')->logRoll($foCar, 0, FoLog::TYPE_MOVE);
+            return 0;
+        }
+        
+        $this->gear = 1;
+        $this->save();
+
+        if ($blackDiceStartRoll >= DiceLogic::BLACK_FAST_START_LOW) { //fast start
+            $this->getTableLocator()->get('FoLogs')->logRoll($this, 4, FoLog::TYPE_MOVE);
+            return 4;
+        }
+        
+        return $this->getNextMoveLength();
+    }
+    
+    public function getNextMoveLength(): int {
+        if ($this->gear == -1) { //processing start
+            return $this->getStartMoveLength();
+        }
+        $roll = DiceLogic::getDiceLogic()->getRoll($this->gear);
+        $this->getTableLocator()->get('FoLogs')->logRoll($this, $roll, FoLog::TYPE_MOVE);
+        return $roll;
+    }
 }

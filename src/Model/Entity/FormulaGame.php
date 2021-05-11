@@ -83,4 +83,14 @@ class FormulaGame extends Entity
         $this->save();
         return $this->fo_cars;
     }
+    
+    public function getNextCar() : ?FoCar {
+        return $this->getTableLocator()->get('FoCars')->
+                find('all')->
+                contain(['FoDamages'])->
+                where(['game_id' => $this->id])->
+                whereNotNull('order')->
+                order(['order' => 'ASC'])->
+                first();
+    }
 }
