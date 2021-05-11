@@ -8,6 +8,12 @@ and open the template in the editor.
     Author     : roman
 */
 
+$move_option_layer-z: 1000;
+$board__car_img-z: 100;
+$debris_img-z: 10;
+$gears-z: 1001;
+$onboard-opacity: 65%;
+
 #board_parent {
     max-height: 600px;
     #board {
@@ -21,6 +27,7 @@ and open the template in the editor.
             left: 0;
             width: 100%;
             height: 100%;
+            z-index: $move_option_layer-z;
         }
         #gears {
             position: fixed;
@@ -31,6 +38,10 @@ and open the template in the editor.
             * {
                 cursor: pointer;
             }
+            z-index: $gears-z;
+        }
+        .car_img {
+            z-index: $board__car_img-z;
         }
     }
 }
@@ -102,7 +113,7 @@ and open the template in the editor.
 }
 
 .move_option {
-    opacity: 65%;
+    opacity: $onboard-opacity;
     cursor: pointer;
 }
 
@@ -111,5 +122,6 @@ and open the template in the editor.
 }
 
 .debris_img {
-    opacity: 50%;
+    opacity: $onboard-opacity;
+    z-index: $debris_img-z;
 }

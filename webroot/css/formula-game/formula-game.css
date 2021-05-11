@@ -22,6 +22,7 @@ and open the template in the editor.
   left: 0;
   width: 100%;
   height: 100%;
+  z-index: 1000;
 }
 #board_parent #board #gears {
   position: fixed;
@@ -29,9 +30,13 @@ and open the template in the editor.
   bottom: 20px;
   background-color: white;
   width: auto;
+  z-index: 1001;
 }
 #board_parent #board #gears * {
   cursor: pointer;
+}
+#board_parent #board .car_img {
+  z-index: 100;
 }
 
 .damage_table {
@@ -110,7 +115,8 @@ and open the template in the editor.
 }
 
 .debris_img {
-  opacity: 50%;
+  opacity: 65%;
+  z-index: 10;
 }
 
 /*# sourceMappingURL=formula-game.css.map */
