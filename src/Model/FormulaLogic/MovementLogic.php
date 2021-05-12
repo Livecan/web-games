@@ -59,22 +59,25 @@ class MovementLogic {
                     $foCar->game_id,
                     $currentMoveOption,
                     $overtakingLeft > 0);
-
-            $nextPositionMoveOptions = $position2Positions->
-                    map(function($position2Positions) use ($currentMoveOption, $overtakingLeft) {
-                        return $this->getNextPositionMoveOption($currentMoveOption, $position2Positions, $overtakingLeft);
-                    });
-            $nextPositionMoveOptions = $nextPositionMoveOptions->appendItem($this->getBrakingOption($currentMoveOption));
             
-            $moveOptions = $this->addUniqueMoveOptions($moveOptions, $nextPositionMoveOptions);
+            foreach ($position2Positions as $position2Position) {
+                $moveOptions = $this->addUniqueMoveOption($moveOptions,
+                        $this->getNextPositionMoveOption($currentMoveOption,
+                                $position2Position,
+                                $overtakingLeft));
+            }
+            
+            $moveOptions = $this->addUniqueMoveOption($moveOptions, $this->getBrakingOption($currentMoveOption));
             
             $moveOptions = $moveOptions->sortBy('np_moves_left', SORT_DESC, SORT_NUMERIC);
         }
         //TODO: after this is finished, do drafting if conditions for drafting are met
-        $moveOptions = $this->adjustBrakeDamage($moveOptions);
+        foreach ($moveOptions as $moveOption) {
+            $moveOption->adjustBrakeDamage();
+        }
         
         if (!$moveOptions->isEmpty()) {
-            $moveOptionsPositionsIsCurve = $this->FoPositions->
+            $positionToCurve = $this->FoPositions->
                     find('list', ['keyField' => 'id', 'valueField' => 'fo_curve_id'])->
                     where(function(QueryExpression $exp, Query $q) use ($moveOptions) {
                         return $exp->in('id',
@@ -82,8 +85,8 @@ class MovementLogic {
                     })->
                     toArray();
             //all the move options that are out of a turn need to have curve info nullified
-            $moveOptions->each(function(FoMoveOption $moveOption) use ($moveOptionsPositionsIsCurve) {
-                if (!$moveOptionsPositionsIsCurve[$moveOption->fo_position_id]) {
+            $moveOptions->each(function(FoMoveOption $moveOption) use ($positionToCurve) {
+                if ($positionToCurve[$moveOption->fo_position_id] === null) {
                     $moveOption->fo_curve_id = null;
                     $moveOption->stops = null;
                 }
@@ -96,9 +99,9 @@ class MovementLogic {
         });
         
         $moveOptions = $this->makeUnique($moveOptions);
-        $moveOptions->each(function(FoMoveOption $moveOption) {
+        foreach ($moveOptions as $moveOption) {
             $moveOption->stops++;
-        });
+        };
         return $this->FoMoveOptions->
                 saveMany($moveOptions, ['associated' => ['FoDamages']])->
                 toList();
@@ -194,7 +197,7 @@ class MovementLogic {
                 $this->FoDebris->findByFoPositionIdAndGameId($nextMoveOption->fo_position_id,
                         $currentMoveOption->fo_car->game_id))->
             count();
-        collection($nextMoveOption->fo_damages)->firstMatch(['type' => FoDamage::TYPE_SHOCKS])->
+        $nextMoveOption->getDamageByType(FoDamage::TYPE_SHOCKS)->
                 wear_points += $shocksDamage;
         $nextMoveOption = $this->processCurveHandlingDamage($nextMoveOption);
         $foCar = $this->FoCars->get($currentMoveOption->fo_car_id, ['contain' => ['FoDamages']]);
@@ -236,14 +239,12 @@ class MovementLogic {
     }
     
     private function getBrakingOption(FoMoveOption $moveOption): ?FoMoveOption {
-        $originalBrakeDamage = collection($moveOption->fo_damages)->
-                firstMatch(['type' => FoDamage::TYPE_BRAKES])->
-                wear_points;
-        $carBrakeWearPoints = $this->FoDamages->find('all')->
-                where(['fo_car_id' => $moveOption->fo_car_id, 'type' => FoDamage::TYPE_BRAKES])->
-                select('wear_points')->
-                first()->wear_points; 
-       if (($carBrakeWearPoints <= 3 && $carBrakeWearPoints <= $originalBrakeDamage + 1) ||
+        $originalBrakeDamage = $moveOption->
+                getDamageByType(FoDamage::TYPE_BRAKES)->wear_points;
+        $carBrakeWearPoints = $moveOption->fo_car->
+                getDamageByType(FoDamage::TYPE_BRAKES)->wear_points;
+        
+        if (($carBrakeWearPoints <= 3 && $carBrakeWearPoints <= $originalBrakeDamage + 1) ||
                $originalBrakeDamage >= 6)    //can't add another brake damage
             return null;
         
@@ -261,9 +262,8 @@ class MovementLogic {
             'np_traverse' => $moveOption,
        ]);
         $brakingOption->fo_damages = $this->getDamagesCopy($moveOption->fo_damages);
-        collection($brakingOption->fo_damages)->
-                firstMatch(['type' => FoDamage::TYPE_BRAKES])->
-                wear_points++;
+        $brakingOption->getDamageByType(FoDamage::TYPE_BRAKES)->wear_points++;
+        
         return $brakingOption;
     }
     
@@ -322,8 +322,7 @@ class MovementLogic {
             }
             //leaving skipping one stop
             if ($nextMoveOption->stops + 1 == $foCurve->stops) {
-                collection($nextMoveOption->fo_damages)->
-                        firstMatch(['type' => FoDamage::TYPE_TIRES])->
+                $nextMoveOption->getDamageByType(FoDamage::TYPE_TIRES)->
                         wear_points++;
                 return $nextMoveOption;
             }
@@ -342,26 +341,11 @@ class MovementLogic {
             $nextMoveOption->fo_curve_id = $nextPosition->fo_curve_id;
             $nextMoveOption->stops = -1;
             $nextMoveOption->np_overshooting = true;
-            collection($nextMoveOption->fo_damages)->
-                    firstMatch(['type' => FoDamage::TYPE_TIRES])->
-                    wear_points++;
+            $nextMoveOption->getDamageByType(FoDamage::TYPE_TIRES)->wear_points++;
             return $nextMoveOption;
         }
         
         return $nextMoveOption;
-    }
-    
-    private function adjustBrakeDamage($moveOptions) {
-        foreach ($moveOptions as $moveOption) {
-            $foDamages = collection($moveOption->fo_damages);
-            $brakeDamage = $foDamages->firstMatch(['type' => FoDamage::TYPE_BRAKES]);
-            if ($brakeDamage->wear_points > 3) {
-                $foDamages->firstMatch(['type' => FoDamage::TYPE_TIRES])->
-                        wear_points += ($brakeDamage->wear_points - 3);
-                $brakeDamage->wear_points = 3;
-            }
-        }
-        return $moveOptions;
     }
     
     /**

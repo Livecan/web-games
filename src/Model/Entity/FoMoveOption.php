@@ -6,6 +6,7 @@ namespace App\Model\Entity;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\ORM\Entity;
 use JeremyHarris\LazyLoad\ORM\LazyLoadEntityTrait;
+use App\Model\Entity\FoDamageTrait;
 
 /**
  * FoMoveOption Entity
@@ -31,6 +32,7 @@ use JeremyHarris\LazyLoad\ORM\LazyLoadEntityTrait;
 class FoMoveOption extends Entity
 {
     use LazyLoadEntityTrait;
+    use FoDamageTrait;
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
      *
@@ -59,7 +61,7 @@ class FoMoveOption extends Entity
     ];
     
     public static function getFirstMoveOption(FoCar $foCar, int $movesLeft, $foDamages)
-            : FoMoveOption {
+            : self {
         return new FoMoveOption(['fo_car_id' => $foCar->id,
             'fo_car' => $foCar,
             'fo_position_id' => $foCar->fo_position_id,
@@ -73,5 +75,15 @@ class FoMoveOption extends Entity
             'fo_damages' => $foDamages,
             'np_traverse' => null,
             ]);
+    }
+    
+    public function adjustBrakeDamage() : self {
+        $foDamages = collection($this->fo_damages);
+        $brakeDamage = $this->getDamageByType(FoDamage::TYPE_BRAKES);
+        if ($brakeDamage->wear_points > 3) {
+            $this->getDamageByType(FoDamage::TYPE_TIRES)->wear_points += ($brakeDamage->wear_points - 3);
+            $brakeDamage->wear_points = 3;
+        }
+        return $this;
     }
 }

@@ -10,6 +10,7 @@ use App\Model\FormulaLogic\DiceLogic;
 use JeremyHarris\LazyLoad\ORM\LazyLoadEntityTrait;
 use \Livecan\EntityUtility\EntitySaveTrait;
 use App\Model\Entity\FoLog;
+use App\Model\Entity\FoDamageTrait;
 
 /**
  * FoCar Entity
@@ -41,6 +42,7 @@ class FoCar extends Entity
     use EntitySaveTrait {
         EntitySaveTrait::_repository insteadof LazyLoadEntityTrait;
     }
+    use FoDamageTrait;
     
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
@@ -105,10 +107,6 @@ class FoCar extends Entity
         }
         
         return true;
-    }
-    
-    public function getDamageByType(int $foDamageType) : FoDamage {
-        return collection($this->fo_damages)->firstMatch(['type' => $foDamageType]);
     }
     
     /**
