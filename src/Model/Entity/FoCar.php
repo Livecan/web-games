@@ -131,7 +131,7 @@ class FoCar extends Entity
                         $this->assignDamageInternal($movementDamage);
                         break;
                     case (FoDamage::TYPE_SHOCKS):
-                        $this->assignDamageInternal($movementDamage, DiceLogic::BLACK_SHOCKS_THRESHOLD);
+                        $this->assignDamageInternal($movementDamage, DiceLogic::BLACK_SHOCKS_TOP);
                         break;
                 }
             }

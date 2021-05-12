@@ -5,6 +5,7 @@ namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
 use \Livecan\EntityUtility\EntitySaveTrait;
+use Cake\Collection\CollectionInterface;
 
 /**
  * FoDamage Entity
@@ -69,7 +70,7 @@ class FoDamage extends Entity
         return true;
     }
     
-    public static function getOneDamage(int $damageType) {
+    public static function getOneDamage(int $damageType) : self {
         if (!array_key_exists($damageType, self::$oneDamages)) {
             self::$oneDamages[$damageType] = new FoDamage([
                 'wear_points' => 1,
@@ -77,5 +78,31 @@ class FoDamage extends Entity
             ]);
         }
         return self::$oneDamages[$damageType];
+    }
+    
+    public static function getDamagesCopy($foDamages) : array {
+        return collection($foDamages)->map(function ($foDamage) {
+            return new FoDamage([
+                'wear_points' => $foDamage->wear_points,
+                'type' => $foDamage->type,
+           ]);
+        })->toArray();
+    }
+    
+    public static function getZeroDamages($damageTypes = [FoDamage::TYPE_TIRES,
+                        FoDamage::TYPE_BRAKES, FoDamage::TYPE_SHOCKS]) : array {
+        if ($damageTypes instanceof int) {
+            $damageTypesCollection = collection([$damageTypes]);
+        } else if (is_array($damageTypes)) {
+            $damageTypesCollection = collection($damageTypes);
+        } else {
+            throw new InvalidArgumentException();
+        }
+        return $damageTypesCollection->map(function($damageType) {
+            return new FoDamage([
+                        'wear_points' => 0,
+                        'type' => $damageType,
+                   ]);
+        })->toArray();
     }
 }

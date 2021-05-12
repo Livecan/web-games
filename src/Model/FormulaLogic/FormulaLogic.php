@@ -187,7 +187,7 @@ class FormulaLogic {
         foreach ($collidedCars as $collidedCar) {
             $isCausedDamage = $collidedCar->assignDamage(
                     FoDamage::getOneDamage(FoDamage::TYPE_CHASSIS),
-                    DiceLogic::BLACK_COLLISION_THRESHOLD);
+                    DiceLogic::BLACK_COLLISION_TOP);
             if ($isCausedDamage) {
                 $this->FoDebris->save(new FoDebri([
                     'game_id' => $formulaGame->id,
@@ -195,7 +195,7 @@ class FormulaLogic {
             }
             $isCausedDamage = $foCar->assignDamage(
                     FoDamage::getOneDamage(FoDamage::TYPE_CHASSIS),
-                    DiceLogic::BLACK_COLLISION_THRESHOLD);
+                    DiceLogic::BLACK_COLLISION_TOP);
             if ($isCausedDamage) {
                 $this->FoDebris->save(new FoDebri([
                     'game_id' => $formulaGame->id,

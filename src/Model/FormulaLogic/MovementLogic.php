@@ -10,7 +10,6 @@ use App\Model\Entity\FoCar;
 use App\Model\Entity\FoPosition2Position;
 use App\Model\Entity\FoDamage;
 use Cake\Database\Expression\QueryExpression;
-use Cake\Collection\CollectionInterface;
 
 /**
  * Description of MovementLogic
@@ -31,22 +30,17 @@ class MovementLogic {
     }
     
     public function getAvailableMoves(FoCar $foCar, int $movesLeft) : array {
+        $moveOptions = collection([FoMoveOption::getFirstMoveOption(
+                $foCar, $movesLeft, FoDamage::getZeroDamages())]);
         if ($movesLeft == 0) {
-            return [new FoMoveOption(['fo_car_id' => $foCar->id,
-                    'fo_position_id' => $foCar->fo_position_id,
-                    'is_next_lap' => false,
-                    'fo_damages' => $this->getZeroDamages(),
-               ])];
+            return $moveOptions->toList();
         }
+        
         $savedMoveOptions = $foCar->formula_game->getSavedMoveOptions();
         if (count($savedMoveOptions) > 0) {
             return $savedMoveOptions;
         }
 
-        $moveOptions = collection([FoMoveOption::getFirstMoveOption(
-                $foCar, $movesLeft, $this->getZeroDamages())]);
-
-        $currentMoveOption;
         while (($currentMoveOption = $moveOptions->first())->np_moves_left > 0) {
 
             //take out the first FoMoveOption from the collection and remove it from it
@@ -55,19 +49,21 @@ class MovementLogic {
             
             $overtakingLeft = $this->canOvertake($foCar->game_id,
                     $currentMoveOption->fo_position_id) ? 3 : $currentMoveOption->np_overtaking;
-            $position2Positions = $this->getNextAvailablePositions(
-                    $foCar->game_id,
-                    $currentMoveOption,
-                    $overtakingLeft > 0);
+            $position2Positions = $this->FoPositions->
+                    get($currentMoveOption->fo_position_id)->
+                    getNextAvailablePositions($foCar->game_id,
+                            $currentMoveOption->np_allowed_left,
+                            $currentMoveOption->np_allowed_right,
+                            $overtakingLeft > 0);
             
             foreach ($position2Positions as $position2Position) {
-                $moveOptions = $this->addUniqueMoveOption($moveOptions,
+                $moveOptions = FoMoveOption::addUniqueMoveOption($moveOptions,
                         $this->getNextPositionMoveOption($currentMoveOption,
                                 $position2Position,
                                 $overtakingLeft));
             }
             
-            $moveOptions = $this->addUniqueMoveOption($moveOptions, $this->getBrakingOption($currentMoveOption));
+            $moveOptions = FoMoveOption::addUniqueMoveOption($moveOptions, $this->getBrakingOption($currentMoveOption));
             
             $moveOptions = $moveOptions->sortBy('np_moves_left', SORT_DESC, SORT_NUMERIC);
         }
@@ -98,51 +94,13 @@ class MovementLogic {
                     collection([FoDamage::TYPE_TIRES, FoDamage::TYPE_BRAKES]));
         });
         
-        $moveOptions = $this->makeUnique($moveOptions);
+        $moveOptions = FoMoveOption::makeUnique($moveOptions);
         foreach ($moveOptions as $moveOption) {
             $moveOption->stops++;
         };
         return $this->FoMoveOptions->
                 saveMany($moveOptions, ['associated' => ['FoDamages']])->
                 toList();
-    }
-    
-    private function getNextAvailablePositions(int $gameId, FoMoveOption $moveOption, bool $overtaking) : CollectionInterface {
-        //following returns all the possible next moves, excluding fields where other cars are
-        $query = $this->FoPosition2Positions->find('all')-> 
-                contain([
-                    'FoPositionFrom' => function(Query $q) {
-                        return $q->select(['id', 'is_finish']);
-                    },
-                    'FoPositionTo' => function(Query $q) {
-                        return $q->select(['id', 'is_finish']);
-                    },
-                    'FoPositionTo.FoCars' => function(Query $q) use ($gameId) {
-                        return  $q->where(['game_id' => $gameId])->
-                                select('fo_position_id');
-                    },
-               ])->
-                select(['fo_position_to_id', 'is_left', 'is_straight', 'is_right', 'is_curve', 'is_pitlane_move'])->
-                where(['fo_position_from_id' => $moveOption->fo_position_id,
-                    'OR' => [['is_left' => true],
-                        ['is_straight' => true],
-                        ['is_right' => true],
-                        ['is_curve' => true],
-                   ]
-               ]);
-
-        if (!$moveOption->np_allowed_left && !$overtaking) {
-            $query = $query->where(['is_left' => false]);
-        }
-        if (!$moveOption->np_allowed_right && !$overtaking) {
-            $query = $query->where(['is_right' => false]);
-        }
-
-        return collection($query)->
-            filter(function(FoPosition2Position $foPosition2Position) {
-                return count($foPosition2Position->fo_position_to->fo_cars) == 0;
-            })->
-            buffered();
     }
     
     private function canOvertake(int $gameId, int $positionFromId): bool {
@@ -192,7 +150,7 @@ class MovementLogic {
         if ($nextPosition2Positions->is_right || $nextPosition2Positions->is_curve) {
             $nextMoveOption->np_allowed_left = false;
         }
-        $nextMoveOption->fo_damages = $this->getDamagesCopy($currentMoveOption->fo_damages);
+        $nextMoveOption->fo_damages = FoDamage::getDamagesCopy($currentMoveOption->fo_damages);
         $shocksDamage =collection(
                 $this->FoDebris->findByFoPositionIdAndGameId($nextMoveOption->fo_position_id,
                         $currentMoveOption->fo_car->game_id))->
@@ -209,44 +167,20 @@ class MovementLogic {
         }
     }
     
-    private function addUniqueMoveOptions(CollectionInterface $moveOptions, $moveOptions2): ?CollectionInterface {
-        if ($moveOptions->isEmpty()) {
-            return collection($moveOptions2)->reject(
-                    function($moveOption2) { return $moveOption2 == null; });
-        }
-        
-        foreach ($moveOptions2 as $moveOption2) {
-            $moveOptions = $this->addUniqueMoveOption($moveOptions, $moveOption2);
-        }
-        return $moveOptions;
-    }
-    
-    private function addUniqueMoveOption(CollectionInterface $moveOptions, FoMoveOption $moveOption2 = null): ?CollectionInterface {
-        if ($moveOption2 == null) {
-            return $moveOptions;
-        }
-        if ($moveOptions->every(function(FoMoveOption $_moveOption) use ($moveOption2) {
-            return $_moveOption->fo_position_id != $moveOption2->fo_position_id ||
-                    $_moveOption->np_allowed_left != $moveOption2->np_allowed_left ||
-                    $_moveOption->np_allowed_right != $moveOption2->np_allowed_right ||
-                    $_moveOption->np_moves_left != $moveOption2->np_moves_left ||
-                    !$this->compareDamages($_moveOption->fo_damages, $moveOption2->fo_damages);
-        })) {
-            return $moveOptions->appendItem($moveOption2);
-        } else {
-            return $moveOptions;
-        }
-    }
-    
     private function getBrakingOption(FoMoveOption $moveOption): ?FoMoveOption {
-        $originalBrakeDamage = $moveOption->
+        $moveOptionBrakeDamage = $moveOption->
+                getDamageByType(FoDamage::TYPE_BRAKES)->wear_points + 1;
+        $carBrakesWearPoints = $moveOption->fo_car->
                 getDamageByType(FoDamage::TYPE_BRAKES)->wear_points;
-        $carBrakeWearPoints = $moveOption->fo_car->
-                getDamageByType(FoDamage::TYPE_BRAKES)->wear_points;
+        $carTiresWearPoints = $moveOption->fo_car->
+                getDamageByType(FoDamage::TYPE_TIRES)->wear_points;
+        $brakingOptionBrakesLeft = $carBrakesWearPoints - min($moveOptionBrakeDamage, 3);
+        $brakingOptionTiresLeft = $carTiresWearPoints - max($moveOptionBrakeDamage - 3, 0);
         
-        if (($carBrakeWearPoints <= 3 && $carBrakeWearPoints <= $originalBrakeDamage + 1) ||
-               $originalBrakeDamage >= 6)    //can't add another brake damage
+        if ($brakingOptionBrakesLeft < 1 || $brakingOptionTiresLeft < 0 ||
+               $moveOptionBrakeDamage >= 7) {    //can't add another brake damage
             return null;
+        }
         
         $brakingOption = new FoMoveOption([
             'fo_car_id' => $moveOption->fo_car_id,
@@ -255,48 +189,16 @@ class MovementLogic {
             'fo_curve_id' => $moveOption->fo_curve_id,
             'stops' => $moveOption->stops,
             'is_next_lap' => $moveOption->is_next_lap,
+            'fo_damages' => FoDamage::getDamagesCopy($moveOption->fo_damages),
             'np_overshooting' => $moveOption->np_overshooting,
             'np_moves_left' => $moveOption->np_moves_left - 1,
             'np_allowed_left' => $moveOption->np_allowed_left,
             'np_allowed_right' => $moveOption->np_allowed_right,
             'np_traverse' => $moveOption,
        ]);
-        $brakingOption->fo_damages = $this->getDamagesCopy($moveOption->fo_damages);
         $brakingOption->getDamageByType(FoDamage::TYPE_BRAKES)->wear_points++;
         
         return $brakingOption;
-    }
-    
-    private function getDamagesCopy($foDamages) : array {
-        $newFoDamages = collection([]);
-        foreach ($foDamages as $foDamage) {
-            $newFoDamages =  $newFoDamages->appendItem(new FoDamage([
-                'wear_points' => $foDamage->wear_points,
-                'type' => $foDamage->type,
-           ]));
-        }
-        return $newFoDamages->toList();
-    }
-    
-    private function getZeroDamages($damageTypes = [FoDamage::TYPE_TIRES,
-                        FoDamage::TYPE_BRAKES, FoDamage::TYPE_SHOCKS]) : array {
-        if ($damageTypes instanceof int) {
-            return [new FoDamage([
-                        'wear_points' => 0,
-                        'type' => $damageTypes,
-                   ])];
-        } else if (is_array($damageTypes)) {
-            $foDamages = [];
-            foreach ($damageTypes as $damageType) {
-                $foDamages[] = new FoDamage([
-                        'wear_points' => 0,
-                        'type' => $damageType,
-                   ]);
-            }
-            return $foDamages;
-        } else {
-            throw new InvalidArgumentException();
-        }
     }
     
     private function processCurveHandlingDamage(FoMoveOption $nextMoveOption): ?FoMoveOption {
@@ -346,60 +248,5 @@ class MovementLogic {
         }
         
         return $nextMoveOption;
-    }
-    
-    /**
-     * The input params need to be sets of the same damage types, the function
-     * returns true, if the $compare returns true for each pair of wear_points.
-     * If no $compare function provided, it returns true if the damage sets
-     * have the same wear_points.
-     * 
-     * @param array<FoDamage> $damages1
-     * @param array<FoDamage> $damages2
-     * @param callable $compare
-     * @return bool
-     */
-    private function compareDamages($damages1, $damages2, callable $compare = null): bool {
-        if ($compare == null) {
-            $compare = function($a, $b) { return $a == $b; };
-        }
-        $damages1 = collection($damages1)->sortBy('type');
-        $damages2 = collection($damages2)->sortBy('type');
-        return $damages1->zip($damages2)->
-                every(function($damagePair) use ($compare) {
-                    return $compare($damagePair[0]->wear_points, $damagePair[1]->wear_points);
-        });
-    }
-    
-    /**
-     * 
-     * @param array<FoMoveOption> $moveOptions
-     * @return array
-     */
-    private function makeUnique(CollectionInterface $moveOptions): CollectionInterface {
-        for ($referenceMoveOptionIndex = $moveOptions->count() - 1;
-                $referenceMoveOptionIndex >= 0;
-                $referenceMoveOptionIndex = min($referenceMoveOptionIndex - 1, $moveOptions->count() - 1)) {
-            $referenceMoveOption = $moveOptions->take(1, $referenceMoveOptionIndex)->first();
-            $moveOptions = $moveOptions->
-                reject(function(FoMoveOption $moveOption, int $moveOptionIndex)
-                        use ($referenceMoveOption, $referenceMoveOptionIndex) {
-                    if ($moveOption === $referenceMoveOption) {
-                        return false;
-                    }
-                    if ($moveOption->fo_position_id != $referenceMoveOption->fo_position_id) {
-                        return false;
-                    }
-                    if ($this->compareDamages($moveOption->fo_damages,
-                            $referenceMoveOption->fo_damages,
-                            function (int $testDamagePoints, int $referenceDamagePoints) {
-                                return $testDamagePoints >= $referenceDamagePoints;
-                            })) {
-                        return true;
-                    }
-                    return false;
-                });
-        }
-        return $moveOptions;
     }
 }

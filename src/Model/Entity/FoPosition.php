@@ -3,7 +3,10 @@ declare(strict_types=1);
 
 namespace App\Model\Entity;
 
+use Cake\ORM\Query;
 use Cake\ORM\Entity;
+use Cake\ORM\Locator\LocatorAwareTrait;
+use Cake\Collection\CollectionInterface;
 
 /**
  * FoPosition Entity
@@ -28,6 +31,7 @@ use Cake\ORM\Entity;
  */
 class FoPosition extends Entity
 {
+    use LocatorAwareTrait;
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
      *
@@ -54,4 +58,44 @@ class FoPosition extends Entity
         'fo_position2_positions_from' => true,
         'fo_position2_positions_to' => true,
     ];
+    
+    public function getNextAvailablePositions(int $gameId, bool $allowedLeft,
+            bool $allowedRight, bool $overtaking) : CollectionInterface {
+        //following returns all the possible next moves, excluding fields where other cars are
+        $query = $this->getTableLocator()->get('FoPosition2Positions')->find('all')-> 
+                contain([
+                    'FoPositionFrom' => function(Query $q) {
+                        return $q->select(['id', 'is_finish']);
+                    },
+                    'FoPositionTo' => function(Query $q) {
+                        return $q->select(['id', 'is_finish']);
+                    },
+                    'FoPositionTo.FoCars' => function(Query $q) use ($gameId) {
+                        return  $q->where(['game_id' => $gameId])->
+                                select('fo_position_id');
+                    },
+               ])->
+                select(['fo_position_to_id', 'is_left', 'is_straight', 'is_right',
+                    'is_curve', 'is_pitlane_move'])->
+                where(['fo_position_from_id' => $this->id,
+                    'OR' => [['is_left' => true],
+                        ['is_straight' => true],
+                        ['is_right' => true],
+                        ['is_curve' => true],
+                   ]
+               ]);
+
+        if (!$allowedLeft && !$overtaking) {
+            $query = $query->where(['is_left' => false]);
+        }
+        if (!$allowedRight && !$overtaking) {
+            $query = $query->where(['is_right' => false]);
+        }
+
+        return collection($query)->
+            filter(function(FoPosition2Position $foPosition2Position) {
+                return count($foPosition2Position->fo_position_to->fo_cars) == 0;
+            })->
+            buffered();
+    }
 }

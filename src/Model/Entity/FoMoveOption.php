@@ -3,10 +3,10 @@ declare(strict_types=1);
 
 namespace App\Model\Entity;
 
-use Cake\ORM\Locator\LocatorAwareTrait;
 use Cake\ORM\Entity;
 use JeremyHarris\LazyLoad\ORM\LazyLoadEntityTrait;
 use App\Model\Entity\FoDamageTrait;
+use Cake\Collection\CollectionInterface;
 
 /**
  * FoMoveOption Entity
@@ -85,5 +85,77 @@ class FoMoveOption extends Entity
             $brakeDamage->wear_points = 3;
         }
         return $this;
+    }
+    
+    /**
+     * The input params need to be sets of the same damage types, the function
+     * returns true, if the $compare returns true for each pair of wear_points.
+     * If no $compare function provided, it returns true if the damage sets
+     * have the same wear_points.
+     * 
+     * @param array<FoDamage> $damages1
+     * @param array<FoDamage> $damages2
+     * @param callable $compare
+     * @return bool
+     */
+    private static function compareDamages($damages1, $damages2, callable $compare = null): bool {
+        if ($compare == null) {
+            $compare = function($a, $b) { return $a == $b; };
+        }
+        $damages1 = collection($damages1)->sortBy('type');
+        $damages2 = collection($damages2)->sortBy('type');
+        return $damages1->zip($damages2)->
+                every(function($damagePair) use ($compare) {
+                    return $compare($damagePair[0]->wear_points, $damagePair[1]->wear_points);
+        });
+    }
+    
+    /**
+     * 
+     * @param array<FoMoveOption> $moveOptions
+     * @return array
+     */
+    public static function makeUnique(CollectionInterface $moveOptions): CollectionInterface {
+        for ($referenceMoveOptionIndex = $moveOptions->count() - 1;
+                $referenceMoveOptionIndex >= 0;
+                $referenceMoveOptionIndex = min($referenceMoveOptionIndex - 1, $moveOptions->count() - 1)) {
+            $referenceMoveOption = $moveOptions->take(1, $referenceMoveOptionIndex)->first();
+            $moveOptions = $moveOptions->
+                reject(function(FoMoveOption $moveOption, int $moveOptionIndex)
+                        use ($referenceMoveOption, $referenceMoveOptionIndex) {
+                    if ($moveOption === $referenceMoveOption) {
+                        return false;
+                    }
+                    if ($moveOption->fo_position_id != $referenceMoveOption->fo_position_id) {
+                        return false;
+                    }
+                    if (self::compareDamages($moveOption->fo_damages,
+                            $referenceMoveOption->fo_damages,
+                            function (int $testDamagePoints, int $referenceDamagePoints) {
+                                return $testDamagePoints >= $referenceDamagePoints;
+                            })) {
+                        return true;
+                    }
+                    return false;
+                });
+        }
+        return $moveOptions;
+    }
+    
+    public static function addUniqueMoveOption(CollectionInterface $moveOptions, FoMoveOption $moveOption2 = null): ?CollectionInterface {
+        if ($moveOption2 == null) {
+            return $moveOptions;
+        }
+        if ($moveOptions->every(function(FoMoveOption $_moveOption) use ($moveOption2) {
+            return $_moveOption->fo_position_id != $moveOption2->fo_position_id ||
+                    $_moveOption->np_allowed_left != $moveOption2->np_allowed_left ||
+                    $_moveOption->np_allowed_right != $moveOption2->np_allowed_right ||
+                    $_moveOption->np_moves_left != $moveOption2->np_moves_left ||
+                    !self::compareDamages($_moveOption->fo_damages, $moveOption2->fo_damages);
+        })) {
+            return $moveOptions->appendItem($moveOption2);
+        } else {
+            return $moveOptions;
+        }
     }
 }

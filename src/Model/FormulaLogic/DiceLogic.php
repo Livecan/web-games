@@ -20,10 +20,11 @@ class DiceLogic {
         6 => [21, 22, 23, 24, 25, 26, 27, 28, 29, 30],  //blue - gear 6
     ];
     
-    const BLACK_SHOCKS_THRESHOLD = 4;
-    const BLACK_COLLISION_THRESHOLD = 4;
+    const BLACK_SHOCKS_TOP = 4;
+    const BLACK_COLLISION_TOP = 1;
     const BLACK_POOR_START_TOP = 1;
     const BLACK_FAST_START_LOW = 20;
+    const BLACK_ENGINE_DAMAGE_TOP = 4;
     
     private static $diceLogicSingleton;
     
