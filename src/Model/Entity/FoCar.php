@@ -191,14 +191,11 @@ class FoCar extends Entity
         if ($gearDiff < -1) {
             $this->processGearChangeDamage($gearDiff);
         }
-        (new FoLog([
-            'fo_car_id' => $this->id,
-            'gear' => $gear,
-            'roll' => DiceLogic::getDiceLogic()->getRoll($gear),
-            'type' => FoLog::TYPE_MOVE,
-        ]))->save();
+        
         $this->gear = $gear;
-        return $this->save();
+        $this->save();
+        
+        return $this->getNextMoveLength();
     }
     
     private function processGearChangeDamage(int $gearDiff) {
@@ -233,7 +230,7 @@ class FoCar extends Entity
         return $foCar->save();
     }
     
-    private function getStartMoveLength(): int {
+    public function getStartMoveLength(): int {
         $blackDiceStartRoll = DiceLogic::getDiceLogic()->getRoll(0);
         FoLog::logRoll($this, $blackDiceStartRoll, FoLog::TYPE_INITIAL);
         if ($blackDiceStartRoll <= DiceLogic::BLACK_POOR_START_TOP) {   //slow start
@@ -254,7 +251,7 @@ class FoCar extends Entity
         return $this->getNextMoveLength();
     }
     
-    public function getNextMoveLength(): int {
+    private function getNextMoveLength(): int {
         if ($this->gear == -1) { //processing start
             return $this->getStartMoveLength();
         }

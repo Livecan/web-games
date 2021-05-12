@@ -113,7 +113,7 @@ class FormulaLogic {
             if ($lastCarTurn != null) {
                 $movesLeft = $lastCarTurn['roll'];
             } else {
-                $movesLeft = $currentCar->getNextMoveLength();
+                $movesLeft = $currentCar->getStartMoveLength();
             }
             $actions->type = "choose_move";
             $actions->available_moves = $this->MovementLogic->getAvailableMoves($currentCar, $movesLeft);
@@ -231,6 +231,10 @@ class FormulaLogic {
             return;
         }
         
-        $currentCar->shift($gear);
+        $roll = $currentCar->shift($gear);
+        
+        if ($roll == 20 || $roll == 30) {
+            $formulaGame->assignEngineDamages();
+        }
     }
 }

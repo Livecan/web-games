@@ -8,6 +8,7 @@ use Cake\ORM\Entity;
 use Cake\ORM\Locator\LocatorAwareTrait;
 use JeremyHarris\LazyLoad\ORM\LazyLoadEntityTrait;
 use Livecan\EntityUtility\EntitySaveTrait;
+use App\Model\FormulaLogic\DiceLogic;
 
 /**
  * FormulaGame Entity
@@ -102,5 +103,13 @@ class FormulaGame extends Entity
             }])->
             where(['FoCars.game_id' => $this->id])->
             toList();
+    }
+    
+    public function assignEngineDamages() {
+        foreach ($this->fo_cars as $foCar) {
+            if ($foCar->gear >= 5) {
+                $foCar->assignDamage(FoDamage::getOneDamage(FoDamage::TYPE_ENGINE), DiceLogic::BLACK_ENGINE_DAMAGE_TOP);
+            }
+        }
     }
 }
