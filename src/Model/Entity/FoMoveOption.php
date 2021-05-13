@@ -175,15 +175,19 @@ class FoMoveOption extends Entity
         if ($this->getDamageByType(FoDamage::TYPE_BRAKES)->wear_points > 0) {
             return false;
         }
-        $carInFront = array_pop(($this->getTableLocator()->get('FoPosition2Positions')->find('all')->
+        $foPosition2Position = $this->getTableLocator()->get('FoPosition2Positions')->find('all')->
                 contain(['FoPositionTo.FoCars' => function(Query $q) {
                     return $q->where(['FoCars.game_id' => $this->fo_car->game_id]);
                 }])->
                 where(['fo_position_from_id' => $this->fo_position_id,
-                    'is_straight' => true])->first()->fo_position_to->fo_cars) ?? []);
+                    'is_straight' => true])->first()->fo_position_to->fo_cars;
+        $carInFront = $foPosition2Position->has('fo_position_to') ?
+                $foPosition2Position->fo_position_to->fo_cars[0] :
+                null;
+        
         //there must be a car in the front
         if ($carInFront == null) {
-            return false;
+            return false; 
         }
         //both cars must be at least in gear 4
         if ($carInFront->gear < 4 || $this->fo_car->gear < 4) {
