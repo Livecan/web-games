@@ -83,40 +83,40 @@
                             $class = "";
                             $color;
                             $isMove = false;
-                            if ($foPosition2Position->is_left) {
+                            if ($foPosition2Position->is_left) :
                                 $class .= "left ";
                                 $color = "red";
                                 $isMove = true;
-                            }
-                            if ($foPosition2Position->is_straight) {
+                            endif;
+                            if ($foPosition2Position->is_straight) :
                                 $class .= "straight ";
                                 $color = "green";
                                 $isMove = true;
-                            }
-                            if ($foPosition2Position->is_right) {
+                            endif;
+                            if ($foPosition2Position->is_right) :
                                 $class .= "right ";
                                 $color = "blue";
                                 $isMove = true;
-                            }
-                            if ($foPosition2Position->is_curve) {
+                            endif;
+                            if ($foPosition2Position->is_curve) :
                                 $class .= "curve ";
                                 $color = "white";
                                 $isMove = true;
-                            }
-                            if ($foPosition2Position->is_adjacent) {
+                            endif;
+                            if ($foPosition2Position->is_adjacent) :
                                 $class .= "adjacent ";
-                            }
-                            if ($foPosition2Position->is_equal_distance) {
+                            endif;
+                            if ($foPosition2Position->is_equal_distance) :
                                 $class .= "equal_distance ";
-                            }
-                            if ($foPosition2Position->is_pitlane_move) {
+                            endif;
+                            if ($foPosition2Position->is_pitlane_move) :
                                 $class .= "pitlane_move ";
                                 $color = "black";
                                 $isMove = true;
-                            }
-                            if (!$isMove) {
+                            endif;
+                            if (!$isMove) :
                                 continue;
-                            }
+                            endif;
                             ?>
                         <line x1="<?= $foPosition->pos_x / 1000 ?>%"
                               y1="<?= $foPosition->pos_y / 1000 ?>%"

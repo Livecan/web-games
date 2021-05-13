@@ -184,7 +184,7 @@ class FoMoveOption extends Entity
         $carInFront = $foPosition2Position->has('fo_position_to') ?
                 $foPosition2Position->fo_position_to->fo_cars[0] :
                 null;
-        
+
         //there must be a car in the front
         if ($carInFront == null) {
             return false;
