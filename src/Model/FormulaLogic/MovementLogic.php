@@ -65,11 +65,26 @@ class MovementLogic {
             
             $moveOptions = FoMoveOption::addUniqueMoveOption($moveOptions, $this->getBrakingOption($currentMoveOption));
             
+            $noMovesLeft = $moveOptions->
+                    every(function($moveOption) {
+                        return $moveOption->np_moves_left == 0; });
+            if ($noMovesLeft) {
+                foreach ($moveOptions as $moveOption) {
+                    if (!$moveOption->np_slipstream_checked && $moveOption->canSlipstream()) {
+                        $moveOptions = $moveOptions->appendItem(debug($moveOption->getSlipstreamOption()));
+                    }
+                        
+                }
+            }
+            
             $moveOptions = $moveOptions->sortBy('np_moves_left', SORT_DESC, SORT_NUMERIC);
         }
-        //TODO: after this is finished, do drafting if conditions for drafting are met
         foreach ($moveOptions as $moveOption) {
             $moveOption->adjustBrakeDamage();
+            //if a car is carried into a curve when drafting, loses a brake point
+            if ($moveOption->np_drafted_in_curve) {
+                $moveOption->getDamageByType(FoDamage::TYPE_BRAKES)->wear_points++;
+            }
         }
         
         if (!$moveOptions->isEmpty()) {
@@ -81,12 +96,12 @@ class MovementLogic {
                     })->
                     toArray();
             //all the move options that are out of a turn need to have curve info nullified
-            $moveOptions->each(function(FoMoveOption $moveOption) use ($positionToCurve) {
+            foreach ($moveOptions as $moveOption) {
                 if ($positionToCurve[$moveOption->fo_position_id] === null) {
                     $moveOption->fo_curve_id = null;
                     $moveOption->stops = null;
                 }
-            });
+            }
         }
                 
         $moveOptions = $moveOptions->filter(function(FoMoveOption $moveOption) use ($foCar) {
@@ -122,18 +137,11 @@ class MovementLogic {
     private function getNextPositionMoveOption(FoMoveOption $currentMoveOption,
             FoPosition2Position $nextPosition2Positions,
             int $overtaking = null): ?FoMoveOption {
-        $nextMoveOption = new FoMoveOption(['fo_car_id' => $currentMoveOption->fo_car_id,
-            'fo_car' => $currentMoveOption->fo_car,
-            'fo_position_id' => $nextPosition2Positions->fo_position_to_id,
-            'fo_curve_id' => $currentMoveOption->fo_curve_id,
-            'stops' => $currentMoveOption->stops,
-            'is_next_lap' => $currentMoveOption->is_next_lap,
-            'np_moves_left' => ($currentMoveOption->np_moves_left - 1),
-            'np_allowed_left' => $currentMoveOption->np_allowed_left,
-            'np_allowed_right' => $currentMoveOption->np_allowed_right,
-            'np_overshooting' => $currentMoveOption->np_overshooting,
-            'np_traverse' => $currentMoveOption,
-       ]);
+        $nextMoveOption = clone $currentMoveOption;
+        $nextMoveOption->fo_position_id = $nextPosition2Positions->fo_position_to_id;
+        $nextMoveOption->np_moves_left = $currentMoveOption->np_moves_left - 1;
+        $nextMoveOption->np_traverse = $currentMoveOption;
+        $nextMoveOption->np_overtaking = 0;
         
         if ($overtaking == 3 || $overtaking == 2 && $nextPosition2Positions->is_straight) {
             $nextMoveOption->np_overtaking = $overtaking - 1;
@@ -159,6 +167,11 @@ class MovementLogic {
                 wear_points += $shocksDamage;
         $nextMoveOption = $this->processCurveHandlingDamage($nextMoveOption);
         $foCar = $this->FoCars->get($currentMoveOption->fo_car_id, ['contain' => ['FoDamages']]);
+        
+        if ($nextMoveOption->np_is_slipstreaming && $nextMoveOption->fo_curve_id != null) {
+            $nextMoveOption->np_drafted_in_curve = true;
+        }
+        
         if ($nextMoveOption != null &&
                 $foCar->isDamageOk(collection($nextMoveOption->fo_damages), collection([FoDamage::TYPE_TIRES]))) {
             return $nextMoveOption;
@@ -182,20 +195,10 @@ class MovementLogic {
             return null;
         }
         
-        $brakingOption = new FoMoveOption([
-            'fo_car_id' => $moveOption->fo_car_id,
-            'fo_car' => $moveOption->fo_car,
-            'fo_position_id' => $moveOption->fo_position_id,
-            'fo_curve_id' => $moveOption->fo_curve_id,
-            'stops' => $moveOption->stops,
-            'is_next_lap' => $moveOption->is_next_lap,
-            'fo_damages' => FoDamage::getDamagesCopy($moveOption->fo_damages),
-            'np_overshooting' => $moveOption->np_overshooting,
-            'np_moves_left' => $moveOption->np_moves_left - 1,
-            'np_allowed_left' => $moveOption->np_allowed_left,
-            'np_allowed_right' => $moveOption->np_allowed_right,
-            'np_traverse' => $moveOption,
-       ]);
+        $brakingOption = clone $moveOption;
+        $brakingOption->np_moves_left = $moveOption->np_moves_left - 1;
+        $brakingOption->np_traverse = $moveOption;
+        $brakingOption->fo_damages = FoDamage::getDamagesCopy($moveOption->fo_damages);
         $brakingOption->getDamageByType(FoDamage::TYPE_BRAKES)->wear_points++;
         
         return $brakingOption;

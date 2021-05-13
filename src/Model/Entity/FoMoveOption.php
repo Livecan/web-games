@@ -3,10 +3,12 @@ declare(strict_types=1);
 
 namespace App\Model\Entity;
 
+use Cake\ORM\Query;
 use Cake\ORM\Entity;
 use JeremyHarris\LazyLoad\ORM\LazyLoadEntityTrait;
 use App\Model\Entity\FoDamageTrait;
 use Cake\Collection\CollectionInterface;
+use Cake\ORM\Locator\LocatorAwareTrait;
 
 /**
  * FoMoveOption Entity
@@ -23,6 +25,9 @@ use Cake\Collection\CollectionInterface;
  * @property bool $np_overshooting
  * @property string $np_traverse
  * @property int $np_overtaking
+ * @property bool $np_slipstream_checked
+ * @property bool $np_is_slipstreaming
+ * @property bool $np_drafted_in_curve
  *
  * @property \App\Model\Entity\FoCar $fo_car
  * @property \App\Model\Entity\FoPosition $fo_position
@@ -31,6 +36,7 @@ use Cake\Collection\CollectionInterface;
  */
 class FoMoveOption extends Entity
 {
+    use LocatorAwareTrait;
     use LazyLoadEntityTrait;
     use FoDamageTrait;
     /**
@@ -58,7 +64,10 @@ class FoMoveOption extends Entity
         'fo_curve' => true,
         'fo_damages' => true,
         'np_traverse' => true,
-    ];
+        'np_slipstream_checked' => true,
+        'np_is_slipstreaming' => true,
+        'np_drafted_in_curve' => true,
+    ];    
     
     public static function getFirstMoveOption(FoCar $foCar, int $movesLeft, $foDamages)
             : self {
@@ -157,5 +166,44 @@ class FoMoveOption extends Entity
         } else {
             return $moveOptions;
         }
+    }
+    
+    public function canSlipstream() {
+        $this->np_slipstream_checked = true;
+        
+        //a car is supposed to reach the position for slipstreaming without braking
+        if ($this->getDamageByType(FoDamage::TYPE_BRAKES)->wear_points > 0) {
+            return false;
+        }
+        $carInFront = array_pop($this->getTableLocator()->get('FoPosition2Positions')->find('all')->
+                contain(['FoPositionTo.FoCars' => function(Query $q) {
+                    return $q->where(['FoCars.game_id' => $this->fo_car->game_id]);
+                }])->
+                where(['fo_position_from_id' => $this->fo_position_id,
+                    'is_straight' => true])->first()->fo_position_to->fo_cars);
+        //there must be a car in the front
+        if ($carInFront == null) {
+            return false;
+        }
+        //both cars must be at least in gear 4
+        if ($carInFront->gear < 4 || $this->fo_car->gear < 4) {
+            return false;
+        }
+        //the slipstreaming car can't be slower than the car in front
+        if ($this->fo_car->gear < $carInFront->gear) {
+            return false;
+        }
+        return true;
+    }
+    
+    public function getSlipstreamOption() : self {
+        $slipstreamMoveOption = clone $this;
+        $slipstreamMoveOption->fo_damages = FoDamage::getDamagesCopy($this->fo_damages);
+        $slipstreamMoveOption->np_traverse = $this;
+        $slipstreamMoveOption->np_overtaking = 3;
+        $slipstreamMoveOption->np_slipstream_checked = false;
+        $slipstreamMoveOption->np_moves_left = 3;
+        $slipstreamMoveOption->np_is_slipstreaming = true;
+        return $slipstreamMoveOption;
     }
 }
