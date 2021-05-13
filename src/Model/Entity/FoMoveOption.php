@@ -187,7 +187,7 @@ class FoMoveOption extends Entity
         
         //there must be a car in the front
         if ($carInFront == null) {
-            return false; 
+            return false;
         }
         //both cars must be at least in gear 4
         if ($carInFront->gear < 4 || $this->fo_car->gear < 4) {
