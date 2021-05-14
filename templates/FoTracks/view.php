@@ -76,10 +76,18 @@
             </div>
             <div style="width: 100%; max-height: 600px; overflow: auto;">
                 <div id="track" style="position: relative;">
-                    <img src="<?= "/img/formula/" . $foTrack->game_plan ?>" width= "200%" />
+                    <img src="<?= "/img/formula/" . $foTrack->game_plan ?>" width= "200%" style="display: block;" />
+                    <?php foreach ($foTrack->fo_positions as $foPosition): ?>
+                        <span style="position: absolute;
+                              left: <?= ($foPosition->pos_x / 1000) ?>%;
+                              top: <?= ($foPosition->pos_y / 1000) ?>%;
+                              background-color: white;">
+                            <?= $foPosition->order ?>
+                        </span>
+                    <?php endforeach; ?>
                     <svg style="position:absolute; left: 0; top: 0; width: 100%; height: 100%;">
-                    <?php foreach ($foTrack->fo_positions as $foPosition) : ?>
-                        <?php foreach ($foPosition->fo_position2_positions_from as $foPosition2Position) :
+                    <?php foreach ($foTrack->fo_positions as $foPosition): ?>
+                        <?php foreach ($foPosition->fo_position2_positions_from as $foPosition2Position):
                             $class = "";
                             $color;
                             $isMove = false;
@@ -131,14 +139,14 @@
             </div>
             <div class="related">
                 <h4><?= __('Related Fo Curves') ?></h4>
-                <?php if (!empty($foTrack->fo_curves)) : ?>
+                <?php if (!empty($foTrack->fo_curves)): ?>
                 <div class="table-responsive">
                     <table>
                         <tr>
                             <th><?= __('Stops') ?></th>
                             <th><?= __('Name') ?></th>
                         </tr>
-                        <?php foreach ($foTrack->fo_curves as $foCurves) : ?>
+                        <?php foreach ($foTrack->fo_curves as $foCurves): ?>
                         <tr>
                             <td><?= h($foCurves->stops) ?></td>
                             <td><?= h($foCurves->name) ?></td>
