@@ -26,6 +26,7 @@
             </table>
             <div>
                 <div style="float: left;">
+                    <input type="checkbox" checked="true" onchange="display('position_number', this.checked)">number</input>
                     <input type="checkbox" checked="true" onchange="display('left', this.checked)">left</input>
                     <input type="checkbox" checked="true" onchange="display('straight', this.checked)">straight</input>
                     <input type="checkbox" checked="true" onchange="display('right', this.checked)">right</input>
@@ -49,28 +50,30 @@
         $("#track").css("width", trackZooms[trackZoomsIndex]);
     }
     var display = function(type, value) {
-        alert(type);
-        alert(value);
-        let lines;
+        //alert(type);
+        //alert(value);
+        let elementClass;
         switch (type) {
             case ("left"):
-                lines = $("#track .left");
+                elementClass = $("#track .left");
                 break;
             case ("straight"):
-                lines = $("#track .straight");
+                elementClass = $("#track .straight");
                 break;
             case ("right"):
-                lines = $("#track .right");
+                elementClass = $("#track .right");
                 break;
             case ("curve"):
-                lines = $("#track .curve");
+                elementClass = $("#track .curve");
                 break;
             case ("pitlane_move"):
-                lines = $("#track .pitlane_move");
+                elementClass = $("#track .pitlane_move");
                 break;
+            case ("position_number"):
+                elementClass = $(".position_number");
         }
 
-        lines.css("display", value ? "inline" : "none");
+        elementClass.css("display", value ? "inline" : "none");
     }
 </script>
             </div>
@@ -78,7 +81,7 @@
                 <div id="track" style="position: relative;">
                     <img src="<?= "/img/formula/" . $foTrack->game_plan ?>" width= "200%" style="display: block;" />
                     <?php foreach ($foTrack->fo_positions as $foPosition): ?>
-                        <span style="position: absolute;
+                        <span class="position_number" style="position: absolute;
                               left: <?= ($foPosition->pos_x / 1000) ?>%;
                               top: <?= ($foPosition->pos_y / 1000) ?>%;
                               background-color: white;">
@@ -128,8 +131,8 @@
                             ?>
                         <line x1="<?= $foPosition->pos_x / 1000 ?>%"
                               y1="<?= $foPosition->pos_y / 1000 ?>%"
-                              x2="<?= $foPosition2Position->fo_position_to->pos_x / 1000 ?>%"
-                              y2="<?= $foPosition2Position->fo_position_to->pos_y / 1000 ?>%"
+                              x2="<?= $foTrack->fo_positions[$foPosition2Position->fo_position_to_id]->pos_x / 1000 ?>%"
+                              y2="<?= $foTrack->fo_positions[$foPosition2Position->fo_position_to_id]->pos_y / 1000 ?>%"
                               class="<?= $class ?>"
                               style="stroke: <?= $color ?>/*rgb(255,0,0);*/; stroke-width: 1px;" />
                         <?php endforeach; ?>
