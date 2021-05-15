@@ -29,6 +29,7 @@
                     <select name="track-choice" id="track-choice"
                             onchange="foUpdateSetup('fo_track_id', this.value)">
                         <option value="1">Monaco</option>
+                        <option value="2">Daytona</option>
                     </select>
                 </td>
             <tr>
