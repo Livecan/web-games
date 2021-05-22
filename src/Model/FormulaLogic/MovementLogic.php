@@ -65,9 +65,8 @@ class MovementLogic {
             
             $moveOptions = FoMoveOption::addUniqueMoveOption($moveOptions, $this->getBrakingOption($currentMoveOption));
             
-            $noMovesLeft = $moveOptions->
-                    every(function($moveOption) {
-                        return $moveOption->np_moves_left == 0; });
+            $noMovesLeft = $moveOptions->count() > 0 && $moveOptions->first()->np_moves_left == 0;
+            
             if ($noMovesLeft) {
                 foreach ($moveOptions as $moveOption) {
                     if (!$moveOption->np_slipstream_checked && $moveOption->canSlipstream()) {
