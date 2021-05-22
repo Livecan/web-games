@@ -21,7 +21,8 @@ use App\Model\Entity\FoDamageTrait;
  * @property int $lap
  * @property int|null $fo_position_id
  * @property int $gear
- * @property int $order
+ * @property int|null $order
+ * @property int|null $ranking
  * @property int|null $fo_curve_id
  * @property int|null $stops
  * @property string $state
@@ -60,6 +61,7 @@ class FoCar extends Entity
         'fo_position_id' => true,
         'gear' => true,
         'order' => true,
+        'ranking' => true,
         'fo_curve_id' => true,
         'stops' => true,
         'state' => true,

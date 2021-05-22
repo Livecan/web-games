@@ -14,10 +14,10 @@ use App\Model\Entity\FoDamage;
  *
  * @property int $id
  * @property int $fo_car_id
+ * @property int|null $lap
  * @property int|null $fo_position_id
  * @property int|null $gear
  * @property int|null $roll
- * @property int|null $ranking
  * @property string $type
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
@@ -43,10 +43,10 @@ class FoLog extends Entity
      */
     protected $_accessible = [
         'fo_car_id' => true,
+        'lap' => true,
         'fo_position_id' => true,
         'gear' => true,
         'roll' => true,
-        'ranking' => true,
         'type' => true,
         'created' => true,
         'modified' => true,
