@@ -181,25 +181,33 @@ class FormulaLogic {
         
         $foCar->assignMovementDamages($foMoveOption->fo_damages);
         
+        //check if car is finishing the race now and if so assign ranking and skip collisions
+        if ($foCar->lap > $formulaGame->fo_game->laps) {
+            $foCar->state = FoCar::STATE_FINISHED;
+            $foCar->ranking = $formulaGame->getNextRanking();
+        }
+        
         $foCar->save();
 
-        $collidedCars = $this->getCollidedCars($formulaGame->id, $foPositionId);
-        foreach ($collidedCars as $collidedCar) {
-            $isCausedDamage = $collidedCar->assignDamage(
-                    FoDamage::getOneDamage(FoDamage::TYPE_CHASSIS),
-                    DiceLogic::BLACK_COLLISION_TOP);
-            if ($isCausedDamage) {
-                $this->FoDebris->save(new FoDebri([
-                    'game_id' => $formulaGame->id,
-                    'fo_position_id' => $collidedCar->fo_position_id]));
-            }
-            $isCausedDamage = $foCar->assignDamage(
-                    FoDamage::getOneDamage(FoDamage::TYPE_CHASSIS),
-                    DiceLogic::BLACK_COLLISION_TOP);
-            if ($isCausedDamage) {
-                $this->FoDebris->save(new FoDebri([
-                    'game_id' => $formulaGame->id,
-                    'fo_position_id' => $foCar->fo_position_id]));
+        if ($foCar->state != FoCar::STATE_FINISHED) {
+            $collidedCars = $this->getCollidedCars($formulaGame->id, $foPositionId);
+            foreach ($collidedCars as $collidedCar) {
+                $isCausedDamage = $collidedCar->assignDamage(
+                        FoDamage::getOneDamage(FoDamage::TYPE_CHASSIS),
+                        DiceLogic::BLACK_COLLISION_TOP);
+                if ($isCausedDamage) {
+                    $this->FoDebris->save(new FoDebri([
+                        'game_id' => $formulaGame->id,
+                        'fo_position_id' => $collidedCar->fo_position_id]));
+                }
+                $isCausedDamage = $foCar->assignDamage(
+                        FoDamage::getOneDamage(FoDamage::TYPE_CHASSIS),
+                        DiceLogic::BLACK_COLLISION_TOP);
+                if ($isCausedDamage) {
+                    $this->FoDebris->save(new FoDebri([
+                        'game_id' => $formulaGame->id,
+                        'fo_position_id' => $foCar->fo_position_id]));
+                }
             }
         }
         

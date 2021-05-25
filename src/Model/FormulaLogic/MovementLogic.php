@@ -30,6 +30,7 @@ class MovementLogic {
     }
     
     public function getAvailableMoves(FoCar $foCar, int $movesLeft) : array {
+        $raceLaps = $foCar->formula_game->fo_game->laps;
         $moveOptions = collection([FoMoveOption::getFirstMoveOption(
                 $foCar, $movesLeft, FoDamage::getZeroDamages())]);
         if ($movesLeft == 0) {
@@ -73,6 +74,12 @@ class MovementLogic {
                         $moveOptions = $moveOptions->appendItem(debug($moveOption->getSlipstreamOption()));
                     }
                         
+                }
+            }
+            
+            foreach ($moveOptions as $moveOption) {
+                if ($moveOption->is_next_lap && $foCar->lap == $raceLaps) {
+                    $moveOption->np_moves_left = 0;
                 }
             }
             

@@ -112,4 +112,11 @@ class FormulaGame extends Entity
             }
         }
     }
+    
+    public function getNextRanking() {
+        $finishedCarsCount = $this->getTableLocator()->get('FoCars')->find('all')->
+                where(['game_id' => $this->id, 'state' => FoCar::STATE_FINISHED])->
+                count();
+        return $finishedCarsCount + 1;
+    }
 }
