@@ -2624,10 +2624,7 @@ UPDATE `fo_positions` SET `starting_position`=10 WHERE `fo_track_id` = 2 AND `or
 
 UPDATE `fo_position2positions`
 SET `is_left` = FALSE, `is_straight` = TRUE
-WHERE `fo_position_from_id` =
-		(SELECT id FROM `fo_positions` WHERE `fo_track_id` = 2 AND `order` = 98)
-    AND `fo_position_to_id` =
-		(SELECT id FROM `fo_positions` WHERE `fo_track_id` = 2 AND `order` = 100)
+WHERE `fo_position_from_id` = (SELECT id FROM `fo_positions` WHERE `fo_track_id` = 2 AND `order` = 98) AND `fo_position_to_id` = (SELECT id FROM `fo_positions` WHERE `fo_track_id` = 2 AND `order` = 100)
 
 /*angles updates*/
 UPDATE `fo_positions` SET angle=0.34,angle_inserted_manually=TRUE WHERE `fo_track_id`=2 AND `order`=1;
