@@ -57,6 +57,9 @@ class FoMoveOptionsTable extends Table
         $this->hasMany('FoDamages', [
             'foreignKey' => 'fo_move_option_id',
         ]);
+        $this->hasMany('FoTraverses', [
+            'foreignKey' => 'fo_move_option_id',
+        ]);
     }
 
     /**

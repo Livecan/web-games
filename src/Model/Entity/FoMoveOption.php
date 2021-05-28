@@ -33,6 +33,7 @@ use Cake\ORM\Locator\LocatorAwareTrait;
  * @property \App\Model\Entity\FoPosition $fo_position
  * @property \App\Model\Entity\FoCurve $fo_curve
  * @property \App\Model\Entity\FoDamage[] $fo_damages
+ * @property \App\Model\Entity\FoTraverse[] $fo_traverses
  */
 class FoMoveOption extends Entity
 {
@@ -63,6 +64,7 @@ class FoMoveOption extends Entity
         'fo_position' => true,
         'fo_curve' => true,
         'fo_damages' => true,
+        'fo_traverses' => true,
         'np_traverse' => true,
         'np_slipstream_checked' => true,
         'np_is_slipstreaming' => true,
