@@ -1,13 +1,14 @@
 -- phpMyAdmin SQL Dump
--- version 5.0.2
+-- version 4.8.5
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3306
--- Generation Time: May 22, 2021 at 08:19 AM
+-- Generation Time: May 28, 2021 at 01:47 PM
 -- Server version: 5.7.26
--- PHP Version: 7.3.21
+-- PHP Version: 7.2.18
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
+SET AUTOCOMMIT = 0;
 START TRANSACTION;
 SET time_zone = "+00:00";
 
@@ -10844,6 +10845,22 @@ INSERT INTO `fo_tracks` (`id`, `name`, `game_plan`) VALUES
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `fo_traverses`
+--
+
+DROP TABLE IF EXISTS `fo_traverses`;
+CREATE TABLE IF NOT EXISTS `fo_traverses` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `fo_move_option_id` int(11) NOT NULL,
+  `fo_position_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fo_move_option_id` (`fo_move_option_id`),
+  KEY `fo_position_id` (`fo_position_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_bin;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `games`
 --
 
@@ -11277,6 +11294,13 @@ ALTER TABLE `fo_position2positions`
 ALTER TABLE `fo_positions`
   ADD CONSTRAINT `fo_positions_ibfk_1` FOREIGN KEY (`fo_track_id`) REFERENCES `fo_tracks` (`id`),
   ADD CONSTRAINT `fo_positions_ibfk_2` FOREIGN KEY (`fo_curve_id`) REFERENCES `fo_curves` (`id`);
+
+--
+-- Constraints for table `fo_traverses`
+--
+ALTER TABLE `fo_traverses`
+  ADD CONSTRAINT `fo_traverses_ibfk_1` FOREIGN KEY (`fo_move_option_id`) REFERENCES `fo_move_options` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `fo_traverses_ibfk_2` FOREIGN KEY (`fo_position_id`) REFERENCES `fo_positions` (`id`);
 
 --
 -- Constraints for table `games`
