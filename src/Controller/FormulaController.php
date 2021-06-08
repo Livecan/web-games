@@ -93,7 +93,9 @@ class FormulaController extends AppController
         }
         //TODO: refactor when moved to React
         $useReact = $this->request->getQuery('react') == 'true';
-        $this->viewBuilder()->setTemplate('get_board_react');
+        if ($useReact) {
+            $this->viewBuilder()->setTemplate('get_board_react');
+        }
     }
     
     public function chooseMoveOption($id)

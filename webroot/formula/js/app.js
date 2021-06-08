@@ -12,44 +12,80 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
  * and open the template in the editor.
  */
 
-var ImgSprite = function (_React$Component) {
-  _inherits(ImgSprite, _React$Component);
+var Board = function (_React$Component) {
+    _inherits(Board, _React$Component);
 
-  function ImgSprite() {
-    _classCallCheck(this, ImgSprite);
+    function Board(props) {
+        _classCallCheck(this, Board);
 
-    return _possibleConstructorReturn(this, (ImgSprite.__proto__ || Object.getPrototypeOf(ImgSprite)).apply(this, arguments));
-  }
+        var _this = _possibleConstructorReturn(this, (Board.__proto__ || Object.getPrototypeOf(Board)).call(this, props));
 
-  _createClass(ImgSprite, [{
-    key: "render",
-    value: function render() {
-      var positionStyle = {
-        left: this.props.left,
-        top: this.props.top
-      };
-      return React.createElement("img", { className: this.props.elementClass,
-        src: this.props.src,
-        style: positionStyle,
-        width: this.props.width,
-        length: this.props.length
-      });
+        _this.update = _this.update.bind(_this);
+        _this.updateState = _this.updateState.bind(_this);
+        _this.update();
+        return _this;
     }
 
-    //TODO: getImgSprite is a candidate for removal
+    _createClass(Board, [{
+        key: "updateState",
+        value: function updateState(dataX) {
+            alert(Object.keys(this));
+            alert(Object.keys(dataX));
+        }
+    }, {
+        key: "update",
+        value: function update() {
+            $.getJSON('/formula/getBoardUpdateJson/' + this.props.gameId, this.updateState);
+        }
+    }, {
+        key: "render",
+        value: function render() {
+            return React.createElement(
+                "div",
+                { id: "board_parent", style: { overflow: "auto" } },
+                React.createElement(
+                    "div",
+                    { id: "board" },
+                    React.createElement(TrackImage, { src: "/img/formula/daytona.jpg" })
+                )
+            );
+        }
+    }]);
 
-  }], [{
-    key: "getImgSprite",
-    value: function getImgSprite(root, elementClass, src, left, top, width, length) {
-      return React.createElement(ImgSprite, { elementClass: elementClass,
-        src: src,
-        left: left,
-        top: top,
-        width: width,
-        length: length
-      });
-    }
-  }]);
-
-  return ImgSprite;
+    return Board;
 }(React.Component);
+
+var TrackImage = function (_React$Component2) {
+    _inherits(TrackImage, _React$Component2);
+
+    function TrackImage() {
+        _classCallCheck(this, TrackImage);
+
+        return _possibleConstructorReturn(this, (TrackImage.__proto__ || Object.getPrototypeOf(TrackImage)).apply(this, arguments));
+    }
+
+    _createClass(TrackImage, [{
+        key: "render",
+        value: function render() {
+            return React.createElement("img", { src: this.props.src });
+        }
+    }]);
+
+    return TrackImage;
+}(React.Component);
+
+ReactDOM.render(React.createElement(
+    Board,
+    { gameId: "153" },
+    React.createElement(
+        "i",
+        null,
+        "Children "
+    ),
+    "test2",
+    React.createElement(
+        "b",
+        null,
+        "!"
+    )
+), document.getElementById('root'));
