@@ -20,22 +20,44 @@ var Board = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (Board.__proto__ || Object.getPrototypeOf(Board)).call(this, props));
 
+        _this.state = {};
         _this.update = _this.update.bind(_this);
         _this.updateState = _this.updateState.bind(_this);
-        _this.update();
+        _this.update(); //TODO: run this after document loaded
         return _this;
     }
 
     _createClass(Board, [{
         key: "updateState",
-        value: function updateState(dataX) {
-            alert(Object.keys(this));
-            alert(Object.keys(dataX));
+        value: function updateState(data) {
+            var _this2 = this;
+
+            if (data.has_updated) {
+                this.setState(function (state, props) {
+                    return {
+                        game_state: data.game_state_id,
+                        debris: data.fo_debris,
+                        cars: data.fo_cars.map(function (car, index) {
+                            return React.createElement(TrackCar, { key: car.id,
+                                img_index: index,
+                                x: _this2.props.positions[car["fo_position_id"]].x / 1000,
+                                y: _this2.props.positions[car["fo_position_id"]].y / 1000,
+                                angle: _this2.props.positions[car["fo_position_id"]].angle * 180 / Math.PI - 90 });
+                        }),
+                        logs: data.fo_logs, //TODO: refactor/use it in a nice UI element
+                        actions: data.actions,
+                        modified: data.modified
+                    };
+                });
+            }
+            //alert(JSON.stringify(data.fo_cars[0].fo_position_id));
+            //alert(JSON.stringify(this.props.positions[data.fo_cars[0].fo_position_id]));
+            //alert(Object.keys(data.fo_cars));
         }
     }, {
         key: "update",
         value: function update() {
-            $.getJSON('/formula/getBoardUpdateJson/' + this.props.gameId, this.updateState);
+            $.getJSON('/formula/getBoardUpdateJson/' + this.props.id, this.updateState);
         }
     }, {
         key: "render",
@@ -46,7 +68,9 @@ var Board = function (_React$Component) {
                 React.createElement(
                     "div",
                     { id: "board" },
-                    React.createElement(TrackImage, { src: "/img/formula/daytona.jpg" })
+                    React.createElement(TrackImage, { src: this.props.gameBoard }),
+                    React.createElement("svg", { id: "formula_board", className: "board__svg" }),
+                    this.state.cars
                 )
             );
         }
@@ -67,16 +91,49 @@ var TrackImage = function (_React$Component2) {
     _createClass(TrackImage, [{
         key: "render",
         value: function render() {
-            return React.createElement("img", { src: this.props.src });
+            return React.createElement("img", { className: "board__track", src: this.props.src });
         }
     }]);
 
     return TrackImage;
 }(React.Component);
 
+var carSprites = ["tdrc01_car01_b.png", "tdrc01_car01_e.png", "tdrc01_car01_f.png", "tdrc01_car03_a.png", "tdrc01_car03_c.png", "tdrc01_car03_d.png", "tdrc01_car04_a.png", "tdrc01_car04_d.png", "tdrc01_car04_f.png", "tdrc01_car07_b.png", "tdrc01_car07_d.png", "tdrc01_car07_f.png"];
+
+var TrackCar = function (_React$Component3) {
+    _inherits(TrackCar, _React$Component3);
+
+    function TrackCar() {
+        _classCallCheck(this, TrackCar);
+
+        return _possibleConstructorReturn(this, (TrackCar.__proto__ || Object.getPrototypeOf(TrackCar)).apply(this, arguments));
+    }
+
+    _createClass(TrackCar, [{
+        key: "render",
+        value: function render() {
+            var width = .8;
+            var height = 2;
+            return (//TODO: load different pictures for different cars
+                React.createElement("img", { src: "/img/formula/cars/" + carSprites[this.props.img_index],
+                    className: "car_img",
+                    width: width + "%", height: height + "%",
+                    style: {
+                        left: this.props.x - width / 2 + "%" /*"69.3%"*/
+                        , top: this.props.y - height / 2 + "%" /*"42.8%"*/
+                        , transform: "rotate(" + this.props.angle /*89.9087*/ + "deg)",
+                        transformOrigin: "50% 50%"
+                    } })
+            );
+        }
+    }]);
+
+    return TrackCar;
+}(React.Component);
+
 ReactDOM.render(React.createElement(
     Board,
-    { gameId: "153" },
+    { id: id, gameBoard: gameBoard, positions: positions },
     React.createElement(
         "i",
         null,
