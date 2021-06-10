@@ -18,8 +18,13 @@ class Board extends React.Component {
             this.setState((state, props) => {
                 return {
                     game_state: data.game_state_id,
-                    debris: data.fo_debris,
-                    cars: data.fo_cars.map((car, index) =>
+                    trackDebris: data.fo_debris.map((debris) =>
+                      <TrackDebris key={debris.id}
+                        x={this.props.positions[debris["fo_position_id"]].x / 1000}
+                        y={this.props.positions[debris["fo_position_id"]].y / 1000}
+                        angle={this.props.positions[debris["fo_position_id"]].angle * 180 / Math.PI - 90} />
+                    ),
+                    trackCars: data.fo_cars.map((car, index) =>
                       <TrackCar key={car.id}
                         img_index ={index}
                         x={this.props.positions[car["fo_position_id"]].x / 1000}
@@ -47,7 +52,8 @@ class Board extends React.Component {
             <div id="board">
               <TrackImage src={this.props.gameBoard}></TrackImage>
               <svg id="formula_board" className="board__svg"></svg>
-              {this.state.cars}
+              {this.state.trackCars}
+              {this.state.trackDebris}
             </div>
           </div>
         );
@@ -78,11 +84,37 @@ let carSprites = ["tdrc01_car01_b.png",
 
 class TrackCar extends React.Component {
     render() {
+        return (
+          <TrackItem src={"/img/formula/cars/" + carSprites[this.props.img_index]}
+              className="car_img"
+              x={this.props.x}
+              y={this.props.y}
+              angle={this.props.angle}
+          />
+        );
+    }
+}
+
+class TrackDebris extends React.Component {
+    render() {
+        return (
+          <TrackItem src={"/img/formula/track-objects/oil.png"}
+              className="debris_img"
+              x={this.props.x}
+              y={this.props.y}
+              angle={this.props.angle}
+          />
+        );
+    }
+}
+
+class TrackItem extends React.Component {
+    render() {
         let width = .8;
         let height = 2;
-        return (    //TODO: load different pictures for different cars
-          <img src={"/img/formula/cars/" + carSprites[this.props.img_index]}
-              className="car_img"
+        return (
+          <img src={this.props.src}
+              className={this.props.className}
               width={width + "%"} height={height + "%"}
               style={
                 {

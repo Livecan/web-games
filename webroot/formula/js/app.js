@@ -36,8 +36,13 @@ var Board = function (_React$Component) {
                 this.setState(function (state, props) {
                     return {
                         game_state: data.game_state_id,
-                        debris: data.fo_debris,
-                        cars: data.fo_cars.map(function (car, index) {
+                        trackDebris: data.fo_debris.map(function (debris) {
+                            return React.createElement(TrackDebris, { key: debris.id,
+                                x: _this2.props.positions[debris["fo_position_id"]].x / 1000,
+                                y: _this2.props.positions[debris["fo_position_id"]].y / 1000,
+                                angle: _this2.props.positions[debris["fo_position_id"]].angle * 180 / Math.PI - 90 });
+                        }),
+                        trackCars: data.fo_cars.map(function (car, index) {
                             return React.createElement(TrackCar, { key: car.id,
                                 img_index: index,
                                 x: _this2.props.positions[car["fo_position_id"]].x / 1000,
@@ -70,7 +75,8 @@ var Board = function (_React$Component) {
                     { id: "board" },
                     React.createElement(TrackImage, { src: this.props.gameBoard }),
                     React.createElement("svg", { id: "formula_board", className: "board__svg" }),
-                    this.state.cars
+                    this.state.trackCars,
+                    this.state.trackDebris
                 )
             );
         }
@@ -112,23 +118,69 @@ var TrackCar = function (_React$Component3) {
     _createClass(TrackCar, [{
         key: "render",
         value: function render() {
-            var width = .8;
-            var height = 2;
-            return (//TODO: load different pictures for different cars
-                React.createElement("img", { src: "/img/formula/cars/" + carSprites[this.props.img_index],
-                    className: "car_img",
-                    width: width + "%", height: height + "%",
-                    style: {
-                        left: this.props.x - width / 2 + "%" /*"69.3%"*/
-                        , top: this.props.y - height / 2 + "%" /*"42.8%"*/
-                        , transform: "rotate(" + this.props.angle /*89.9087*/ + "deg)",
-                        transformOrigin: "50% 50%"
-                    } })
-            );
+            return React.createElement(TrackItem, { src: "/img/formula/cars/" + carSprites[this.props.img_index],
+                className: "car_img",
+                x: this.props.x,
+                y: this.props.y,
+                angle: this.props.angle
+            });
         }
     }]);
 
     return TrackCar;
+}(React.Component);
+
+var TrackDebris = function (_React$Component4) {
+    _inherits(TrackDebris, _React$Component4);
+
+    function TrackDebris() {
+        _classCallCheck(this, TrackDebris);
+
+        return _possibleConstructorReturn(this, (TrackDebris.__proto__ || Object.getPrototypeOf(TrackDebris)).apply(this, arguments));
+    }
+
+    _createClass(TrackDebris, [{
+        key: "render",
+        value: function render() {
+            return React.createElement(TrackItem, { src: "/img/formula/track-objects/oil.png",
+                className: "debris_img",
+                x: this.props.x,
+                y: this.props.y,
+                angle: this.props.angle
+            });
+        }
+    }]);
+
+    return TrackDebris;
+}(React.Component);
+
+var TrackItem = function (_React$Component5) {
+    _inherits(TrackItem, _React$Component5);
+
+    function TrackItem() {
+        _classCallCheck(this, TrackItem);
+
+        return _possibleConstructorReturn(this, (TrackItem.__proto__ || Object.getPrototypeOf(TrackItem)).apply(this, arguments));
+    }
+
+    _createClass(TrackItem, [{
+        key: "render",
+        value: function render() {
+            var width = .8;
+            var height = 2;
+            return React.createElement("img", { src: this.props.src,
+                className: this.props.className,
+                width: width + "%", height: height + "%",
+                style: {
+                    left: this.props.x - width / 2 + "%" /*"69.3%"*/
+                    , top: this.props.y - height / 2 + "%" /*"42.8%"*/
+                    , transform: "rotate(" + this.props.angle /*89.9087*/ + "deg)",
+                    transformOrigin: "50% 50%"
+                } });
+        }
+    }]);
+
+    return TrackItem;
 }(React.Component);
 
 ReactDOM.render(React.createElement(
