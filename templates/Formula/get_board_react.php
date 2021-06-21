@@ -5,7 +5,7 @@
     $this->Html->script('/js/jQueryRotate.js', ['block' => true]);
 ?>
 
-<div id="root">
+<div id="root" style="width: 100%; height: 60vw; position: relative">
     <script>
         var id = <?= $formulaGame->id ?>;
         var gameBoard = "/img/formula/<?= $formulaGame->fo_game->fo_track->game_plan ?>";

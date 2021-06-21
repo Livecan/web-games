@@ -7,9 +7,7 @@ function _possibleConstructorReturn(self, call) { if (!self) { throw new Referen
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 /* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Formula Game React App
  */
 
 var Board = function (_React$Component) {
@@ -20,63 +18,96 @@ var Board = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (Board.__proto__ || Object.getPrototypeOf(Board)).call(this, props));
 
-        _this.state = {};
+        _this.zooms = ["100%", "150%", "200%", "250%", "300%"];
+
+        _this.state = { boardZoom: 0 };
         _this.update = _this.update.bind(_this);
-        _this.updateState = _this.updateState.bind(_this);
-        _this.update(); //TODO: run this after document loaded
+        _this.updateGameData = _this.updateGameData.bind(_this);
+        _this.update(); //TODO: run this after the document loaded
         return _this;
     }
 
     _createClass(Board, [{
-        key: "updateState",
-        value: function updateState(data) {
+        key: "updateBoardZoom",
+        value: function updateBoardZoom(zoom) {
+            if (zoom > 0) {
+                this.state.boardZoom = Math.min(this.state.boardZoom + 1, this.zooms.length - 1);
+            }
+            if (zoom < 0) {
+                this.state.boardZoom = Math.max(this.state.boardZoom - 1, 0);
+            }
+            this.setState(this.state);
+        }
+    }, {
+        key: "updateGameData",
+        value: function updateGameData(data) {
             var _this2 = this;
 
             if (data.has_updated) {
-                this.setState(function (state, props) {
-                    return {
-                        game_state: data.game_state_id,
-                        trackDebris: data.fo_debris.map(function (debris) {
-                            return React.createElement(TrackDebris, { key: debris.id,
-                                x: _this2.props.positions[debris["fo_position_id"]].x / 1000,
-                                y: _this2.props.positions[debris["fo_position_id"]].y / 1000,
-                                angle: _this2.props.positions[debris["fo_position_id"]].angle * 180 / Math.PI - 90 });
-                        }),
-                        trackCars: data.fo_cars.map(function (car, index) {
-                            return React.createElement(TrackCar, { key: car.id,
-                                img_index: index,
-                                x: _this2.props.positions[car["fo_position_id"]].x / 1000,
-                                y: _this2.props.positions[car["fo_position_id"]].y / 1000,
-                                angle: _this2.props.positions[car["fo_position_id"]].angle * 180 / Math.PI - 90 });
-                        }),
-                        logs: data.fo_logs, //TODO: refactor/use it in a nice UI element
-                        actions: data.actions,
-                        modified: data.modified
-                    };
+                this.setState({
+                    gameState: data.game_state_id,
+                    trackDebris: data.fo_debris.map(function (debris, index) {
+                        return React.createElement(TrackDebris, { key: index,
+                            x: _this2.props.positions[debris["fo_position_id"]].x / 1000,
+                            y: _this2.props.positions[debris["fo_position_id"]].y / 1000,
+                            angle: _this2.props.positions[debris["fo_position_id"]].angle * 180 / Math.PI - 90 });
+                    }),
+                    trackCars: data.fo_cars.map(function (car, index) {
+                        return React.createElement(TrackCar, { key: car.id,
+                            img_index: index,
+                            x: _this2.props.positions[car["fo_position_id"]].x / 1000,
+                            y: _this2.props.positions[car["fo_position_id"]].y / 1000,
+                            angle: _this2.props.positions[car["fo_position_id"]].angle * 180 / Math.PI - 90 });
+                    }),
+                    carStats: {},
+                    logs: data.fo_logs, //TODO: refactor/use it in a nice UI element
+                    actions: data.actions,
+                    modified: data.modified
                 });
             }
-            //alert(JSON.stringify(data.fo_cars[0].fo_position_id));
-            //alert(JSON.stringify(this.props.positions[data.fo_cars[0].fo_position_id]));
-            //alert(Object.keys(data.fo_cars));
         }
     }, {
         key: "update",
         value: function update() {
-            $.getJSON('/formula/getBoardUpdateJson/' + this.props.id, this.updateState);
+            $.getJSON('/formula/getBoardUpdateJson/' + this.props.id, this.updateGameData);
         }
     }, {
         key: "render",
         value: function render() {
             return React.createElement(
                 "div",
-                { id: "board_parent", style: { overflow: "auto" } },
+                { id: "board_parent" },
                 React.createElement(
                     "div",
-                    { id: "board" },
-                    React.createElement(TrackImage, { src: this.props.gameBoard }),
-                    React.createElement("svg", { id: "formula_board", className: "board__svg" }),
-                    this.state.trackCars,
-                    this.state.trackDebris
+                    { className: "overflow_helper" },
+                    React.createElement(
+                        "div",
+                        { id: "board", style: { width: this.zooms[this.state.boardZoom] } },
+                        React.createElement(TrackImage, { src: this.props.gameBoard }),
+                        React.createElement("svg", { id: "formula_board", className: "board__svg" }),
+                        this.state.trackCars,
+                        this.state.trackDebris
+                    )
+                ),
+                React.createElement(
+                    SlidePanelStack,
+                    null,
+                    React.createElement(
+                        SlidePanel,
+                        null,
+                        React.createElement(ZoomPanel, { onRefresh: this.update,
+                            onZoomIn: this.updateBoardZoom.bind(this, 1),
+                            onZoomOut: this.updateBoardZoom.bind(this, -1) })
+                    ),
+                    React.createElement(
+                        SlidePanel,
+                        null,
+                        React.createElement(
+                            "button",
+                            null,
+                            "Pause"
+                        )
+                    )
                 )
             );
         }
@@ -85,8 +116,126 @@ var Board = function (_React$Component) {
     return Board;
 }(React.Component);
 
-var TrackImage = function (_React$Component2) {
-    _inherits(TrackImage, _React$Component2);
+var ZoomPanel = function (_React$Component2) {
+    _inherits(ZoomPanel, _React$Component2);
+
+    function ZoomPanel(props) {
+        _classCallCheck(this, ZoomPanel);
+
+        var _this3 = _possibleConstructorReturn(this, (ZoomPanel.__proto__ || Object.getPrototypeOf(ZoomPanel)).call(this, props));
+
+        _this3.onZoomIn = props.onZoomIn || function (arg) {};
+        _this3.onZoomOut = props.onZoomOut || function (arg) {};
+        _this3.onRefresh = props.onRefresh || function (arg) {};
+        return _this3;
+    }
+
+    _createClass(ZoomPanel, [{
+        key: "render",
+        value: function render() {
+            return React.createElement(
+                "div",
+                null,
+                React.createElement(
+                    "button",
+                    { onClick: this.onRefresh },
+                    "Refresh"
+                ),
+                React.createElement(
+                    "button",
+                    { onClick: this.onZoomIn },
+                    "+"
+                ),
+                React.createElement(
+                    "button",
+                    { onClick: this.onZoomOut },
+                    "-"
+                )
+            );
+        }
+    }]);
+
+    return ZoomPanel;
+}(React.Component);
+
+var SlidePanelStack = function (_React$Component3) {
+    _inherits(SlidePanelStack, _React$Component3);
+
+    function SlidePanelStack() {
+        _classCallCheck(this, SlidePanelStack);
+
+        return _possibleConstructorReturn(this, (SlidePanelStack.__proto__ || Object.getPrototypeOf(SlidePanelStack)).apply(this, arguments));
+    }
+
+    _createClass(SlidePanelStack, [{
+        key: "render",
+        value: function render() {
+            return React.createElement(
+                "div",
+                { className: "slide_panel_stack" },
+                this.props.children
+            );
+        }
+    }]);
+
+    return SlidePanelStack;
+}(React.Component);
+
+var SlidePanel = function (_React$Component4) {
+    _inherits(SlidePanel, _React$Component4);
+
+    function SlidePanel(props) {
+        _classCallCheck(this, SlidePanel);
+
+        var _this5 = _possibleConstructorReturn(this, (SlidePanel.__proto__ || Object.getPrototypeOf(SlidePanel)).call(this, props));
+
+        _this5.state = { visible: true };
+        _this5.toggleHide = _this5.toggleHide.bind(_this5);
+        //this.onToggleHide = props.onToggleHide || (arg => {});
+        return _this5;
+    }
+
+    _createClass(SlidePanel, [{
+        key: "toggleHide",
+        value: function toggleHide() {
+            this.state.visible = !this.state.visible;
+            //this.onToggleHide(this.state.visible);
+            this.setState(this.state);
+        }
+    }, {
+        key: "render",
+        value: function render() {
+            return React.createElement(
+                "div",
+                { className: "slide_panel" },
+                React.createElement(
+                    "div",
+                    { className: "slide_panel__content" + (this.state.visible ? "" : " hidden") },
+                    this.props.children
+                ),
+                React.createElement(
+                    "div",
+                    { className: "slide_panel__buttons" },
+                    React.createElement(
+                        "button",
+                        { className: "slide_panel__button", onClick: this.toggleHide },
+                        this.state.visible ? "Hide" : "Show"
+                    ),
+                    React.createElement(
+                        "span",
+                        null,
+                        this.props.modified
+                    )
+                )
+            );
+        }
+    }]);
+
+    return SlidePanel;
+}(React.Component);
+
+var TrackImage = function (_React$Component5) {
+    _inherits(TrackImage, _React$Component5);
 
     function TrackImage() {
         _classCallCheck(this, TrackImage);
@@ -106,8 +255,8 @@ var TrackImage = function (_React$Component2) {
 
 var carSprites = ["tdrc01_car01_b.png", "tdrc01_car01_e.png", "tdrc01_car01_f.png", "tdrc01_car03_a.png", "tdrc01_car03_c.png", "tdrc01_car03_d.png", "tdrc01_car04_a.png", "tdrc01_car04_d.png", "tdrc01_car04_f.png", "tdrc01_car07_b.png", "tdrc01_car07_d.png", "tdrc01_car07_f.png"];
 
-var TrackCar = function (_React$Component3) {
-    _inherits(TrackCar, _React$Component3);
+var TrackCar = function (_React$Component6) {
+    _inherits(TrackCar, _React$Component6);
 
     function TrackCar() {
         _classCallCheck(this, TrackCar);
@@ -130,8 +279,8 @@ var TrackCar = function (_React$Component3) {
     return TrackCar;
 }(React.Component);
 
-var TrackDebris = function (_React$Component4) {
-    _inherits(TrackDebris, _React$Component4);
+var TrackDebris = function (_React$Component7) {
+    _inherits(TrackDebris, _React$Component7);
 
     function TrackDebris() {
         _classCallCheck(this, TrackDebris);
@@ -154,8 +303,8 @@ var TrackDebris = function (_React$Component4) {
     return TrackDebris;
 }(React.Component);
 
-var TrackItem = function (_React$Component5) {
-    _inherits(TrackItem, _React$Component5);
+var TrackItem = function (_React$Component8) {
+    _inherits(TrackItem, _React$Component8);
 
     function TrackItem() {
         _classCallCheck(this, TrackItem);
@@ -172,9 +321,9 @@ var TrackItem = function (_React$Component5) {
                 className: this.props.className,
                 width: width + "%", height: height + "%",
                 style: {
-                    left: this.props.x - width / 2 + "%" /*"69.3%"*/
-                    , top: this.props.y - height / 2 + "%" /*"42.8%"*/
-                    , transform: "rotate(" + this.props.angle /*89.9087*/ + "deg)",
+                    left: this.props.x - width / 2 + "%",
+                    top: this.props.y - height / 2 + "%",
+                    transform: "rotate(" + this.props.angle + "deg)",
                     transformOrigin: "50% 50%"
                 } });
         }
@@ -183,18 +332,4 @@ var TrackItem = function (_React$Component5) {
     return TrackItem;
 }(React.Component);
 
-ReactDOM.render(React.createElement(
-    Board,
-    { id: id, gameBoard: gameBoard, positions: positions },
-    React.createElement(
-        "i",
-        null,
-        "Children "
-    ),
-    "test2",
-    React.createElement(
-        "b",
-        null,
-        "!"
-    )
-), document.getElementById('root'));
+ReactDOM.render(React.createElement(Board, { id: id, gameBoard: gameBoard, positions: positions }), document.getElementById('root'));

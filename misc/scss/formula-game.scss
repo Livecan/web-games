@@ -12,36 +12,67 @@ $move_option_layer-z: 1000;
 $board__car_img-z: 100;
 $debris_img-z: 10;
 $gears-z: 1001;
+$slide_panel-z: 10000;
 $onboard-opacity: 65%;
 
 #board_parent {
-    max-height: 600px;
-    #board {
-        position: relative;
-        .board__track {
-            display: block;
-        }
-        .board__svg {
-            position: absolute;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    .overflow_helper {
+        height: 100%;
+        overflow: auto;
+        #board {
+            position: relative;
             top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: $move_option_layer-z;
-        }
-        #gears {
-            position: fixed;
-            left: 30px;
-            bottom: 20px;
-            background-color: white;
-            width: auto;
-            * {
-                cursor: pointer;
+            .board__track {
+                display: block;
             }
-            z-index: $gears-z;
+            .board__svg {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: $move_option_layer-z;
+            }
+            #gears {
+                position: fixed;
+                left: 30px;
+                bottom: 20px;
+                background-color: white;
+                width: auto;
+                * {
+                    cursor: pointer;
+                }
+                z-index: $gears-z;
+            }
+            .car_img {
+                z-index: $board__car_img-z;
+            }
         }
-        .car_img {
-            z-index: $board__car_img-z;
+    }
+    .slide_panel_stack {
+        position: absolute;
+        top: 0;
+        z-index: $slide_panel-z;
+        float: left;
+        .slide_panel {
+            top: 0;
+            display: inline-block;
+            .slide_panel__content {
+                border-width: 10px;
+                border-color: grey;
+                border-style: none solid solid solid;
+                border-radius: 0px 0px 10px 10px;
+                background-color: black;
+            }
+            .slide_panel__content.hidden {
+                display: none;
+            }
+            .slide_panel__buttons {
+                text-align: center;
+            }
         }
     }
 }

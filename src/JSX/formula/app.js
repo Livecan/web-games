@@ -1,59 +1,139 @@
 /* 
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
+ * Formula Game React App
  */
 
 class Board extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {};
+        this.state = {boardZoom: 0};
         this.update = this.update.bind(this);
-        this.updateState = this.updateState.bind(this);
-        this.update();  //TODO: run this after document loaded
+        this.updateGameData = this.updateGameData.bind(this);
+        this.update();  //TODO: run this after the document loaded
     }
     
-    updateState(data) {
+    zooms = ["100%", "150%", "200%", "250%", "300%"];
+    
+    updateBoardZoom(zoom) {
+        if (zoom > 0) {
+            this.state.boardZoom = Math.min(this.state.boardZoom + 1, this.zooms.length - 1);
+        }
+        if (zoom < 0) {
+            this.state.boardZoom = Math.max(this.state.boardZoom - 1, 0);
+        }
+        this.setState(this.state);
+    }
+    
+    updateGameData(data) {
         if (data.has_updated) {
-            this.setState((state, props) => {
-                return {
-                    game_state: data.game_state_id,
-                    trackDebris: data.fo_debris.map((debris) =>
-                      <TrackDebris key={debris.id}
-                        x={this.props.positions[debris["fo_position_id"]].x / 1000}
-                        y={this.props.positions[debris["fo_position_id"]].y / 1000}
-                        angle={this.props.positions[debris["fo_position_id"]].angle * 180 / Math.PI - 90} />
-                    ),
-                    trackCars: data.fo_cars.map((car, index) =>
-                      <TrackCar key={car.id}
-                        img_index ={index}
-                        x={this.props.positions[car["fo_position_id"]].x / 1000}
-                        y={this.props.positions[car["fo_position_id"]].y / 1000}
-                        angle={this.props.positions[car["fo_position_id"]].angle * 180 / Math.PI - 90} />
-                    ),
-                    logs: data.fo_logs, //TODO: refactor/use it in a nice UI element
-                    actions: data.actions,
-                    modified: data.modified
-                };
+            this.setState({
+                gameState: data.game_state_id,
+                trackDebris: data.fo_debris.map((debris, index) =>
+                    <TrackDebris key={index}
+                      x={this.props.positions[debris["fo_position_id"]].x / 1000}
+                      y={this.props.positions[debris["fo_position_id"]].y / 1000}
+                      angle={this.props.positions[debris["fo_position_id"]].angle * 180 / Math.PI - 90} />
+                ),
+                trackCars: data.fo_cars.map((car, index) =>
+                    <TrackCar key={car.id}
+                      img_index ={index}
+                      x={this.props.positions[car["fo_position_id"]].x / 1000}
+                      y={this.props.positions[car["fo_position_id"]].y / 1000}
+                      angle={this.props.positions[car["fo_position_id"]].angle * 180 / Math.PI - 90} />
+                ),
+                carStats: {},
+                logs: data.fo_logs, //TODO: refactor/use it in a nice UI element
+                actions: data.actions,
+                modified: data.modified,
             });
         }
-        //alert(JSON.stringify(data.fo_cars[0].fo_position_id));
-        //alert(JSON.stringify(this.props.positions[data.fo_cars[0].fo_position_id]));
-        //alert(Object.keys(data.fo_cars));
     }
     
     update() {
-        $.getJSON('/formula/getBoardUpdateJson/' + this.props.id, this.updateState);
+        $.getJSON('/formula/getBoardUpdateJson/' + this.props.id, this.updateGameData);
     }
     
     render() {
         return (
-          <div id="board_parent" style={{overflow: "auto"}}>
-            <div id="board">
-              <TrackImage src={this.props.gameBoard}></TrackImage>
-              <svg id="formula_board" className="board__svg"></svg>
-              {this.state.trackCars}
-              {this.state.trackDebris}
+          <div id="board_parent">
+            <div className="overflow_helper">
+              <div id="board" style={{width: this.zooms[this.state.boardZoom]}}>
+                <TrackImage src={this.props.gameBoard}></TrackImage>
+                <svg id="formula_board" className="board__svg"></svg>
+                {this.state.trackCars}
+                {this.state.trackDebris}
+              </div>
+            </div>
+            <SlidePanelStack>
+              <SlidePanel>
+                <ZoomPanel onRefresh={this.update}
+                  onZoomIn={this.updateBoardZoom.bind(this, 1)}
+                  onZoomOut={this.updateBoardZoom.bind(this, -1)} />
+              </SlidePanel>
+              <SlidePanel>
+                <button>Pause</button>
+              </SlidePanel>
+            </SlidePanelStack>
+          </div>
+        );
+    }
+}
+
+class ZoomPanel extends React.Component {
+    constructor(props) {
+        super(props);
+        this.onZoomIn = props.onZoomIn || (arg => {});
+        this.onZoomOut = props.onZoomOut || (arg => {});
+        this.onRefresh = props.onRefresh || (arg => {});
+    }
+    
+    render() {
+        return (
+            <div>
+              <button onClick={this.onRefresh}>Refresh</button>
+              <button onClick={this.onZoomIn}>+</button>
+              <button onClick={this.onZoomOut}>-</button>
+            </div>
+        );
+    }
+}
+
+class SlidePanelStack extends React.Component {
+    render() {
+        return (
+            <div className="slide_panel_stack">
+                {this.props.children}
+            </div>
+        );
+    }
+}
+
+class SlidePanel extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {visible: true};
+        this.toggleHide = this.toggleHide.bind(this);
+        //this.onToggleHide = props.onToggleHide || (arg => {});
+    }
+    
+    toggleHide() {
+        this.state.visible = !this.state.visible;
+        //this.onToggleHide(this.state.visible);
+        this.setState(this.state);
+    }
+    
+    render() {
+        return (
+          <div className="slide_panel">
+            <div className={"slide_panel__content" + (this.state.visible ? "" : " hidden")}>
+              {this.props.children}
+            </div>
+            <div className="slide_panel__buttons">
+              <button className="slide_panel__button" onClick={this.toggleHide}>
+                {this.state.visible ? "Hide" : "Show"}
+              </button>
+              <span>
+                {this.props.modified}
+              </span>
             </div>
           </div>
         );
@@ -118,9 +198,9 @@ class TrackItem extends React.Component {
               width={width + "%"} height={height + "%"}
               style={
                 {
-                  left: this.props.x - width / 2 + "%"/*"69.3%"*/,
-                  top: this.props.y - height / 2 + "%"/*"42.8%"*/,
-                  transform: "rotate(" + this.props.angle/*89.9087*/ + "deg)",
+                  left: this.props.x - width / 2 + "%",
+                  top: this.props.y - height / 2 + "%",
+                  transform: "rotate(" + this.props.angle + "deg)",
                   transformOrigin: "50% 50%"
                 }
               }>
@@ -129,6 +209,6 @@ class TrackItem extends React.Component {
     }
 }
 
-ReactDOM.render(<Board id={id} gameBoard={gameBoard} positions={positions}><i>Children </i>test2<b>!</b></Board>, document.getElementById('root'));
+ReactDOM.render(<Board id={id} gameBoard={gameBoard} positions={positions} />, document.getElementById('root'));
 
 

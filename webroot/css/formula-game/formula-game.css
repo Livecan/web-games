@@ -8,15 +8,22 @@ and open the template in the editor.
     Author     : roman
 */
 #board_parent {
-  max-height: 600px;
+  height: 100%;
+  width: 100%;
+  position: absolute;
 }
-#board_parent #board {
+#board_parent .overflow_helper {
+  height: 100%;
+  overflow: auto;
+}
+#board_parent .overflow_helper #board {
   position: relative;
+  top: 0;
 }
-#board_parent #board .board__track {
+#board_parent .overflow_helper #board .board__track {
   display: block;
 }
-#board_parent #board .board__svg {
+#board_parent .overflow_helper #board .board__svg {
   position: absolute;
   top: 0;
   left: 0;
@@ -24,7 +31,7 @@ and open the template in the editor.
   height: 100%;
   z-index: 1000;
 }
-#board_parent #board #gears {
+#board_parent .overflow_helper #board #gears {
   position: fixed;
   left: 30px;
   bottom: 20px;
@@ -32,11 +39,34 @@ and open the template in the editor.
   width: auto;
   z-index: 1001;
 }
-#board_parent #board #gears * {
+#board_parent .overflow_helper #board #gears * {
   cursor: pointer;
 }
-#board_parent #board .car_img {
+#board_parent .overflow_helper #board .car_img {
   z-index: 100;
+}
+#board_parent .slide_panel_stack {
+  position: absolute;
+  top: 0;
+  z-index: 10000;
+  float: left;
+}
+#board_parent .slide_panel_stack .slide_panel {
+  top: 0;
+  display: inline-block;
+}
+#board_parent .slide_panel_stack .slide_panel .slide_panel__content {
+  border-width: 10px;
+  border-color: grey;
+  border-style: none solid solid solid;
+  border-radius: 0px 0px 10px 10px;
+  background-color: black;
+}
+#board_parent .slide_panel_stack .slide_panel .slide_panel__content.hidden {
+  display: none;
+}
+#board_parent .slide_panel_stack .slide_panel .slide_panel__buttons {
+  text-align: center;
 }
 
 .damage_table {
