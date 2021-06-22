@@ -38,13 +38,13 @@ class Board extends React.Component {
             this.setState({
                 gameState: data.game_state_id,
                 trackDebris: data.fo_debris,
-                trackCars: data.fo_cars.map((car, index) =>
+                cars: data.fo_cars.map((car, index) =>
                     {
                         car.index = index;
                         return car;
                     }
-                ).filter(car => car.fo_position_id != null),
-                carStats: {},
+                ),
+                users: data.users,
                 logs: data.fo_logs, //TODO: refactor/use it in a nice UI element
                 actions: data.actions,
                 modified: data.modified,
@@ -63,8 +63,9 @@ class Board extends React.Component {
               <div id="board" style={{width: this.zooms[this.state.boardZoom]}}>
                 <TrackImage src={this.props.gameBoard}></TrackImage>
                 <svg id="formula_board" className="board__svg"></svg>
-                <TrackCars cars={this.state.trackCars} positions={this.props.positions} />
-                <TrackDebris debris={this.state.trackDebris} positions={this.props.positions} />
+                <TrackCars cars={(this.state.cars || []).filter(car => car.fo_position_id != null)}
+                  positions={this.props.positions} />
+                <TrackDebris debris={this.state.trackDebris || []} positions={this.props.positions} />
               </div>
             </div>
             <SlidePanelStack>
@@ -78,9 +79,40 @@ class Board extends React.Component {
                 <RefreshPanel paused={this.state.refresher == null}
                   onPlayPause={this.changeRefresh} />
               </SlidePanel>
+              <SlidePanel>
+                <CarDamagePanel cars={this.state.cars || []} users={this.state.users} />
+              </SlidePanel>
             </SlidePanelStack>
           </div>
         );
+    }
+}
+
+var damageTypeClass = ["tires", "gearbox", "brakes", "engine", "chassis", "shocks"];
+
+class CarDamagePanel extends React.Component {
+    render() {
+        return (
+            <table id="car_stats_table" className="damage_table">
+              {this.props.cars.map(car =>
+                <tr>
+                  <td>
+                    <Sprite src={"/img/formula/cars/" + carSprites[car.index]}
+                      className="car_img" key={car.index}
+                      width="20" height="50" unit="px" />
+                  </td>
+                  <td>
+                    {this.props.users.find(user => user.id == car.user_id).name}
+                  </td>
+                  {car.fo_damages.map(damage =>
+                    <td className={"damage " + damageTypeClass[damage.type - 1]}>
+                      {damage.wear_points}
+                    </td>
+                  )}
+                </tr>
+              )}
+            </table>
+        )
     }
 }
 
@@ -184,7 +216,7 @@ class TrackCars extends React.Component {
             return (
               <React.Fragment>
                 {this.props.cars.map(car => (
-                  <TrackItem src={"/img/formula/cars/" + carSprites[car.index]}
+                  <Sprite src={"/img/formula/cars/" + carSprites[car.index]}
                     className="car_img"
                     key={car.index}
                     x={this.props.positions[car.fo_position_id].x / 1000}
@@ -206,7 +238,7 @@ class TrackDebris extends React.Component {
             return (
               <React.Fragment>
                 {this.props.debris.map(item => (
-                  <TrackItem src={"/img/formula/track-objects/oil.png"}
+                  <Sprite src={"/img/formula/track-objects/oil.png"}
                     className="debris_img"
                     key={item.id}
                     x={this.props.positions[item.fo_position_id].x / 1000}
@@ -220,20 +252,21 @@ class TrackDebris extends React.Component {
     }
 }
 
-class TrackItem extends React.Component {
+class Sprite extends React.Component {
     render() {
-        let width = .8;
-        let height = 2;
+        let width = this.props.width || .8;
+        let height = this.props.height || 2;
+        let unit = this.props.unit || "%";
         return (
           <img src={this.props.src}
               className={this.props.className}
-              width={width + "%"} height={height + "%"}
+              width={width + unit} height={height + unit}
               style={
                 {
-                  left: this.props.x - width / 2 + "%",
-                  top: this.props.y - height / 2 + "%",
+                  left: this.props.x - width / 2 + unit,
+                  top: this.props.y - height / 2 + unit,
                   transform: "rotate(" + this.props.angle + "deg)",
-                  transformOrigin: "50% 50%"
+                  transformOrigin: this.props.transformOrigin
                 }
               }>
           </img>

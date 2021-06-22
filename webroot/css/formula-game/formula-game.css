@@ -95,33 +95,24 @@ and open the template in the editor.
   background-color: orchid;
 }
 
-#car_stats {
-  position: fixed;
-  right: 20px;
-  bottom: 20px;
-  opacity: 0.9;
-  transition-property: opacity;
-  transition-duration: 0.5s;
-}
-#car_stats #car_stats_table {
+#car_stats_table {
   background-color: white;
   color: black;
   font-weight: bold;
 }
-#car_stats #car_stats_table td:first-child {
+#car_stats_table td:first-child {
   position: relative;
   width: 50px;
 }
-#car_stats #car_stats_table td:first-child .car_img {
+#car_stats_table td:first-child .car_img {
   position: absolute;
   top: 0;
-  left: 25px;
+  left: 0;
   transform: rotate(90deg);
-  transform-origin: 50% 50%;
+  transform-origin: 25px 25px;
 }
-#car_stats #car_stats_table td {
-  padding-left: 15px;
-  padding-right: 15px;
+#car_stats_table td {
+  padding: 0px 15px;
 }
 
 .move_option_damage {

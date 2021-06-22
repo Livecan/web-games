@@ -103,32 +103,23 @@ $onboard-opacity: 65%;
     }
 }
 
-#car_stats {
-    position: fixed;
-    right: 20px;
-    bottom: 20px;
-    opacity: .9;
-    transition-property: opacity;
-    transition-duration: .5s;
-    #car_stats_table {
-        background-color: white;
-        color: black;
-        font-weight: bold;
-        td:first-child {
-            position: relative;
-            width: 50px;
-            .car_img {
-                position: absolute;
-                top: 0;
-                left: 25px;
-                transform: rotate(90deg);
-                transform-origin: 50% 50%;
-            }
+#car_stats_table {
+    background-color: white;
+    color: black;
+    font-weight: bold;
+    td:first-child {
+        position: relative;
+        width: 50px;
+        .car_img {
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: rotate(90deg);
+            transform-origin: 25px 25px;
         }
-        td {
-            padding-left: 15px;
-            padding-right: 15px;
-        }
+    }
+    td {
+        padding: 0px 15px;
     }
 }
 
