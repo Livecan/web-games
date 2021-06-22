@@ -52,15 +52,17 @@ and open the template in the editor.
   float: left;
 }
 #board_parent .slide_panel_stack .slide_panel {
-  top: 0;
+  vertical-align: top;
   display: inline-block;
+  margin-left: 5px;
 }
 #board_parent .slide_panel_stack .slide_panel .slide_panel__content {
-  border-width: 10px;
-  border-color: grey;
+  border-width: 5px;
+  border-color: black;
   border-style: none solid solid solid;
   border-radius: 0px 0px 10px 10px;
-  background-color: black;
+  background-color: darkgrey;
+  padding: 5px;
 }
 #board_parent .slide_panel_stack .slide_panel .slide_panel__content.hidden {
   display: none;
@@ -148,6 +150,10 @@ and open the template in the editor.
 .debris_img {
   opacity: 65%;
   z-index: 10;
+}
+
+button {
+  margin: 0px;
 }
 
 /*# sourceMappingURL=formula-game.css.map */

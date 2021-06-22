@@ -9,9 +9,19 @@ class Board extends React.Component {
         this.update = this.update.bind(this);
         this.updateGameData = this.updateGameData.bind(this);
         this.update();  //TODO: run this after the document loaded
+        this.changeRefresh = this.changeRefresh.bind(this);
     }
     
     zooms = ["100%", "150%", "200%", "250%", "300%"];
+    
+    changeRefresh() {
+        if (this.state.refresher != null) {
+            clearInterval(this.state.refresher);
+            this.setState({refresher: null});
+        } else {
+            this.setState({refresher: setInterval(this.update, 1000)});
+        }
+    }
     
     updateBoardZoom(zoom) {
         if (zoom > 0) {
@@ -27,19 +37,13 @@ class Board extends React.Component {
         if (data.has_updated) {
             this.setState({
                 gameState: data.game_state_id,
-                trackDebris: data.fo_debris.map((debris, index) =>
-                    <TrackDebris key={index}
-                      x={this.props.positions[debris["fo_position_id"]].x / 1000}
-                      y={this.props.positions[debris["fo_position_id"]].y / 1000}
-                      angle={this.props.positions[debris["fo_position_id"]].angle * 180 / Math.PI - 90} />
-                ),
+                trackDebris: data.fo_debris,
                 trackCars: data.fo_cars.map((car, index) =>
-                    <TrackCar key={car.id}
-                      img_index ={index}
-                      x={this.props.positions[car["fo_position_id"]].x / 1000}
-                      y={this.props.positions[car["fo_position_id"]].y / 1000}
-                      angle={this.props.positions[car["fo_position_id"]].angle * 180 / Math.PI - 90} />
-                ),
+                    {
+                        car.index = index;
+                        return car;
+                    }
+                ).filter(car => car.fo_position_id != null),
                 carStats: {},
                 logs: data.fo_logs, //TODO: refactor/use it in a nice UI element
                 actions: data.actions,
@@ -59,18 +63,20 @@ class Board extends React.Component {
               <div id="board" style={{width: this.zooms[this.state.boardZoom]}}>
                 <TrackImage src={this.props.gameBoard}></TrackImage>
                 <svg id="formula_board" className="board__svg"></svg>
-                {this.state.trackCars}
-                {this.state.trackDebris}
+                <TrackCars cars={this.state.trackCars} positions={this.props.positions} />
+                <TrackDebris debris={this.state.trackDebris} positions={this.props.positions} />
               </div>
             </div>
             <SlidePanelStack>
-              <SlidePanel>
+              <SlidePanel showText="zoom">
                 <ZoomPanel onRefresh={this.update}
+                  onZoomOut={this.updateBoardZoom.bind(this, -1)}
                   onZoomIn={this.updateBoardZoom.bind(this, 1)}
-                  onZoomOut={this.updateBoardZoom.bind(this, -1)} />
+                  />
               </SlidePanel>
               <SlidePanel>
-                <button>Pause</button>
+                <RefreshPanel paused={this.state.refresher == null}
+                  onPlayPause={this.changeRefresh} />
               </SlidePanel>
             </SlidePanelStack>
           </div>
@@ -78,21 +84,30 @@ class Board extends React.Component {
     }
 }
 
+class RefreshPanel extends React.Component {
+    render() {
+        return (
+            <React.Fragment>
+              <button onClick={this.props.onPlayPause}>
+                {this.props.paused ? "resume" : "pause"}
+              </button>
+            </React.Fragment>
+        );
+    }
+}
+
 class ZoomPanel extends React.Component {
     constructor(props) {
         super(props);
-        this.onZoomIn = props.onZoomIn || (arg => {});
-        this.onZoomOut = props.onZoomOut || (arg => {});
-        this.onRefresh = props.onRefresh || (arg => {});
     }
     
     render() {
         return (
-            <div>
-              <button onClick={this.onRefresh}>Refresh</button>
-              <button onClick={this.onZoomIn}>+</button>
-              <button onClick={this.onZoomOut}>-</button>
-            </div>
+            <React.Fragment>
+              <button onClick={this.props.onRefresh}>Refresh</button>
+              <button onClick={this.props.onZoomIn}>+</button>
+              <button onClick={this.props.onZoomOut}>-</button>
+            </React.Fragment>
         );
     }
 }
@@ -129,7 +144,7 @@ class SlidePanel extends React.Component {
             </div>
             <div className="slide_panel__buttons">
               <button className="slide_panel__button" onClick={this.toggleHide}>
-                {this.state.visible ? "Hide" : "Show"}
+                {this.state.visible ? "Hide" : this.props.showText || "Show"}
               </button>
               <span>
                 {this.props.modified}
@@ -161,30 +176,47 @@ let carSprites = ["tdrc01_car01_b.png",
         "tdrc01_car07_d.png",
         "tdrc01_car07_f.png"
     ];
-
-class TrackCar extends React.Component {
+class TrackCars extends React.Component {
     render() {
-        return (
-          <TrackItem src={"/img/formula/cars/" + carSprites[this.props.img_index]}
-              className="car_img"
-              x={this.props.x}
-              y={this.props.y}
-              angle={this.props.angle}
-          />
-        );
+        if (this.props.cars == null) {
+            return null;
+        } else {
+            return (
+              <React.Fragment>
+                {this.props.cars.map(car => (
+                  <TrackItem src={"/img/formula/cars/" + carSprites[car.index]}
+                    className="car_img"
+                    key={car.index}
+                    x={this.props.positions[car.fo_position_id].x / 1000}
+                    y={this.props.positions[car.fo_position_id].y / 1000}
+                    angle={this.props.positions[car.fo_position_id].angle * 180 / Math.PI - 90}
+                  />
+                ))}
+              </React.Fragment>
+            );
+        }
     }
 }
 
 class TrackDebris extends React.Component {
     render() {
-        return (
-          <TrackItem src={"/img/formula/track-objects/oil.png"}
-              className="debris_img"
-              x={this.props.x}
-              y={this.props.y}
-              angle={this.props.angle}
-          />
-        );
+        if (this.props.debris == null) {
+            return null;
+        } else {
+            return (
+              <React.Fragment>
+                {this.props.debris.map(item => (
+                  <TrackItem src={"/img/formula/track-objects/oil.png"}
+                    className="debris_img"
+                    key={item.id}
+                    x={this.props.positions[item.fo_position_id].x / 1000}
+                    y={this.props.positions[item.fo_position_id].y / 1000}
+                    angle={this.props.positions[item.fo_position_id].angle * 180 / Math.PI - 90}
+                  />
+                ))}
+              </React.Fragment>
+            );
+        }
     }
 }
 

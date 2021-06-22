@@ -58,14 +58,16 @@ $onboard-opacity: 65%;
         z-index: $slide_panel-z;
         float: left;
         .slide_panel {
-            top: 0;
+            vertical-align: top;
             display: inline-block;
+            margin-left: 5px;
             .slide_panel__content {
-                border-width: 10px;
-                border-color: grey;
+                border-width: 5px;
+                border-color: black;
                 border-style: none solid solid solid;
                 border-radius: 0px 0px 10px 10px;
-                background-color: black;
+                background-color: darkgrey;
+                padding: 5px;
             }
             .slide_panel__content.hidden {
                 display: none;
@@ -156,4 +158,8 @@ $onboard-opacity: 65%;
 .debris_img {
     opacity: $onboard-opacity;
     z-index: $debris_img-z;
+}
+
+button {
+    margin: 0px;
 }
