@@ -36,17 +36,6 @@ $onboard-opacity: 65%;
                 height: 100%;
                 z-index: $move_option_layer-z;
             }
-            #gears {
-                position: fixed;
-                left: 30px;
-                bottom: 20px;
-                background-color: white;
-                width: auto;
-                * {
-                    cursor: pointer;
-                }
-                z-index: $gears-z;
-            }
             .car_img {
                 z-index: $board__car_img-z;
             }
@@ -82,6 +71,10 @@ $onboard-opacity: 65%;
         float: right;
         vertical-align: bottom;
     }
+}
+
+.gear_select {
+    cursor: pointer;
 }
 
 .damage_table {

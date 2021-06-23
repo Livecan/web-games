@@ -31,17 +31,6 @@ and open the template in the editor.
   height: 100%;
   z-index: 1000;
 }
-#board_parent .overflow_helper #board #gears {
-  position: fixed;
-  left: 30px;
-  bottom: 20px;
-  background-color: white;
-  width: auto;
-  z-index: 1001;
-}
-#board_parent .overflow_helper #board #gears * {
-  cursor: pointer;
-}
 #board_parent .overflow_helper #board .car_img {
   z-index: 100;
 }
@@ -74,6 +63,10 @@ and open the template in the editor.
   bottom: 0;
   float: right;
   vertical-align: bottom;
+}
+
+.gear_select {
+  cursor: pointer;
 }
 
 .damage_table {

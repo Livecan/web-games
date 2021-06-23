@@ -10,6 +10,7 @@ class Board extends React.Component {
         this.updateGameData = this.updateGameData.bind(this);
         this.update();  //TODO: run this after the document loaded
         this.changeRefresh = this.changeRefresh.bind(this);
+        this.chooseGear = this.chooseGear.bind(this);
     }
     
     zooms = ["100%", "150%", "200%", "250%", "300%"];
@@ -53,7 +54,11 @@ class Board extends React.Component {
     }
     
     chooseGear(gear) {
-        alert(gear);
+        $.post('/formula/chooseGear/' + this.props.id,
+            { _csrfToken: csrfToken, game_id: this.props.id, gear: gear },
+            this.update,
+            "json");
+        console.log("chooseGear(" + gear + ")");
     }
     
     update() {
@@ -127,7 +132,8 @@ class GearSelector extends React.Component {
     
     render() {
         return (
-          <circle cx={this.gearPositions[this.props.gear - 1].x}
+          <circle className="gear_select"
+            cx={this.gearPositions[this.props.gear - 1].x}
             cy={this.gearPositions[this.props.gear - 1].y}
             r="50" fillOpacity="0"
             strokeWidth={this.state.hover ? "20" : "10"}

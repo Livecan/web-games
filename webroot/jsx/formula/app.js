@@ -25,6 +25,7 @@ var Board = function (_React$Component) {
         _this.updateGameData = _this.updateGameData.bind(_this);
         _this.update(); //TODO: run this after the document loaded
         _this.changeRefresh = _this.changeRefresh.bind(_this);
+        _this.chooseGear = _this.chooseGear.bind(_this);
         return _this;
     }
 
@@ -70,7 +71,8 @@ var Board = function (_React$Component) {
     }, {
         key: "chooseGear",
         value: function chooseGear(gear) {
-            alert(gear);
+            $.post('/formula/chooseGear/' + this.props.id, { _csrfToken: csrfToken, game_id: this.props.id, gear: gear }, this.update, "json");
+            console.log("chooseGear(" + gear + ")");
         }
     }, {
         key: "update",
@@ -171,7 +173,8 @@ var GearSelector = function (_React$Component2) {
     }, {
         key: "render",
         value: function render() {
-            return React.createElement("circle", { cx: this.gearPositions[this.props.gear - 1].x,
+            return React.createElement("circle", { className: "gear_select",
+                cx: this.gearPositions[this.props.gear - 1].x,
                 cy: this.gearPositions[this.props.gear - 1].y,
                 r: "50", fillOpacity: "0",
                 strokeWidth: this.state.hover ? "20" : "10",
