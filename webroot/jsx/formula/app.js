@@ -68,6 +68,11 @@ var Board = function (_React$Component) {
             }
         }
     }, {
+        key: "chooseGear",
+        value: function chooseGear(gear) {
+            alert(gear);
+        }
+    }, {
         key: "update",
         value: function update() {
             $.getJSON('/formula/getBoardUpdateJson/' + this.props.id, this.updateGameData);
@@ -95,7 +100,7 @@ var Board = function (_React$Component) {
                 ),
                 React.createElement(
                     SlidePanelStack,
-                    null,
+                    { className: "slide_panel_stack_bottom" },
                     React.createElement(
                         SlidePanel,
                         { showText: "zoom" },
@@ -112,9 +117,17 @@ var Board = function (_React$Component) {
                     ),
                     React.createElement(
                         SlidePanel,
-                        null,
+                        { showText: "cars stats" },
                         React.createElement(CarDamagePanel, { cars: this.state.cars || [], users: this.state.users })
-                    )
+                    ),
+                    this.state.actions != undefined && this.state.actions.type == "choose_gear" && React.createElement(
+                        SlidePanel,
+                        null,
+                        React.createElement(GearChoicePanel, { current: this.state.actions.current_gear,
+                            available: this.state.actions.available_gears,
+                            onChooseGear: this.chooseGear })
+                    ),
+                    console.log(JSON.stringify(this.state.actions))
                 )
             );
         }
@@ -123,10 +136,100 @@ var Board = function (_React$Component) {
     return Board;
 }(React.Component);
 
+var GearSelector = function (_React$Component2) {
+    _inherits(GearSelector, _React$Component2);
+
+    function GearSelector(props) {
+        _classCallCheck(this, GearSelector);
+
+        var _this2 = _possibleConstructorReturn(this, (GearSelector.__proto__ || Object.getPrototypeOf(GearSelector)).call(this, props));
+
+        _this2.gearPositions = [{ x: 191, y: 144 }, { x: 191, y: 457 }, { x: 300, y: 144 }, { x: 300, y: 457 }, { x: 412, y: 144 }, { x: 412, y: 457 }];
+
+        _this2.handleMouseEnter = _this2.handleMouseEnter.bind(_this2);
+        _this2.handleMouseLeave = _this2.handleMouseLeave.bind(_this2);
+        _this2.handleMouseClick = _this2.handleMouseClick.bind(_this2);
+        _this2.state = {};
+        return _this2;
+    }
+
+    _createClass(GearSelector, [{
+        key: "handleMouseEnter",
+        value: function handleMouseEnter() {
+            this.setState({ hover: true });
+        }
+    }, {
+        key: "handleMouseLeave",
+        value: function handleMouseLeave() {
+            this.setState({ hover: false });
+        }
+    }, {
+        key: "handleMouseClick",
+        value: function handleMouseClick() {
+            typeof this.props.onClick == "function" && this.props.onClick();
+        }
+    }, {
+        key: "render",
+        value: function render() {
+            return React.createElement("circle", { cx: this.gearPositions[this.props.gear - 1].x,
+                cy: this.gearPositions[this.props.gear - 1].y,
+                r: "50", fillOpacity: "0",
+                strokeWidth: this.state.hover ? "20" : "10",
+                stroke: this.props.color,
+                onMouseEnter: this.handleMouseEnter,
+                onMouseLeave: this.handleMouseLeave,
+                onClick: this.handleMouseClick });
+        }
+    }]);
+
+    return GearSelector;
+}(React.Component);
+
+var GearChoicePanel = function (_React$Component3) {
+    _inherits(GearChoicePanel, _React$Component3);
+
+    function GearChoicePanel() {
+        _classCallCheck(this, GearChoicePanel);
+
+        return _possibleConstructorReturn(this, (GearChoicePanel.__proto__ || Object.getPrototypeOf(GearChoicePanel)).apply(this, arguments));
+    }
+
+    _createClass(GearChoicePanel, [{
+        key: "render",
+        value: function render() {
+            var _this4 = this;
+
+            console.log(JSON.stringify(this.props.available.filter(function (gear) {
+                return gear != _this4.props.current;
+            })));
+            return React.createElement(
+                "div",
+                { style: { position: "relative" } },
+                React.createElement("img", { src: "/img/formula/gearbox.svg", className: "gear_choice",
+                    width: "100px", height: "100px" }),
+                React.createElement(
+                    "svg",
+                    { viewBox: "0 0 600 600", width: "100", height: "100",
+                        style: { position: "absolute", top: 0, left: 0 } },
+                    this.props.available.map(function (gear) {
+                        return React.createElement(GearSelector, { key: gear, gear: gear,
+                            color: gear == _this4.props.current ? "green" : "red",
+                            onClick: function onClick() {
+                                return _this4.props.onChooseGear(gear);
+                            } });
+                    })
+                )
+            );
+        }
+    }]);
+
+    return GearChoicePanel;
+}(React.Component);
+
 var damageTypeClass = ["tires", "gearbox", "brakes", "engine", "chassis", "shocks"];
 
-var CarDamagePanel = function (_React$Component2) {
-    _inherits(CarDamagePanel, _React$Component2);
+var CarDamagePanel = function (_React$Component4) {
+    _inherits(CarDamagePanel, _React$Component4);
 
     function CarDamagePanel() {
         _classCallCheck(this, CarDamagePanel);
@@ -137,38 +240,43 @@ var CarDamagePanel = function (_React$Component2) {
     _createClass(CarDamagePanel, [{
         key: "render",
         value: function render() {
-            var _this3 = this;
+            var _this6 = this;
 
             return React.createElement(
                 "table",
                 { id: "car_stats_table", className: "damage_table" },
-                this.props.cars.map(function (car) {
-                    return React.createElement(
-                        "tr",
-                        null,
-                        React.createElement(
-                            "td",
-                            null,
-                            React.createElement(Sprite, { src: "/img/formula/cars/" + carSprites[car.index],
-                                className: "car_img", key: car.index,
-                                width: "20", height: "50", unit: "px" })
-                        ),
-                        React.createElement(
-                            "td",
-                            null,
-                            _this3.props.users.find(function (user) {
-                                return user.id == car.user_id;
-                            }).name
-                        ),
-                        car.fo_damages.map(function (damage) {
-                            return React.createElement(
+                React.createElement(
+                    "tbody",
+                    null,
+                    this.props.cars.map(function (car) {
+                        return React.createElement(
+                            "tr",
+                            { key: car.index },
+                            React.createElement(
                                 "td",
-                                { className: "damage " + damageTypeClass[damage.type - 1] },
-                                damage.wear_points
-                            );
-                        })
-                    );
-                })
+                                null,
+                                React.createElement(Sprite, { src: "/img/formula/cars/" + carSprites[car.index],
+                                    className: "car_img", key: car.index,
+                                    width: "20", height: "50", unit: "px" })
+                            ),
+                            React.createElement(
+                                "td",
+                                null,
+                                _this6.props.users.find(function (user) {
+                                    return user.id == car.user_id;
+                                }).name
+                            ),
+                            car.fo_damages.map(function (damage) {
+                                return React.createElement(
+                                    "td",
+                                    { key: damage.type,
+                                        className: "damage " + damageTypeClass[damage.type - 1] },
+                                    damage.wear_points
+                                );
+                            })
+                        );
+                    })
+                )
             );
         }
     }]);
@@ -176,8 +284,8 @@ var CarDamagePanel = function (_React$Component2) {
     return CarDamagePanel;
 }(React.Component);
 
-var RefreshPanel = function (_React$Component3) {
-    _inherits(RefreshPanel, _React$Component3);
+var RefreshPanel = function (_React$Component5) {
+    _inherits(RefreshPanel, _React$Component5);
 
     function RefreshPanel() {
         _classCallCheck(this, RefreshPanel);
@@ -203,8 +311,8 @@ var RefreshPanel = function (_React$Component3) {
     return RefreshPanel;
 }(React.Component);
 
-var ZoomPanel = function (_React$Component4) {
-    _inherits(ZoomPanel, _React$Component4);
+var ZoomPanel = function (_React$Component6) {
+    _inherits(ZoomPanel, _React$Component6);
 
     function ZoomPanel(props) {
         _classCallCheck(this, ZoomPanel);
@@ -240,8 +348,8 @@ var ZoomPanel = function (_React$Component4) {
     return ZoomPanel;
 }(React.Component);
 
-var SlidePanelStack = function (_React$Component5) {
-    _inherits(SlidePanelStack, _React$Component5);
+var SlidePanelStack = function (_React$Component7) {
+    _inherits(SlidePanelStack, _React$Component7);
 
     function SlidePanelStack() {
         _classCallCheck(this, SlidePanelStack);
@@ -254,7 +362,7 @@ var SlidePanelStack = function (_React$Component5) {
         value: function render() {
             return React.createElement(
                 "div",
-                { className: "slide_panel_stack" },
+                { className: "slide_panel_stack " + this.props.className },
                 this.props.children
             );
         }
@@ -263,18 +371,18 @@ var SlidePanelStack = function (_React$Component5) {
     return SlidePanelStack;
 }(React.Component);
 
-var SlidePanel = function (_React$Component6) {
-    _inherits(SlidePanel, _React$Component6);
+var SlidePanel = function (_React$Component8) {
+    _inherits(SlidePanel, _React$Component8);
 
     function SlidePanel(props) {
         _classCallCheck(this, SlidePanel);
 
-        var _this7 = _possibleConstructorReturn(this, (SlidePanel.__proto__ || Object.getPrototypeOf(SlidePanel)).call(this, props));
+        var _this10 = _possibleConstructorReturn(this, (SlidePanel.__proto__ || Object.getPrototypeOf(SlidePanel)).call(this, props));
 
-        _this7.state = { visible: true };
-        _this7.toggleHide = _this7.toggleHide.bind(_this7);
+        _this10.state = { visible: true };
+        _this10.toggleHide = _this10.toggleHide.bind(_this10);
         //this.onToggleHide = props.onToggleHide || (arg => {});
-        return _this7;
+        return _this10;
     }
 
     _createClass(SlidePanel, [{
@@ -316,8 +424,8 @@ var SlidePanel = function (_React$Component6) {
     return SlidePanel;
 }(React.Component);
 
-var TrackImage = function (_React$Component7) {
-    _inherits(TrackImage, _React$Component7);
+var TrackImage = function (_React$Component9) {
+    _inherits(TrackImage, _React$Component9);
 
     function TrackImage() {
         _classCallCheck(this, TrackImage);
@@ -337,8 +445,8 @@ var TrackImage = function (_React$Component7) {
 
 var carSprites = ["tdrc01_car01_b.png", "tdrc01_car01_e.png", "tdrc01_car01_f.png", "tdrc01_car03_a.png", "tdrc01_car03_c.png", "tdrc01_car03_d.png", "tdrc01_car04_a.png", "tdrc01_car04_d.png", "tdrc01_car04_f.png", "tdrc01_car07_b.png", "tdrc01_car07_d.png", "tdrc01_car07_f.png"];
 
-var TrackCars = function (_React$Component8) {
-    _inherits(TrackCars, _React$Component8);
+var TrackCars = function (_React$Component10) {
+    _inherits(TrackCars, _React$Component10);
 
     function TrackCars() {
         _classCallCheck(this, TrackCars);
@@ -349,7 +457,7 @@ var TrackCars = function (_React$Component8) {
     _createClass(TrackCars, [{
         key: "render",
         value: function render() {
-            var _this10 = this;
+            var _this13 = this;
 
             if (this.props.cars == null) {
                 return null;
@@ -361,9 +469,9 @@ var TrackCars = function (_React$Component8) {
                         return React.createElement(Sprite, { src: "/img/formula/cars/" + carSprites[car.index],
                             className: "car_img",
                             key: car.index,
-                            x: _this10.props.positions[car.fo_position_id].x / 1000,
-                            y: _this10.props.positions[car.fo_position_id].y / 1000,
-                            angle: _this10.props.positions[car.fo_position_id].angle * 180 / Math.PI - 90
+                            x: _this13.props.positions[car.fo_position_id].x / 1000,
+                            y: _this13.props.positions[car.fo_position_id].y / 1000,
+                            angle: _this13.props.positions[car.fo_position_id].angle * 180 / Math.PI - 90
                         });
                     })
                 );
@@ -374,8 +482,8 @@ var TrackCars = function (_React$Component8) {
     return TrackCars;
 }(React.Component);
 
-var TrackDebris = function (_React$Component9) {
-    _inherits(TrackDebris, _React$Component9);
+var TrackDebris = function (_React$Component11) {
+    _inherits(TrackDebris, _React$Component11);
 
     function TrackDebris() {
         _classCallCheck(this, TrackDebris);
@@ -386,7 +494,7 @@ var TrackDebris = function (_React$Component9) {
     _createClass(TrackDebris, [{
         key: "render",
         value: function render() {
-            var _this12 = this;
+            var _this15 = this;
 
             if (this.props.debris == null) {
                 return null;
@@ -398,9 +506,9 @@ var TrackDebris = function (_React$Component9) {
                         return React.createElement(Sprite, { src: "/img/formula/track-objects/oil.png",
                             className: "debris_img",
                             key: item.id,
-                            x: _this12.props.positions[item.fo_position_id].x / 1000,
-                            y: _this12.props.positions[item.fo_position_id].y / 1000,
-                            angle: _this12.props.positions[item.fo_position_id].angle * 180 / Math.PI - 90
+                            x: _this15.props.positions[item.fo_position_id].x / 1000,
+                            y: _this15.props.positions[item.fo_position_id].y / 1000,
+                            angle: _this15.props.positions[item.fo_position_id].angle * 180 / Math.PI - 90
                         });
                     })
                 );
@@ -411,8 +519,8 @@ var TrackDebris = function (_React$Component9) {
     return TrackDebris;
 }(React.Component);
 
-var Sprite = function (_React$Component10) {
-    _inherits(Sprite, _React$Component10);
+var Sprite = function (_React$Component12) {
+    _inherits(Sprite, _React$Component12);
 
     function Sprite() {
         _classCallCheck(this, Sprite);

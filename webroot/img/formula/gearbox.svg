@@ -1,0 +1,18 @@
+<svg width="600" height="600" xmlns="http://www.w3.org/2000/svg" viewbox="0 0 600 600">
+ <g id="Layer_1">
+  <title>Layer 1</title>
+  <ellipse fill="#fff" stroke="#000" cx="300" cy="300" id="svg_1" rx="260" ry="260" stroke-width="15"/>
+  <line stroke-width="25" fill="none" stroke="#000" x1="190" y1="300" x2="410" y2="300" id="svg_2" stroke-linejoin="undefined" stroke-linecap="undefined"/>
+  <line fill="none" stroke="#000" x1="190" y1="200" x2="190" y2="400" id="svg_3" stroke-linejoin="undefined" stroke-linecap="undefined" stroke-width="25"/>
+  <line fill="none" stroke="#000" x1="300" y1="200" x2="300" y2="400" id="svg_4" stroke-linejoin="undefined" stroke-linecap="undefined" stroke-width="25"/>
+  <line fill="none" stroke="#000" x1="410" y1="200" x2="410" y2="400" id="svg_5" stroke-linejoin="undefined" stroke-linecap="undefined" stroke-width="25"/>
+  <text fill="#000000" stroke="#000" stroke-width="0" x="164" y="177.2" id="svg_6" font-size="95" font-family="sans-serif" text-anchor="start" xml:space="preserve" font-weight="bold" font-style="normal">1</text>
+  <text fill="#000000" stroke="#000" stroke-width="0" x="164" y="489.2" id="svg_7" font-size="95" font-family="sans-serif" text-anchor="start" xml:space="preserve" font-weight="bold" font-style="normal">2</text>
+  <text fill="#000000" stroke="#000" stroke-width="0" x="275" y="177.2" id="svg_8" font-size="95" font-family="sans-serif" text-anchor="start" xml:space="preserve" font-weight="bold" font-style="normal">3</text>
+  <text fill="#000000" stroke="#000" stroke-width="0" x="384" y="177.2" id="svg_9" font-size="95" font-family="sans-serif" text-anchor="start" xml:space="preserve" font-weight="bold" font-style="normal">5</text>
+  <text fill="#000000" stroke="#000" stroke-width="0" x="274" y="489.2" id="svg_10" font-size="95" font-family="sans-serif" text-anchor="start" xml:space="preserve" font-weight="bold" font-style="normal">4</text>
+  <text fill="#000000" stroke="#000" stroke-width="0" x="384" y="489.2" id="svg_11" font-size="95" font-family="sans-serif" text-anchor="start" xml:space="preserve" font-weight="bold" font-style="normal">6</text>
+  <polyline stroke-linecap="round" id="svg_14" points="190,140.60000610351562 190,140.60000610351562 " stroke-width="0" stroke="#000" fill="none"/>
+ </g>
+
+</svg>

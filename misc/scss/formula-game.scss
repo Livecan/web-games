@@ -77,6 +77,11 @@ $onboard-opacity: 65%;
             }
         }
     }
+    .slide_panel_stack.slide_panel_stack_bottom {
+        bottom: 0;
+        float: right;
+        vertical-align: bottom;
+    }
 }
 
 .damage_table {
@@ -153,4 +158,9 @@ $onboard-opacity: 65%;
 
 button {
     margin: 0px;
+}
+
+.gear_choice {
+     width: "100px";
+     height: "100px";
 }
