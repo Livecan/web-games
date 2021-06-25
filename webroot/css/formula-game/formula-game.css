@@ -39,7 +39,7 @@ and open the template in the editor.
   z-index: 10000;
 }
 #board_parent .slide_panel_stack .slide_panel {
-  display: inline-block;
+  display: inline-flex;
   margin-left: 3px;
   margin-right: 3px;
 }
@@ -54,7 +54,7 @@ and open the template in the editor.
   text-align: left;
 }
 #board_parent .slide_panel_stack.slide_panel_stack_top .slide_panel {
-  vertical-align: top;
+  flex-direction: column;
 }
 #board_parent .slide_panel_stack.slide_panel_stack_top .slide_panel .slide_panel__content {
   border-width: 5px;
@@ -71,7 +71,7 @@ and open the template in the editor.
   vertical-align: bottom;
 }
 #board_parent .slide_panel_stack.slide_panel_stack_bottom .slide_panel {
-  vertical-align: bottom;
+  flex-direction: column-reverse;
 }
 #board_parent .slide_panel_stack.slide_panel_stack_bottom .slide_panel .slide_panel__content {
   border-width: 5px;
