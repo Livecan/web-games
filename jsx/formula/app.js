@@ -71,7 +71,12 @@ class Board extends React.Component {
             <div className="overflow_helper">
               <div id="board" style={{width: this.zooms[this.state.boardZoom]}}>
                 <TrackImage src={this.props.gameBoard}></TrackImage>
-                <svg id="formula_board" className="board__svg"></svg>
+                {console.log(JSON.stringify(this.state.actions))}
+                {this.state.actions != undefined && this.state.actions.type == "choose_move" &&
+                  <AvailableMovesSelectorOverlay
+                    availableMoves={this.state.actions.available_moves}
+                    positions={this.props.positions} />
+                }
                 <TrackCars cars={(this.state.cars || []).filter(car => car.fo_position_id != null)}
                   positions={this.props.positions} />
                 <TrackDebris debris={this.state.trackDebris || []} positions={this.props.positions} />
@@ -99,9 +104,24 @@ class Board extends React.Component {
                 </SlidePanel>
                 
               }
-              {console.log(JSON.stringify(this.state.actions))}
             </SlidePanelStack>
           </div>
+        );
+    }
+}
+
+class AvailableMovesSelectorOverlay extends React.Component {
+    render() {
+        availableMovesPositionIds = Array.from(new Set(this.props.availableMoves.map(move => move.fo_position_id)));
+        return (
+          <svg id="formula_board" className="board__svg">
+            {availableMovesPositionIds.map(positionId =>
+              <circle id={"move_position_" + positionId} className="move_option"
+                cx={this.props.positions[positionId].x / 1000 + "%"}
+                cy={this.props.positions[positionId].y / 1000 + "%"}
+                r=".8%" fill="purple" />   //TODO: here generate the options!
+            )}
+          </svg>
         );
     }
 }
