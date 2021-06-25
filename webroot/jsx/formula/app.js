@@ -105,7 +105,7 @@ var Board = function (_React$Component) {
                 ),
                 React.createElement(
                     SlidePanelStack,
-                    { className: "slide_panel_stack_bottom" },
+                    { className: "slide_panel_stack_top" },
                     React.createElement(
                         SlidePanel,
                         { showText: "zoom" },
@@ -119,19 +119,23 @@ var Board = function (_React$Component) {
                         null,
                         React.createElement(RefreshPanel, { paused: this.state.refresher == null,
                             onPlayPause: this.changeRefresh })
-                    ),
+                    )
+                ),
+                React.createElement(
+                    SlidePanelStack,
+                    { className: "slide_panel_stack_bottom" },
                     React.createElement(
                         SlidePanel,
                         { showText: "cars stats" },
                         React.createElement(CarDamagePanel, { cars: this.state.cars || [], users: this.state.users })
-                    ),
-                    this.state.actions != undefined && this.state.actions.type == "choose_gear" && React.createElement(
-                        SlidePanel,
-                        null,
-                        React.createElement(GearChoicePanel, { current: this.state.actions.current_gear,
-                            available: this.state.actions.available_gears,
-                            onChooseGear: this.chooseGear })
                     )
+                ),
+                this.state.actions != undefined && this.state.actions.type == "choose_gear" && React.createElement(
+                    SlidePanel,
+                    null,
+                    React.createElement(GearChoicePanel, { current: this.state.actions.current_gear,
+                        available: this.state.actions.available_gears,
+                        onChooseGear: this.chooseGear })
                 )
             );
         }
@@ -161,7 +165,8 @@ var AvailableMovesSelectorOverlay = function (_React$Component2) {
                 "svg",
                 { id: "formula_board", className: "board__svg" },
                 availableMovesPositionIds.map(function (positionId) {
-                    return React.createElement("circle", { id: "move_position_" + positionId, className: "move_option",
+                    return React.createElement("circle", { key: positionId,
+                        id: "move_position_" + positionId, className: "move_option",
                         cx: _this3.props.positions[positionId].x / 1000 + "%",
                         cy: _this3.props.positions[positionId].y / 1000 + "%",
                         r: ".8%", fill: "purple" });

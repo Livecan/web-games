@@ -36,22 +36,12 @@ and open the template in the editor.
 }
 #board_parent .slide_panel_stack {
   position: absolute;
-  top: 0;
   z-index: 10000;
-  float: left;
 }
 #board_parent .slide_panel_stack .slide_panel {
-  vertical-align: top;
   display: inline-block;
-  margin-left: 5px;
-}
-#board_parent .slide_panel_stack .slide_panel .slide_panel__content {
-  border-width: 5px;
-  border-color: black;
-  border-style: none solid solid solid;
-  border-radius: 0px 0px 10px 10px;
-  background-color: darkgrey;
-  padding: 5px;
+  margin-left: 3px;
+  margin-right: 3px;
 }
 #board_parent .slide_panel_stack .slide_panel .slide_panel__content.hidden {
   display: none;
@@ -59,10 +49,37 @@ and open the template in the editor.
 #board_parent .slide_panel_stack .slide_panel .slide_panel__buttons {
   text-align: center;
 }
+#board_parent .slide_panel_stack.slide_panel_stack_top {
+  top: 0;
+  text-align: left;
+}
+#board_parent .slide_panel_stack.slide_panel_stack_top .slide_panel {
+  vertical-align: top;
+}
+#board_parent .slide_panel_stack.slide_panel_stack_top .slide_panel .slide_panel__content {
+  border-width: 5px;
+  border-color: black;
+  border-style: none solid solid solid;
+  border-radius: 0 0 10px 10px;
+  background-color: darkgrey;
+  padding: 5px;
+}
 #board_parent .slide_panel_stack.slide_panel_stack_bottom {
+  width: 100%;
   bottom: 0;
-  float: right;
+  text-align: right;
   vertical-align: bottom;
+}
+#board_parent .slide_panel_stack.slide_panel_stack_bottom .slide_panel {
+  vertical-align: bottom;
+}
+#board_parent .slide_panel_stack.slide_panel_stack_bottom .slide_panel .slide_panel__content {
+  border-width: 5px;
+  border-color: black;
+  border-style: solid solid none solid;
+  border-radius: 10px 10px 0 0;
+  background-color: darkgrey;
+  padding: 5px;
 }
 
 .gear_select {

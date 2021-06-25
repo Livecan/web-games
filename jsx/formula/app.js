@@ -82,7 +82,7 @@ class Board extends React.Component {
                 <TrackDebris debris={this.state.trackDebris || []} positions={this.props.positions} />
               </div>
             </div>
-            <SlidePanelStack className="slide_panel_stack_bottom">
+            <SlidePanelStack className="slide_panel_stack_top">
               <SlidePanel showText="zoom">
                 <ZoomPanel onRefresh={this.update}
                   onZoomOut={this.updateBoardZoom.bind(this, -1)}
@@ -93,18 +93,19 @@ class Board extends React.Component {
                 <RefreshPanel paused={this.state.refresher == null}
                   onPlayPause={this.changeRefresh} />
               </SlidePanel>
+            </SlidePanelStack>
+            <SlidePanelStack className="slide_panel_stack_bottom">
               <SlidePanel showText="cars stats">
                 <CarDamagePanel cars={this.state.cars || []} users={this.state.users} />
               </SlidePanel>
-              {this.state.actions != undefined && this.state.actions.type == "choose_gear" &&
-                <SlidePanel>
-                  <GearChoicePanel current={this.state.actions.current_gear}
-                    available={this.state.actions.available_gears}
-                    onChooseGear={this.chooseGear} />
-                </SlidePanel>
-                
-              }
             </SlidePanelStack>
+            {this.state.actions != undefined && this.state.actions.type == "choose_gear" &&
+              <SlidePanel>
+                <GearChoicePanel current={this.state.actions.current_gear}
+                  available={this.state.actions.available_gears}
+                  onChooseGear={this.chooseGear} />
+              </SlidePanel> 
+            }
           </div>
         );
     }
@@ -116,7 +117,8 @@ class AvailableMovesSelectorOverlay extends React.Component {
         return (
           <svg id="formula_board" className="board__svg">
             {availableMovesPositionIds.map(positionId =>
-              <circle id={"move_position_" + positionId} className="move_option"
+              <circle key={positionId}
+                id={"move_position_" + positionId} className="move_option"
                 cx={this.props.positions[positionId].x / 1000 + "%"}
                 cy={this.props.positions[positionId].y / 1000 + "%"}
                 r=".8%" fill="purple" />   //TODO: here generate the options!
