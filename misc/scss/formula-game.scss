@@ -119,6 +119,10 @@ $onboard-opacity: 65%;
     }
 }
 
+.move_option_damage tr {
+    cursor: pointer;
+}
+
 #car_stats_table {
     td:first-child {
         position: relative;

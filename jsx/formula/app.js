@@ -12,6 +12,7 @@ class Board extends React.Component {
         this.changeRefresh = this.changeRefresh.bind(this);
         this.chooseGear = this.chooseGear.bind(this);
         this.showDamageOptions = this.showDamageOptions.bind(this);
+        this.chooseMoveOption = this.chooseMoveOption.bind(this);
     }
     
     zooms = ["100%", "150%", "200%", "250%", "300%"];
@@ -72,6 +73,14 @@ class Board extends React.Component {
         this.setState({actions: actions});
     }
     
+    chooseMoveOption(moveOptionId) {
+        $.post('/formula/chooseMoveOption/' + this.props.id,
+                { _csrfToken: csrfToken, game_id: this.props.id, move_option_id: moveOptionId },
+                this.update,
+                "json");
+        console.log("chooseMoveOption(" + moveOptionId + ")");
+    }
+    
     render() {
         return (
           <div id="board_parent">
@@ -103,9 +112,6 @@ class Board extends React.Component {
               </SlidePanel>
             </SlidePanelStack>
             <SlidePanelStack className="slide_panel_stack_bottom">
-              <SlidePanel showText="cars stats">
-                <CarDamagePanel cars={this.state.cars || []} users={this.state.users} />
-              </SlidePanel>
               {this.state.actions != undefined && this.state.actions.type == "choose_gear" &&
                 <SlidePanel>
                   <GearChoicePanel current={this.state.actions.current_gear}
@@ -116,11 +122,15 @@ class Board extends React.Component {
               {this.state.actions != undefined && this.state.actions.selectedPosition != null &&
                 <SlidePanel>
                   <MoveDamageSelector positionId={this.state.actions.selectedPosition}
+                    onSelected={this.chooseMoveOption}
                     moveOptions={
                       this.state.actions.available_moves.filter(move =>
                         move.fo_position_id == this.state.actions.selectedPosition)} />
                 </SlidePanel>
               }
+              <SlidePanel showText="cars stats">
+                <CarDamagePanel cars={this.state.cars || []} users={this.state.users} />
+              </SlidePanel>
             </SlidePanelStack>
           </div>
         );
@@ -129,13 +139,14 @@ class Board extends React.Component {
 
 class MoveDamageSelector extends React.Component {
     render() {
-        alert(JSON.stringify(this.props.moveOptions))//TODO: render the damage table; as props receive ONLY RELEVANT damages with corresponding MoveOptionId
+        console.log(JSON.stringify(this.props.moveOptions))//TODO: render the damage table; as props receive ONLY RELEVANT damages with corresponding MoveOptionId
         return (
           <table id={"damage_table_" + this.props.positionId}
               className="move_option_damage damage_table">
             <tbody>
             {this.props.moveOptions.map(moveOption =>
-              <tr key={moveOption.fo_move_option_id}>
+              <tr key={moveOption.id}
+                onClick={() => this.props.onSelected(moveOption.id)}>
                 <DamagePanel damages={moveOption.fo_damages} />
               </tr>
             )}

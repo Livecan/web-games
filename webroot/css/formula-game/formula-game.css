@@ -111,6 +111,10 @@ and open the template in the editor.
   background-color: orchid;
 }
 
+.move_option_damage tr {
+  cursor: pointer;
+}
+
 #car_stats_table td:first-child {
   position: relative;
   width: 50px;
