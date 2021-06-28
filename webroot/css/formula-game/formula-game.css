@@ -71,6 +71,7 @@ and open the template in the editor.
   vertical-align: bottom;
 }
 #board_parent .slide_panel_stack.slide_panel_stack_bottom .slide_panel {
+  vertical-align: bottom;
   flex-direction: column-reverse;
 }
 #board_parent .slide_panel_stack.slide_panel_stack_bottom .slide_panel .slide_panel__content {
@@ -110,11 +111,6 @@ and open the template in the editor.
   background-color: orchid;
 }
 
-#car_stats_table {
-  background-color: white;
-  color: black;
-  font-weight: bold;
-}
 #car_stats_table td:first-child {
   position: relative;
   width: 50px;
@@ -126,22 +122,14 @@ and open the template in the editor.
   transform: rotate(90deg);
   transform-origin: 25px 25px;
 }
-#car_stats_table td {
-  padding: 0px 15px;
-}
 
-.move_option_damage {
-  display: inline-block;
-  position: fixed;
-  left: 20px;
-  top: 20px;
-  visibility: hidden;
+.damage_table {
   background-color: white;
-  width: auto;
-  z-index: 1000;
+  color: black;
+  font-weight: bold;
 }
-.move_option_damage .damage_option {
-  cursor: pointer;
+.damage_table td {
+  padding: 0px 15px;
 }
 
 .move_option {

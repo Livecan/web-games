@@ -11,6 +11,7 @@ class Board extends React.Component {
         this.update();  //TODO: run this after the document loaded
         this.changeRefresh = this.changeRefresh.bind(this);
         this.chooseGear = this.chooseGear.bind(this);
+        this.showDamageOptions = this.showDamageOptions.bind(this);
     }
     
     zooms = ["100%", "150%", "200%", "250%", "300%"];
@@ -65,6 +66,12 @@ class Board extends React.Component {
         $.getJSON('/formula/getBoardUpdateJson/' + this.props.id, this.updateGameData);
     }
     
+    showDamageOptions(positionId) {
+        actions = this.state.actions;
+        actions.selectedPosition = positionId;
+        this.setState({actions: actions});
+    }
+    
     render() {
         return (
           <div id="board_parent">
@@ -75,7 +82,8 @@ class Board extends React.Component {
                 {this.state.actions != undefined && this.state.actions.type == "choose_move" &&
                   <AvailableMovesSelectorOverlay
                     availableMoves={this.state.actions.available_moves}
-                    positions={this.props.positions} />
+                    positions={this.props.positions}
+                    onMovePositionSelected={this.showDamageOptions}/>
                 }
                 <TrackCars cars={(this.state.cars || []).filter(car => car.fo_position_id != null)}
                   positions={this.props.positions} />
@@ -98,15 +106,41 @@ class Board extends React.Component {
               <SlidePanel showText="cars stats">
                 <CarDamagePanel cars={this.state.cars || []} users={this.state.users} />
               </SlidePanel>
+              {this.state.actions != undefined && this.state.actions.type == "choose_gear" &&
+                <SlidePanel>
+                  <GearChoicePanel current={this.state.actions.current_gear}
+                    available={this.state.actions.available_gears}
+                    onChooseGear={this.chooseGear} />
+                </SlidePanel> 
+              }
+              {this.state.actions != undefined && this.state.actions.selectedPosition != null &&
+                <SlidePanel>
+                  <MoveDamageSelector positionId={this.state.actions.selectedPosition}
+                    moveOptions={
+                      this.state.actions.available_moves.filter(move =>
+                        move.fo_position_id == this.state.actions.selectedPosition)} />
+                </SlidePanel>
+              }
             </SlidePanelStack>
-            {this.state.actions != undefined && this.state.actions.type == "choose_gear" &&
-              <SlidePanel>
-                <GearChoicePanel current={this.state.actions.current_gear}
-                  available={this.state.actions.available_gears}
-                  onChooseGear={this.chooseGear} />
-              </SlidePanel> 
-            }
           </div>
+        );
+    }
+}
+
+class MoveDamageSelector extends React.Component {
+    render() {
+        alert(JSON.stringify(this.props.moveOptions))//TODO: render the damage table; as props receive ONLY RELEVANT damages with corresponding MoveOptionId
+        return (
+          <table id={"damage_table_" + this.props.positionId}
+              className="move_option_damage damage_table">
+            <tbody>
+            {this.props.moveOptions.map(moveOption =>
+              <tr key={moveOption.fo_move_option_id}>
+                <DamagePanel damages={moveOption.fo_damages} />
+              </tr>
+            )}
+            </tbody>
+          </table>
         );
     }
 }
@@ -121,7 +155,8 @@ class AvailableMovesSelectorOverlay extends React.Component {
                 id={"move_position_" + positionId} className="move_option"
                 cx={this.props.positions[positionId].x / 1000 + "%"}
                 cy={this.props.positions[positionId].y / 1000 + "%"}
-                r=".8%" fill="purple" />   //TODO: here generate the options!
+                r=".8%" fill="purple"
+                onClick={() => this.props.onMovePositionSelected(positionId)} />
             )}
           </svg>
         );
@@ -189,6 +224,21 @@ class GearChoicePanel extends React.Component {
 
 var damageTypeClass = ["tires", "gearbox", "brakes", "engine", "chassis", "shocks"];
 
+class DamagePanel extends React.Component {
+    render() {
+        return (
+          <React.Fragment>
+          {this.props.damages.map(damage =>
+            <td key={damage.type}
+              className={"damage " + damageTypeClass[damage.type - 1]}>
+                {damage.wear_points}
+            </td>
+          )}
+          </React.Fragment>
+        );
+    }
+}
+
 class CarDamagePanel extends React.Component {
     render() {
         return (
@@ -204,12 +254,7 @@ class CarDamagePanel extends React.Component {
                     <td>
                       {this.props.users.find(user => user.id == car.user_id).name}
                     </td>
-                    {car.fo_damages.map(damage =>
-                      <td key={damage.type}
-                        className={"damage " + damageTypeClass[damage.type - 1]}>
-                          {damage.wear_points}
-                      </td>
-                    )}
+                    <DamagePanel damages={car.fo_damages} />
                   </tr>
                 )}
               </tbody>
