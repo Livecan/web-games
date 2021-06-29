@@ -36,9 +36,10 @@ and open the template in the editor.
 }
 #board_parent .slide_panel_stack {
   position: absolute;
-  z-index: 10000;
 }
 #board_parent .slide_panel_stack .slide_panel {
+  position: relative;
+  z-index: 10000;
   display: inline-flex;
   margin-left: 3px;
   margin-right: 3px;

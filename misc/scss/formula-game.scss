@@ -43,8 +43,9 @@ $onboard-opacity: 65%;
     }
     .slide_panel_stack {
         position: absolute;
-        z-index: $slide_panel-z;
         .slide_panel {
+            position: relative;
+            z-index: $slide_panel-z;
             display: inline-flex;
             margin-left: 3px;
             margin-right: 3px;

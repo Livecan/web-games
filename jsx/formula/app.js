@@ -68,12 +68,11 @@ class Board extends React.Component {
     }
     
     showDamageOptions(positionId) {
-        actions = this.state.actions;
-        actions.selectedPosition = positionId;
-        this.setState({actions: actions});
+        this.setState({selectedPosition: positionId});
     }
     
     chooseMoveOption(moveOptionId) {
+        this.setState({selectedPosition: null});
         $.post('/formula/chooseMoveOption/' + this.props.id,
                 { _csrfToken: csrfToken, game_id: this.props.id, move_option_id: moveOptionId },
                 this.update,
@@ -119,17 +118,18 @@ class Board extends React.Component {
                     onChooseGear={this.chooseGear} />
                 </SlidePanel> 
               }
-              {this.state.actions != undefined && this.state.actions.selectedPosition != null &&
+              {this.state.selectedPosition != null &&
                 <SlidePanel>
-                  <MoveDamageSelector positionId={this.state.actions.selectedPosition}
+                  <MoveDamageSelector positionId={this.state.selectedPosition}
                     onSelected={this.chooseMoveOption}
                     moveOptions={
                       this.state.actions.available_moves.filter(move =>
-                        move.fo_position_id == this.state.actions.selectedPosition)} />
+                        move.fo_position_id == this.state.selectedPosition)} />
                 </SlidePanel>
               }
               <SlidePanel showText="cars stats">
-                <CarDamagePanel cars={this.state.cars || []} users={this.state.users} />
+                <CarDamagePanel update={Math.random()}
+                  cars={this.state.cars || []} users={this.state.users} />
               </SlidePanel>
             </SlidePanelStack>
           </div>
@@ -251,22 +251,35 @@ class DamagePanel extends React.Component {
 }
 
 class CarDamagePanel extends React.Component {
+    order(car) {
+        let value = (car.state == "R" ? -1000 : 0) + (car.order || 100);
+        console.log(value);
+        return value;
+    }
+    
     render() {
+        console.log("not ordered: " + JSON.stringify(this.props.cars));
+        console.log("ordered: " + JSON.stringify(this.props.cars
+          .sort((first, second) =>
+            this.order(first) - this.order(second))));
         return (
             <table id="car_stats_table" className="damage_table">
               <tbody>
-                {this.props.cars.map(car =>
-                  <tr key={car.index}>
-                    <td>
-                      <Sprite src={"/img/formula/cars/" + carSprites[car.index]}
-                        className="car_img" key={car.index}
-                        width="20" height="50" unit="px" />
-                    </td>
-                    <td>
-                      {this.props.users.find(user => user.id == car.user_id).name}
-                    </td>
-                    <DamagePanel damages={car.fo_damages} />
-                  </tr>
+                {this.props.cars
+                  .sort((first, second) =>
+                    this.order(first) - this.order(second) < 0 ? -1 : 0)
+                  .map(car =>
+                    <tr key={car.index}>
+                      <td>
+                        <Sprite src={"/img/formula/cars/" + carSprites[car.index]}
+                          className="car_img" key={car.id}
+                          width="20" height="50" unit="px" />
+                      </td>
+                      <td>
+                        {this.props.users.find(user => user.id == car.user_id).name}
+                      </td>
+                      <DamagePanel damages={car.fo_damages} />
+                    </tr>
                 )}
               </tbody>
             </table>

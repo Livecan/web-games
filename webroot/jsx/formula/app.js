@@ -84,13 +84,12 @@ var Board = function (_React$Component) {
     }, {
         key: "showDamageOptions",
         value: function showDamageOptions(positionId) {
-            actions = this.state.actions;
-            actions.selectedPosition = positionId;
-            this.setState({ actions: actions });
+            this.setState({ selectedPosition: positionId });
         }
     }, {
         key: "chooseMoveOption",
         value: function chooseMoveOption(moveOptionId) {
+            this.setState({ selectedPosition: null });
             $.post('/formula/chooseMoveOption/' + this.props.id, { _csrfToken: csrfToken, game_id: this.props.id, move_option_id: moveOptionId }, this.update, "json");
             console.log("chooseMoveOption(" + moveOptionId + ")");
         }
@@ -149,19 +148,20 @@ var Board = function (_React$Component) {
                             available: this.state.actions.available_gears,
                             onChooseGear: this.chooseGear })
                     ),
-                    this.state.actions != undefined && this.state.actions.selectedPosition != null && React.createElement(
+                    this.state.selectedPosition != null && React.createElement(
                         SlidePanel,
                         null,
-                        React.createElement(MoveDamageSelector, { positionId: this.state.actions.selectedPosition,
+                        React.createElement(MoveDamageSelector, { positionId: this.state.selectedPosition,
                             onSelected: this.chooseMoveOption,
                             moveOptions: this.state.actions.available_moves.filter(function (move) {
-                                return move.fo_position_id == _this2.state.actions.selectedPosition;
+                                return move.fo_position_id == _this2.state.selectedPosition;
                             }) })
                     ),
                     React.createElement(
                         SlidePanel,
                         { showText: "cars stats" },
-                        React.createElement(CarDamagePanel, { cars: this.state.cars || [], users: this.state.users })
+                        React.createElement(CarDamagePanel, { update: Math.random(),
+                            cars: this.state.cars || [], users: this.state.users })
                     )
                 )
             );
@@ -381,17 +381,30 @@ var CarDamagePanel = function (_React$Component7) {
     }
 
     _createClass(CarDamagePanel, [{
+        key: "order",
+        value: function order(car) {
+            var value = (car.state == "R" ? -1000 : 0) + (car.order || 100);
+            console.log(value);
+            return value;
+        }
+    }, {
         key: "render",
         value: function render() {
             var _this12 = this;
 
+            console.log("not ordered: " + JSON.stringify(this.props.cars));
+            console.log("ordered: " + JSON.stringify(this.props.cars.sort(function (first, second) {
+                return _this12.order(first) - _this12.order(second);
+            })));
             return React.createElement(
                 "table",
                 { id: "car_stats_table", className: "damage_table" },
                 React.createElement(
                     "tbody",
                     null,
-                    this.props.cars.map(function (car) {
+                    this.props.cars.sort(function (first, second) {
+                        return _this12.order(first) - _this12.order(second) < 0 ? -1 : 0;
+                    }).map(function (car) {
                         return React.createElement(
                             "tr",
                             { key: car.index },
@@ -399,7 +412,7 @@ var CarDamagePanel = function (_React$Component7) {
                                 "td",
                                 null,
                                 React.createElement(Sprite, { src: "/img/formula/cars/" + carSprites[car.index],
-                                    className: "car_img", key: car.index,
+                                    className: "car_img", key: car.id,
                                     width: "20", height: "50", unit: "px" })
                             ),
                             React.createElement(
