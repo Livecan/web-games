@@ -91,11 +91,7 @@ class FormulaController extends AppController
             $this->Flash->error(__('Error occurred while retrieving board. Please, try again.'));
             $this->redirect(['controller' => 'Games', 'action' => 'newGames']);
         }
-        //TODO: refactor when moved to React
-        $useReact = $this->request->getQuery('react') == 'true';
-        if ($useReact) {
-            $this->viewBuilder()->setTemplate('get_board_react');
-        }
+        $this->viewBuilder()->setTemplate('get_board_react');
     }
     
     public function chooseMoveOption($id)
