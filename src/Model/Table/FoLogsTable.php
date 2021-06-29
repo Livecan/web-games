@@ -81,10 +81,6 @@ class FoLogsTable extends Table
             ->allowEmptyString('roll');
 
         $validator
-            ->integer('ranking')
-            ->allowEmptyString('ranking');
-
-        $validator
             ->scalar('type')
             ->maxLength('type', 1)
             ->requirePresence('type', 'create')
