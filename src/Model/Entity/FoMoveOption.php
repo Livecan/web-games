@@ -16,18 +16,18 @@ use Cake\ORM\Locator\LocatorAwareTrait;
  * @property int $id
  * @property int $fo_car_id
  * @property int $fo_position_id
- * @property int|null $fo_curve_id
- * @property int|null $stops
+ * @property int|null $fo_curve_id Curve of the current position.
+ * @property int|null $stops Number of turns the car had spent in the curve -i.e. not including the current turn.
  * @property bool $is_next_lap
  * @property int $np_moves_left
  * @property int $np_allowed_left
  * @property int $np_allowed_right
- * @property bool $np_overshooting
+ * @property bool $np_overshooting Is true if the car is currently overshooting a corner.
  * @property string $np_traverse
- * @property int $np_overtaking
- * @property bool $np_slipstream_checked
- * @property bool $np_is_slipstreaming
- * @property bool $np_drafted_in_curve
+ * @property int $np_overtaking Is set to 3 when starting overtaking and then reduced by one each following turn.
+ * @property bool $np_slipstream_checked Is set to true after slipstreaming conditions were checked, so that they don't need to be checked again.
+ * @property bool $np_is_slipstreaming Is true if the current FoMoveOption is slipstreaming to determine slipstreaming into a corner.
+ * @property bool $np_drafted_in_curve Is true if the car slipstreamed into a corner - it will get one tire WP.
  *
  * @property \App\Model\Entity\FoCar $fo_car
  * @property \App\Model\Entity\FoPosition $fo_position
