@@ -59,31 +59,42 @@ class FoPosition extends Entity
         'fo_position2_positions_to' => true,
     ];
     
+    /**
+     * Returns a list of next positions within Position2Position objects
+     * excluding positions where other cars are.
+     * //TODO: refactor - could return straight Position objects instead of encapsulating?
+     * 
+     * @param int $gameId
+     * @param bool $allowedLeft
+     * @param bool $allowedRight
+     * @param bool $overtaking
+     * @return CollectionInterface
+     */
     public function getNextAvailablePositions(int $gameId, bool $allowedLeft,
             bool $allowedRight, bool $overtaking) : CollectionInterface {
         //following returns all the possible next moves, excluding fields where other cars are
         $query = $this->getTableLocator()->get('FoPosition2Positions')->find('all')-> 
-                contain([
-                    'FoPositionFrom' => function(Query $q) {
-                        return $q->select(['id', 'is_finish']);
-                    },
-                    'FoPositionTo' => function(Query $q) {
-                        return $q->select(['id', 'is_finish']);
-                    },
-                    'FoPositionTo.FoCars' => function(Query $q) use ($gameId) {
-                        return  $q->where(['game_id' => $gameId])->
-                                select('fo_position_id');
-                    },
-               ])->
-                select(['fo_position_to_id', 'is_left', 'is_straight', 'is_right',
-                    'is_curve', 'is_pitlane_move'])->
-                where(['fo_position_from_id' => $this->id,
-                    'OR' => [['is_left' => true],
-                        ['is_straight' => true],
-                        ['is_right' => true],
-                        ['is_curve' => true],
-                   ]
-               ]);
+            contain([
+                'FoPositionFrom' => function(Query $q) {
+                    return $q->select(['id', 'is_finish']);
+                },
+                'FoPositionTo' => function(Query $q) {
+                    return $q->select(['id', 'is_finish']);
+                },
+                'FoPositionTo.FoCars' => function(Query $q) use ($gameId) {
+                    return  $q->where(['game_id' => $gameId])->
+                            select('fo_position_id');
+                },
+            ])->
+            select(['fo_position_to_id', 'is_left', 'is_straight', 'is_right',
+                'is_curve', 'is_pitlane_move'])->
+            where(['fo_position_from_id' => $this->id,
+                'OR' => [['is_left' => true],
+                    ['is_straight' => true],
+                    ['is_right' => true],
+                    ['is_curve' => true],
+               ]
+           ]);
 
         if (!$allowedLeft && !$overtaking) {
             $query = $query->where(['is_left' => false]);
@@ -95,6 +106,48 @@ class FoPosition extends Entity
         return collection($query)->
             filter(function(FoPosition2Position $foPosition2Position) {
                 return count($foPosition2Position->fo_position_to->fo_cars) == 0;
+            })->
+            buffered();
+    }
+    
+    /**
+     * Returns true if the current position has a next position in pit lane.
+     * 
+     * @return bool
+     */
+    public function hasPitlaneOption() : bool {
+        return $this->getTableLocator()->get('FoPosition2Positions')->find('all')->
+            where(['fo_position_from_id' => $this->id,
+                'is_pitlane_move' => true])->
+            first() != null;
+    }
+    
+    /**
+     * Returns a list of next positions that are in pit lane - usually just
+     * one position, excluding positions taken over by other cars.
+     * 
+     * @param int $gameId
+     * @return CollectionInterface
+     */
+    public function getNextPitlanePositions(int $gameId) : CollectionInterface {
+        $nextPositionsWithCars = $this->getTableLocator()->get('FoPosition2Positions')->find('all')->
+            where(['fo_position_from_id' => $this->id,
+                'is_pitlane_move' => true])->
+            contain([
+                'FoPositionTo' => function(Query $q) {
+                    return $q->select(['id', 'is_finish']);
+                },
+                'FoPositionTo.FoCars' => function(Query $q) use ($gameId) {
+                    return  $q->where(['game_id' => $gameId])->
+                            select('fo_position_id');
+                }
+            ]);
+        return collection($nextPositionsWithCars)->
+            map(function(FoPosition2Position $foPosition2Position) {
+                return $foPosition2Position->fo_position_to;
+            })->
+            filter(function(FoPosition $foPosition) {
+                return count($foPosition->fo_cars) == 0;
             })->
             buffered();
     }

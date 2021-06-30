@@ -66,6 +66,8 @@ class MovementLogic {
             
             $moveOptions = FoMoveOption::addUniqueMoveOption($moveOptions, $this->getBrakingOption($currentMoveOption));
             
+            $moveOptions = FoMoveOption::addUniqueMoveOption($moveOptions, $this->getPitlaneOption($currentMoveOption));
+            
             $noMovesLeft = $moveOptions->count() > 0 && $moveOptions->first()->np_moves_left == 0;
             
             if ($noMovesLeft) {
@@ -109,7 +111,7 @@ class MovementLogic {
                 }
             }
         }
-                
+
         $moveOptions = $moveOptions->filter(function(FoMoveOption $moveOption) use ($foCar) {
             return $foCar->isDamageOk(collection($moveOption->fo_damages),
                     collection([FoDamage::TYPE_TIRES, FoDamage::TYPE_BRAKES]));
@@ -119,6 +121,7 @@ class MovementLogic {
         foreach ($moveOptions as $moveOption) {
             $moveOption->stops++;
         };
+        
         return $this->FoMoveOptions->
                 saveMany($moveOptions, ['associated' => ['FoDamages']])->
                 toList();
@@ -256,6 +259,47 @@ class MovementLogic {
             return $nextMoveOption;
         }
         
+        return $nextMoveOption;
+    }
+    
+    private function getPitlaneOption(FoMoveOption $currentMoveOption) {
+        if ($currentMoveOption->fo_position == null) {
+            $currentMoveOption->fo_position = $this->FoPositions->get($currentMoveOption->fo_position_id);
+        }
+        if (!$currentMoveOption->fo_position->hasPitlaneOption()) {
+            return null;
+        }
+        
+        $gameId = $currentMoveOption->fo_car->game_id;
+        $nextPosition = $currentMoveOption->fo_position;
+        $damages = FoDamage::getDamagesCopy($currentMoveOption->fo_damages);
+        $pitlaneMoveCount = 0;
+        $nextPositions;
+        while ($currentMoveOption->np_moves_left > $pitlaneMoveCount &&
+            ($nextPositions = $nextPosition->getNextPitlanePositions($gameId))->count() == 1) {
+            $pitlaneMoveCount++;
+            $nextPosition = $nextPositions->first();
+        }
+        $nextMoveOption = new FoMoveOption([
+            'fo_car_id' => $currentMoveOption->fo_car_id,
+            'fo_position_id' => $nextPositions->first()->id,
+            'fo_curve_id' => null,
+            'stops' => null,
+            'is_next_lap' => $nextPositions->first()->is_finish,
+            'np_moves_left' => $nextPositions->count() > 1 ? 0 : ($currentMoveOption->np_moves_left - $pitlaneMoveCount),
+            'np_allowed_left' => $currentMoveOption->np_allowed_left,
+            'np_allowed_right' => $currentMoveOption->np_allowed_right,
+            'np_overshooting' => $currentMoveOption->np_overshooting,
+            'np_overtaking' => false,
+            'fo_damages' => $damages,
+            'np_traverse' => $currentMoveOption,
+            'np_slipstream_checked' => true,
+            'np_is_slipstreaming' => $currentMoveOption->np_is_slipstreaming,
+            'np_drafted_in_curve' => false,
+        ]);
+        if ($nextMoveOption->np_overshooting) {
+            $nextMoveOption->getDamageByType(FoDamage::TYPE_TIRES)->wear_points += $pitlaneMoveCount;
+        }
         return $nextMoveOption;
     }
 }
