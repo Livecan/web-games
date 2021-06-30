@@ -55,6 +55,7 @@ and open the template in the editor.
   text-align: left;
 }
 #board_parent .slide_panel_stack.slide_panel_stack_top .slide_panel {
+  vertical-align: top;
   flex-direction: column;
 }
 #board_parent .slide_panel_stack.slide_panel_stack_top .slide_panel .slide_panel__content {
@@ -93,22 +94,22 @@ and open the template in the editor.
   color: black;
   font-weight: bold;
 }
-.damage_table td.damage.tires {
+.damage_table .damage.tires {
   background-color: blueviolet;
 }
-.damage_table td.damage.gearbox {
+.damage_table .damage.gearbox {
   background-color: seagreen;
 }
-.damage_table td.damage.brakes {
+.damage_table .damage.brakes {
   background-color: turquoise;
 }
-.damage_table td.damage.engine {
+.damage_table .damage.engine {
   background-color: tomato;
 }
-.damage_table td.damage.chassis {
+.damage_table .damage.chassis {
   background-color: orange;
 }
-.damage_table td.damage.shocks {
+.damage_table .damage.shocks {
   background-color: orchid;
 }
 
@@ -152,7 +153,9 @@ and open the template in the editor.
 }
 
 button {
-  margin: 0px;
+  margin: 1px;
+  padding: 5px;
+  line-height: unset;
 }
 
 .gear_choice {

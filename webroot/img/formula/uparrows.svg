@@ -1,0 +1,12 @@
+<svg width="150" height="60" xmlns="http://www.w3.org/2000/svg">
+ <g id="Layer_1">
+  <title>Layer 1</title>
+  <g id="svg_5" transform="rotate(-180 78 31)">
+   <path id="svg_6" d="m12,55.00004l66,-24l66,24l-132,0z" stroke-width="4" stroke="#000" fill="#000" transform="rotate(180 78 43)"/>
+   <path id="svg_7" d="m12,45.00004l66,-24l66,24l-132,0z" stroke-width="4" fill="#ffffff" transform="rotate(180 78 33)"/>
+   <path id="svg_8" d="m12,41.00004l66,-24l66,24l-132,0z" stroke-width="4" stroke="#000" fill="#000" transform="rotate(180 78 29)"/>
+   <path id="svg_9" d="m12,31.00004l66,-24l66,24l-132,0z" stroke-width="4" fill="#ffffff" transform="rotate(180 78 19)"/>
+  </g>
+ </g>
+
+</svg>

@@ -49,7 +49,41 @@ class Board extends React.Component {
                 ),
                 users: data.users,
                 logs: data.fo_logs, //TODO: refactor/use it in a nice UI element
-                actions: data.actions,
+                actions: /*{type: "choose_pits",
+                    available_points: [
+                        {
+                            points: 6,
+                            damage_types: [1, 2, 3, 4, 5, 6],
+                        },
+                    ],
+                    max_points: [
+                        {
+                            damage_type: 1,
+                            max_points: 8,
+                        },
+                        {
+                            damage_type: 2,
+                            max_points: 4,
+                        },
+                        {
+                            damage_type: 3,
+                            max_points: 3,
+                        },
+                        {
+                            damage_type: 4,
+                            max_points: 4,
+                        },
+                        {
+                            damage_type: 5,
+                            max_points: 3,
+                        },
+                        {
+                            damage_type: 6,
+                            max_points: 3,
+                        },
+                    ]
+                },*/
+                        data.actions,
                 modified: data.modified,
             });
         }
@@ -99,40 +133,112 @@ class Board extends React.Component {
               </div>
             </div>
             <SlidePanelStack className="slide_panel_stack_top">
-              <SlidePanel showText="zoom">
-                <ZoomPanel onRefresh={this.update}
-                  onZoomOut={this.updateBoardZoom.bind(this, -1)}
-                  onZoomIn={this.updateBoardZoom.bind(this, 1)}
-                  />
+              <SlidePanel showIcon="/img/formula/downarrow.svg"
+                hideIcon="/img/formula/uparrow.svg">
+                  <ZoomPanel onRefresh={this.update}
+                    noZoomIn={this.state.boardZoom == this.zooms.length - 1}
+                    noZoomOut={this.state.boardZoom == 0}
+                    onZoomOut={this.updateBoardZoom.bind(this, -1)}
+                    onZoomIn={this.updateBoardZoom.bind(this, 1)}
+                    />
               </SlidePanel>
-              <SlidePanel>
-                <RefreshPanel paused={this.state.refresher == null}
-                  onPlayPause={this.changeRefresh} />
+              <SlidePanel showIcon="/img/formula/downarrow.svg"
+                hideIcon="/img/formula/uparrow.svg">
+                  <RefreshPanel paused={this.state.refresher == null}
+                    onPlayPause={this.changeRefresh} />
               </SlidePanel>
             </SlidePanelStack>
             <SlidePanelStack className="slide_panel_stack_bottom">
               {this.state.actions != undefined && this.state.actions.type == "choose_gear" &&
-                <SlidePanel>
-                  <GearChoicePanel current={this.state.actions.current_gear}
-                    available={this.state.actions.available_gears}
-                    onChooseGear={this.chooseGear} />
+                <SlidePanel showIcon="/img/formula/uparrow.svg"
+                  hideIcon="/img/formula/downarrow.svg">
+                    <GearChoicePanel current={this.state.actions.current_gear}
+                      available={this.state.actions.available_gears}
+                      onChooseGear={this.chooseGear} />
                 </SlidePanel> 
               }
               {this.state.selectedPosition != null &&
-                <SlidePanel>
-                  <MoveDamageSelector positionId={this.state.selectedPosition}
-                    onSelected={this.chooseMoveOption}
-                    moveOptions={
-                      this.state.actions.available_moves.filter(move =>
-                        move.fo_position_id == this.state.selectedPosition)} />
+                <SlidePanel showIcon="/img/formula/uparrow.svg"
+                  hideIcon="/img/formula/downarrow.svg">
+                    <MoveDamageSelector positionId={this.state.selectedPosition}
+                      onSelected={this.chooseMoveOption}
+                      moveOptions={
+                        this.state.actions.available_moves.filter(move =>
+                          move.fo_position_id == this.state.selectedPosition)} />
                 </SlidePanel>
               }
-              <SlidePanel showText="cars stats">
-                <CarDamagePanel update={Math.random()}
-                  cars={this.state.cars || []} users={this.state.users} />
+              {this.state.actions != undefined && this.state.actions.type == "choose_pits" &&
+                <SlidePanel showIcon="/img/formula/uparrow.svg"
+                  hideIcon="/img/formula/downarrow.svg">
+                  <PitStopPanel car={this.state.cars.filter(car => car.state == "R").sort(car => car.order)[0]}
+                    availablePoints={this.state.actions.available_points}
+                    maxPoints={this.state.actions.max_points} />
+                </SlidePanel>
+              }
+              <SlidePanel showText="cars stats"
+                hideIcon="/img/formula/downarrow.svg">
+                  <CarDamagePanel update={Math.random()}
+                    cars={this.state.cars || []} users={this.state.users} />
               </SlidePanel>
             </SlidePanelStack>
           </div>
+        );
+    }
+}
+
+class PitStopPanel extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {assignedPoints: {}};
+        this.addPoint = this.addPoint.bind(this);
+        this.removePoint = this.removePoint.bind(this);
+    }
+    
+    addPoint(damageType) {
+        assignedPoints = this.state.assignedPoints;
+        console.log(damageType);
+        console.log(JSON.stringify(this.props.car.fo_damages.find(damage => damage.type == damageType)));
+        assignedPoints[damageType] =
+            Math.min(
+                this.props.maxPoints.find(
+                    maxPoint => maxPoint.damage_type == damageType).max_points -
+                this.props.car.fo_damages.find(damage => damage.type == damageType).wear_points,
+                (assignedPoints[damageType] || 0) + 1);
+        this.setState({assignedPoints: assignedPoints});
+    }
+    
+    removePoint(damageType) {
+        assignedPoints = this.state.assignedPoints;
+        assignedPoints[damageType] = Math.max(0,(assignedPoints[damageType] || 0) - 1);
+        this.setState({assignedPoints: assignedPoints});
+    }
+    
+    render() {
+        console.log(JSON.stringify(this.props.availablePoints));
+        console.log(JSON.stringify(this.props.maxPoints));
+        console.log(JSON.stringify(this.props.car));
+        return (
+            <table className="damage_table">
+              <tbody>
+                {this.props.car.fo_damages.map(damage =>
+                  <tr key={damage.type}
+                      className={"damage " + damageTypeClass[damage.type - 1]}>
+                    <td>
+                      <button onClick={() => this.removePoint(damage.type)}>-</button>
+                    </td>
+                    <td>
+                      {damage.wear_points +
+                      (this.state.assignedPoints[damage.type] > 0 &&
+                        " + " + this.state.assignedPoints[damage.type])
+                      }
+                    </td>
+                    <td>
+                      <button onClick={() => this.addPoint(damage.type)}>+</button>
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
         );
     }
 }
@@ -253,15 +359,10 @@ class DamagePanel extends React.Component {
 class CarDamagePanel extends React.Component {
     order(car) {
         let value = (car.state == "R" ? -1000 : 0) + (car.order || 100);
-        console.log(value);
         return value;
     }
     
     render() {
-        console.log("not ordered: " + JSON.stringify(this.props.cars));
-        console.log("ordered: " + JSON.stringify(this.props.cars
-          .sort((first, second) =>
-            this.order(first) - this.order(second))));
         return (
             <table id="car_stats_table" className="damage_table">
               <tbody>
@@ -292,7 +393,10 @@ class RefreshPanel extends React.Component {
         return (
             <React.Fragment>
               <button onClick={this.props.onPlayPause}>
-                {this.props.paused ? "resume" : "pause"}
+                {this.props.paused ?
+                  <img src="/img/formula/play.svg" width="30px" height="30px" /> :
+                  <img src="/img/formula/pause.svg" width="30px" height="30px" />
+                }
               </button>
             </React.Fragment>
         );
@@ -307,9 +411,19 @@ class ZoomPanel extends React.Component {
     render() {
         return (
             <React.Fragment>
-              <button onClick={this.props.onRefresh}>Refresh</button>
-              <button onClick={this.props.onZoomIn}>+</button>
-              <button onClick={this.props.onZoomOut}>-</button>
+              <button onClick={this.props.onRefresh}>
+                <img src="/img/formula/refresh.svg" width="30px" height="30px" />
+              </button>
+              {this.props.noZoomIn ? null :
+                <button onClick={this.props.onZoomIn}>
+                  <img src="/img/formula/plus.svg" width="30px" height="30px" />
+                </button>
+              }
+              {this.props.noZoomOut ? null :
+                <button onClick={this.props.onZoomOut}>
+                  <img src="/img/formula/minus.svg" width="30px" height="30px" />
+                </button>
+              }
             </React.Fragment>
         );
     }
@@ -347,7 +461,15 @@ class SlidePanel extends React.Component {
             </div>
             <div className="slide_panel__buttons">
               <button className="slide_panel__button" onClick={this.toggleHide}>
-                {this.state.visible ? "Hide" : this.props.showText || "Show"}
+                {this.state.visible ? (
+                  this.props.hideIcon ?
+                    <img src={this.props.hideIcon} width="30" height="12" /> :
+                    this.props.hideText || "Hide"
+                ) :
+                  this.props.showIcon ?
+                    <img src={this.props.showIcon} width="30" height="12" /> :
+                    this.props.showText || "Show"
+                }
               </button>
               <span>
                 {this.props.modified}

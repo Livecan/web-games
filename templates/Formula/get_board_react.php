@@ -3,10 +3,9 @@
     //TODO: use reference to web for the following react js files
     $this->Html->script('/js/react.development.js', ['block' => true]);
     $this->Html->script('/js/react-dom.development.js', ['block' => true]);
-    $this->Html->script('/js/jQueryRotate.js', ['block' => true]);
 ?>
 
-<div id="root" style="width: 100%; height: 60vw; position: relative">
+<div id="root" style="width: 100%; height: 85vh; position: relative">
     <script>
         var id = <?= $formulaGame->id ?>;
         var gameBoard = "/img/formula/<?= $formulaGame->fo_game->fo_track->game_plan ?>";

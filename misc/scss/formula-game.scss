@@ -61,6 +61,7 @@ $onboard-opacity: 65%;
         top: 0;
         text-align: left;
         .slide_panel {
+            vertical-align: top;
             flex-direction: column;
             .slide_panel__content {
                 border-width: 5px;
@@ -100,22 +101,22 @@ $onboard-opacity: 65%;
     background-color: white;
     color: black;
     font-weight: bold;
-    td.damage.tires {
+    .damage.tires {
         background-color: blueviolet;
     }
-    td.damage.gearbox {
+    .damage.gearbox {
         background-color: seagreen;
     }
-    td.damage.brakes {
+    .damage.brakes {
         background-color: turquoise;
     }
-    td.damage.engine {
+    .damage.engine {
         background-color: tomato;
     }
-    td.damage.chassis {
+    .damage.chassis {
         background-color: orange;
     }
-    td.damage.shocks {
+    .damage.shocks {
         background-color: orchid;
     }
 }
@@ -162,7 +163,9 @@ $onboard-opacity: 65%;
 }
 
 button {
-    margin: 0px;
+    margin: 1px;
+    padding: 5px;
+    line-height: unset;
 }
 
 .gear_choice {
