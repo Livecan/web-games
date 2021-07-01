@@ -17,6 +17,7 @@ use Cake\Collection\CollectionInterface;
  * @property int|null $fo_curve_id
  * @property bool $is_finish
  * @property int|null $starting_position
+ * @property int|null $team_pits If the field is pit box, it contains a number 1-5 matching number in FoCar->team, else null.
  * @property int $pos_x
  * @property int $pos_y
  *
@@ -47,6 +48,7 @@ class FoPosition extends Entity
         'fo_curve_id' => true,
         'is_finish' => true,
         'starting_position' => true,
+        'team_pits' => true,
         'pos_x' => true,
         'pos_y' => true,
         'fo_track' => true,
@@ -129,26 +131,26 @@ class FoPosition extends Entity
      * @param int $gameId
      * @return CollectionInterface
      */
-    public function getNextPitlanePositions(int $gameId) : CollectionInterface {
-        $nextPositionsWithCars = $this->getTableLocator()->get('FoPosition2Positions')->find('all')->
+    public function getNextPitlanePosition(int $gameId) : ?FoPosition {
+        $nextPosition2PositionWithCars = $this->getTableLocator()->get('FoPosition2Positions')->find('all')->
             where(['fo_position_from_id' => $this->id,
                 'is_pitlane_move' => true])->
             contain([
                 'FoPositionTo' => function(Query $q) {
-                    return $q->select(['id', 'is_finish']);
+                    return $q->select(['id', 'is_finish', 'team_pits']);
                 },
                 'FoPositionTo.FoCars' => function(Query $q) use ($gameId) {
                     return  $q->where(['game_id' => $gameId])->
                             select('fo_position_id');
                 }
-            ]);
-        return collection($nextPositionsWithCars)->
-            map(function(FoPosition2Position $foPosition2Position) {
-                return $foPosition2Position->fo_position_to;
-            })->
-            filter(function(FoPosition $foPosition) {
-                return count($foPosition->fo_cars) == 0;
-            })->
-            buffered();
+            ])->first();
+        if ($nextPosition2PositionWithCars == null) {
+            return null;
+        }
+        $positionTo = $nextPosition2PositionWithCars->fo_position_to;
+        if (count($positionTo->fo_cars) > 0) {
+            return null;
+        }
+        return $positionTo;
     }
 }

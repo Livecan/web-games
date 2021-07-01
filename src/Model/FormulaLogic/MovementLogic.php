@@ -39,6 +39,7 @@ class MovementLogic {
         
         $savedMoveOptions = $foCar->formula_game->getSavedMoveOptions();
         if (count($savedMoveOptions) > 0) {
+            //$this->FoMoveOptions->deleteMany($savedMoveOptions);
             return $savedMoveOptions;
         }
 
@@ -266,31 +267,49 @@ class MovementLogic {
         if ($currentMoveOption->fo_position == null) {
             $currentMoveOption->fo_position = $this->FoPositions->get($currentMoveOption->fo_position_id);
         }
-        if (!$currentMoveOption->fo_position->hasPitlaneOption()) {
-            return null;
-        }
         
         $gameId = $currentMoveOption->fo_car->game_id;
         $nextPosition = $currentMoveOption->fo_position;
         $damages = FoDamage::getDamagesCopy($currentMoveOption->fo_damages);
         $pitlaneMoveCount = 0;
-        $nextPositions;
-        while ($currentMoveOption->np_moves_left > $pitlaneMoveCount &&
-            ($nextPositions = $nextPosition->getNextPitlanePositions($gameId))->count() == 1) {
+        $passedFirstPits = $nextPosition->team_pits == $currentMoveOption->fo_car->team;
+        $nextPositionTemp;
+        
+        while (($nextPositionTemp = $nextPosition->getNextPitlanePosition($gameId)) != null) {
+            if ($currentMoveOption->np_moves_left <= $pitlaneMoveCount) {    //can't move more than the remaining number of spaces
+                break;
+            }
+            
             $pitlaneMoveCount++;
-            $nextPosition = $nextPositions->first();
+            $nextPosition = $nextPositionTemp;
+            
+            $isTeamPits = $nextPosition->team_pits == $currentMoveOption->fo_car->team;
+            
+            if ($isTeamPits && $passedFirstPits) {
+                break;
+            }
+            
+            if ($isTeamPits) {
+                $passedFirstPits = true;
+            }
         }
+        
+        if ($pitlaneMoveCount == 0) {
+            return null;
+        }
+        
         $nextMoveOption = new FoMoveOption([
             'fo_car_id' => $currentMoveOption->fo_car_id,
-            'fo_position_id' => $nextPositions->first()->id,
+            'fo_car' => $currentMoveOption->fo_car,
+            'fo_position_id' => $nextPosition->id,
             'fo_curve_id' => null,
             'stops' => null,
-            'is_next_lap' => $nextPositions->first()->is_finish,
-            'np_moves_left' => $nextPositions->count() > 1 ? 0 : ($currentMoveOption->np_moves_left - $pitlaneMoveCount),
+            'is_next_lap' => $nextPosition->is_finish || $currentMoveOption->is_next_lap,
+            'np_moves_left' => $nextPosition->hasPitlaneOption() ? 0 : ($currentMoveOption->np_moves_left - $pitlaneMoveCount),
             'np_allowed_left' => $currentMoveOption->np_allowed_left,
             'np_allowed_right' => $currentMoveOption->np_allowed_right,
             'np_overshooting' => $currentMoveOption->np_overshooting,
-            'np_overtaking' => false,
+            'np_overtaking' => 0,
             'fo_damages' => $damages,
             'np_traverse' => $currentMoveOption,
             'np_slipstream_checked' => true,

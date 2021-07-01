@@ -18,6 +18,7 @@ use App\Model\Entity\FoDamageTrait;
  * @property int $id
  * @property int $game_id
  * @property int $user_id
+ * @property int $team Contains a number 1-5 that designates which pits to use.
  * @property int $lap
  * @property int|null $fo_position_id
  * @property int $gear
@@ -25,6 +26,7 @@ use App\Model\Entity\FoDamageTrait;
  * @property int|null $ranking
  * @property int|null $fo_curve_id
  * @property int|null $stops
+ * @property int $last_pit_lap Contains the last lap number when the car was in the pits. Default is 0.
  * @property string $state
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
@@ -57,6 +59,7 @@ class FoCar extends Entity
     protected $_accessible = [
         'game_id' => true,
         'user_id' => true,
+        'team' =>true,
         'lap' => true,
         'fo_position_id' => true,
         'gear' => true,
@@ -64,6 +67,7 @@ class FoCar extends Entity
         'ranking' => true,
         'fo_curve_id' => true,
         'stops' => true,
+        'last_pit_lap' => true,
         'state' => true,
         'created' => true,
         'modified' => true,
