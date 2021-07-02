@@ -268,11 +268,12 @@ class MovementLogic {
             $currentMoveOption->fo_position = $this->FoPositions->get($currentMoveOption->fo_position_id);
         }
         
-        $gameId = $currentMoveOption->fo_car->game_id;
+        $foCar = $currentMoveOption->fo_car;
+        $gameId = $foCar->game_id;
         $nextPosition = $currentMoveOption->fo_position;
         $damages = FoDamage::getDamagesCopy($currentMoveOption->fo_damages);
         $pitlaneMoveCount = 0;
-        $passedFirstPits = $nextPosition->team_pits == $currentMoveOption->fo_car->team;
+        $passedFirstPits = $nextPosition->team_pits == $foCar->team;
         $nextPositionTemp;
         
         while (($nextPositionTemp = $nextPosition->getNextPitlanePosition($gameId)) != null) {
@@ -283,9 +284,10 @@ class MovementLogic {
             $pitlaneMoveCount++;
             $nextPosition = $nextPositionTemp;
             
-            $isTeamPits = $nextPosition->team_pits == $currentMoveOption->fo_car->team;
+            $isTeamPits = $nextPosition->team_pits == $foCar->team;
             
-            if ($isTeamPits && $passedFirstPits) {
+            if ($isTeamPits && $passedFirstPits &&
+                    $foCar->last_pit_lap != $foCar->lap) {
                 break;
             }
             

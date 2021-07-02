@@ -10,6 +10,7 @@ use Cake\ORM\Entity;
  *
  * @property int $id
  * @property string $name
+ * @property int $pitlane_exit_length
  * @property string $game_plan
  *
  * @property \App\Model\Entity\FoCurve[] $fo_curves
@@ -29,6 +30,7 @@ class FoTrack extends Entity
      */
     protected $_accessible = [
         'name' => true,
+        'pitlane_exit_length' => true,
         'game_plan' => true,
         'fo_curves' => true,
         'fo_games' => true,

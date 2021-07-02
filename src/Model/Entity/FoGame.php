@@ -4,6 +4,9 @@ declare(strict_types=1);
 namespace App\Model\Entity;
 
 use Cake\ORM\Entity;
+use Cake\ORM\Locator\LocatorAwareTrait;
+use JeremyHarris\LazyLoad\ORM\LazyLoadEntityTrait;
+use Livecan\EntityUtility\EntitySaveTrait;
 
 /**
  * FoGame Entity
@@ -21,6 +24,11 @@ use Cake\ORM\Entity;
  */
 class FoGame extends Entity
 {
+    use LocatorAwareTrait;
+    use LazyLoadEntityTrait;
+    use EntitySaveTrait {
+        EntitySaveTrait::_repository insteadof LazyLoadEntityTrait;
+    }
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
      *

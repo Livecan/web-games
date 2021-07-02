@@ -80,12 +80,16 @@ class FoDamage extends Entity
         return self::$oneDamages[$damageType];
     }
     
+    public function getDamageCopy() : FoDamage {
+        return new FoDamage([
+            'wear_points' => $this->wear_points,
+            'type' => $this->type,
+        ]);
+    }
+    
     public static function getDamagesCopy($foDamages) : array {
-        return collection($foDamages)->map(function ($foDamage) {
-            return new FoDamage([
-                'wear_points' => $foDamage->wear_points,
-                'type' => $foDamage->type,
-           ]);
+        return collection($foDamages)->map(function (FoDamage $foDamage) {
+            return $foDamage->getDamageCopy();
         })->toArray();
     }
     

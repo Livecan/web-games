@@ -84,6 +84,9 @@ class FoCar extends Entity
     const STATE_RACING = 'R';
     const STATE_RETIRED = 'X';
     const STATE_FINISHED = 'F';
+    
+    const GEAR_START = -1;
+    const GEAR_NEXT_1ST = 0;
 
     public function isOk() : bool {
         foreach ($this->fo_damages as $foDamage) {
@@ -240,7 +243,7 @@ class FoCar extends Entity
         $blackDiceStartRoll = DiceLogic::getDiceLogic()->getRoll(0);
         FoLog::logRoll($this, $blackDiceStartRoll, FoLog::TYPE_INITIAL);
         if ($blackDiceStartRoll <= DiceLogic::BLACK_POOR_START_TOP) {   //slow start
-            $this->gear = 0;
+            $this->gear = self::GEAR_NEXT_1ST;
             $this->save();
             FoLog::logRoll($foCar, 0, FoLog::TYPE_MOVE);
             return 0;
@@ -258,7 +261,7 @@ class FoCar extends Entity
     }
     
     private function getNextMoveLength(): int {
-        if ($this->gear == -1) { //processing start
+        if ($this->gear == self::GEAR_START) { //processing start
             return $this->getStartMoveLength();
         }
         $roll = DiceLogic::getDiceLogic()->getRoll($this->gear);

@@ -60,6 +60,7 @@ class FoLog extends Entity
     const TYPE_DAMAGE = 'D';
     const TYPE_REPAIR = 'R';
     const TYPE_FINISH = 'F';
+    const TYPE_LEAVING_PITS = 'P';
     
     public static function logGameStart($formulaCars) {
         foreach ($formulaCars as $formulaCar) {

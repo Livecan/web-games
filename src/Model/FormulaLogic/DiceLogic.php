@@ -25,6 +25,7 @@ class DiceLogic {
     const BLACK_POOR_START_TOP = 1;
     const BLACK_FAST_START_LOW = 20;
     const BLACK_ENGINE_DAMAGE_TOP = 4;
+    const BLACK_LONG_PITSTOP_BOTTOM = 11;
     
     private static $diceLogicSingleton;
     
