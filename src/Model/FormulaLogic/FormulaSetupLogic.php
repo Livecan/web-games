@@ -194,6 +194,26 @@ class FormulaSetupLogic {
         
         $formulaGame->fo_cars = collection($formulaGame->fo_cars)->shuffle();
         
+        if ($formulaGame->fo_game->cars_per_player != 2) {
+            $teamNumberIndexer = 0;
+            foreach ($formulaGame->fo_cars as $foCar) {
+                $teamNumberIndexer++;
+                $foCar->team = (int)ceil($teamNumberIndexer / 2);
+            }
+        } else {
+            $teamNumber = 0;
+            $foCars = collection($formulaGame->fo_cars);
+            foreach ($formulaGame->users as $user) {
+                $teamNumber++;
+                $foCars->filter(function(FoCar $foCar) use ($user) {
+                    return $foCar->user_id == $user->id;
+                })->
+                each(function(FoCar $foCar) use ($teamNumber) {
+                    $foCar->team = $teamNumber;
+                });
+            }
+        }
+        
         $startingPositions = $this->FoPositions->find('all')->
                 select('id')->
                 where(['fo_track_id' => $formulaGame->fo_game->fo_track_id])->
