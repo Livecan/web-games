@@ -732,7 +732,7 @@ var TrackImage = function (_React$Component13) {
     return TrackImage;
 }(React.Component);
 
-var carSprites = ["tdrc01_car01_b.png", "tdrc01_car01_e.png", "tdrc01_car01_f.png", "tdrc01_car03_a.png", "tdrc01_car03_c.png", "tdrc01_car03_d.png", "tdrc01_car04_a.png", "tdrc01_car04_d.png", "tdrc01_car04_f.png", "tdrc01_car07_b.png", "tdrc01_car07_d.png", "tdrc01_car07_f.png"];
+var carSprites = ["1a.png", "1b.png", "2a.png", "2b.png", "3a.png", "3b.png", "4a.png", "4b.png", "5a.png", "5b.png", "6a.png", "6b.png"];
 
 var TrackCars = function (_React$Component14) {
     _inherits(TrackCars, _React$Component14);
