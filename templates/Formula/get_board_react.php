@@ -17,6 +17,6 @@
         };
     </script>
 <?=
-    $this->Html->script('/jsx/formula/app.js');
+    $this->Html->script('/js/formula.js', ['type' => 'module']);
 ?>
 </div>

@@ -2,6 +2,11 @@
  * Formula Game React App
  */
 
+import { SlidePanel, SlidePanelStack } from './module/slidePanel.js';
+import { damageType } from './formula/variables.js';
+import { PitStopPanel } from './formula/pitStopPanel.js';
+import { GearChoicePanel } from './formula/gearChoicePanel.js';
+
 class Board extends React.Component {
     constructor(props) {
         super(props);
@@ -186,63 +191,6 @@ class Board extends React.Component {
     }
 }
 
-class PitStopPanel extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {assignedPoints: {}};
-        this.addPoint = this.addPoint.bind(this);
-        this.removePoint = this.removePoint.bind(this);
-    }
-    
-    addPoint(damageType) {
-        assignedPoints = this.state.assignedPoints;
-        console.log(damageType);
-        console.log(JSON.stringify(this.props.car.fo_damages.find(damage => damage.type == damageType)));
-        assignedPoints[damageType] =
-            Math.min(
-                this.props.maxPoints.find(
-                    maxPoint => maxPoint.damage_type == damageType).max_points -
-                this.props.car.fo_damages.find(damage => damage.type == damageType).wear_points,
-                (assignedPoints[damageType] || 0) + 1);
-        this.setState({assignedPoints: assignedPoints});
-    }
-    
-    removePoint(damageType) {
-        assignedPoints = this.state.assignedPoints;
-        assignedPoints[damageType] = Math.max(0,(assignedPoints[damageType] || 0) - 1);
-        this.setState({assignedPoints: assignedPoints});
-    }
-    
-    render() {
-        console.log(JSON.stringify(this.props.availablePoints));
-        console.log(JSON.stringify(this.props.maxPoints));
-        console.log(JSON.stringify(this.props.car));
-        return (
-            <table className="damage_table">
-              <tbody>
-                {this.props.car.fo_damages.map(damage =>
-                  <tr key={damage.type}
-                      className={"damage " + damageTypeClass[damage.type - 1]}>
-                    <td>
-                      <button onClick={() => this.removePoint(damage.type)}>-</button>
-                    </td>
-                    <td>
-                      {damage.wear_points +
-                      (this.state.assignedPoints[damage.type] > 0 &&
-                        " + " + this.state.assignedPoints[damage.type])
-                      }
-                    </td>
-                    <td>
-                      <button onClick={() => this.addPoint(damage.type)}>+</button>
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-        );
-    }
-}
-
 class MoveDamageSelector extends React.Component {
     render() {
         console.log(JSON.stringify(this.props.moveOptions))//TODO: render the damage table; as props receive ONLY RELEVANT damages with corresponding MoveOptionId
@@ -264,7 +212,7 @@ class MoveDamageSelector extends React.Component {
 
 class AvailableMovesSelectorOverlay extends React.Component {
     render() {
-        availableMovesPositionIds = Array.from(new Set(this.props.availableMoves.map(move => move.fo_position_id)));
+        let availableMovesPositionIds = Array.from(new Set(this.props.availableMoves.map(move => move.fo_position_id)));
         return (
           <svg id="formula_board" className="board__svg">
             {availableMovesPositionIds.map(positionId =>
@@ -280,74 +228,13 @@ class AvailableMovesSelectorOverlay extends React.Component {
     }
 }
 
-class GearSelector extends React.Component {
-    constructor(props) {
-        super(props);
-        this.handleMouseEnter = this.handleMouseEnter.bind(this);
-        this.handleMouseLeave = this.handleMouseLeave.bind(this);
-        this.handleMouseClick = this.handleMouseClick.bind(this);
-        this.state = {};
-    }
-    
-    gearPositions = [{x: 191, y: 144}, {x: 191, y: 457}, {x: 300, y: 144},
-        {x: 300, y: 457}, {x: 412, y: 144}, {x: 412, y: 457}]
-    
-    handleMouseEnter() {
-        this.setState({hover: true});
-    }
-    
-    handleMouseLeave() {
-        this.setState({hover: false});
-    }
-    
-    handleMouseClick() {
-        typeof this.props.onClick == "function" && this.props.onClick();
-    }
-    
-    render() {
-        return (
-          <circle className="gear_select"
-            cx={this.gearPositions[this.props.gear - 1].x}
-            cy={this.gearPositions[this.props.gear - 1].y}
-            r="50" fillOpacity="0"
-            strokeWidth={this.state.hover ? "20" : "10"}
-            stroke={this.props.color}
-            onMouseEnter={this.handleMouseEnter}
-            onMouseLeave={this.handleMouseLeave}
-            onClick={this.handleMouseClick} />
-        );
-    }
-}
-
-class GearChoicePanel extends React.Component {    
-    render() {
-        console.log(JSON.stringify(this.props.available.filter(gear => gear != this.props.current)));
-        return (
-            <div style={{position: "relative"}}>
-              <img src="/img/formula/gearbox.svg" className="gear_choice"
-                width="100px" height="100px"/>
-              <svg viewBox="0 0 600 600" width="100" height="100"
-                style={{position: "absolute", top: 0, left: 0}}>
-                  {this.props.available.map(gear =>
-                    <GearSelector key={gear} gear={gear}
-                      color={(gear == this.props.current) ? "green" : "red"}
-                      onClick={() => this.props.onChooseGear(gear)} />
-                  )}
-              </svg>
-            </div>
-        );
-    }
-}
-
-var damageTypeClass = ["tires", "gearbox", "brakes", "engine", "chassis", "shocks"];
-
 class DamagePanel extends React.Component {
     render() {
         return (
           <React.Fragment>
           {this.props.damages.map(damage =>
             <td key={damage.type}
-              className={"damage " + damageTypeClass[damage.type - 1]}>
+              className={"damage " + damageType[damage.type - 1]}>
                 {damage.wear_points}
             </td>
           )}
@@ -425,57 +312,6 @@ class ZoomPanel extends React.Component {
                 </button>
               }
             </React.Fragment>
-        );
-    }
-}
-
-class SlidePanelStack extends React.Component {
-    render() {
-        return (
-            <div className={"slide_panel_stack " + this.props.className}>
-                {this.props.children}
-            </div>
-        );
-    }
-}
-
-class SlidePanel extends React.Component {
-    constructor(props) {
-        super(props);
-        this.state = {visible: true};
-        this.toggleHide = this.toggleHide.bind(this);
-        //this.onToggleHide = props.onToggleHide || (arg => {});
-    }
-    
-    toggleHide() {
-        this.state.visible = !this.state.visible;
-        //this.onToggleHide(this.state.visible);
-        this.setState(this.state);
-    }
-    
-    render() {
-        return (
-          <div className="slide_panel">
-            <div className={"slide_panel__content" + (this.state.visible ? "" : " hidden")}>
-              {this.props.children}
-            </div>
-            <div className="slide_panel__buttons">
-              <button className="slide_panel__button" onClick={this.toggleHide}>
-                {this.state.visible ? (
-                  this.props.hideIcon ?
-                    <img src={this.props.hideIcon} width="30" height="12" /> :
-                    this.props.hideText || "Hide"
-                ) :
-                  this.props.showIcon ?
-                    <img src={this.props.showIcon} width="30" height="12" /> :
-                    this.props.showText || "Show"
-                }
-              </button>
-              <span>
-                {this.props.modified}
-              </span>
-            </div>
-          </div>
         );
     }
 }
