@@ -67,7 +67,7 @@ class FormulaLogic {
                                 order(['type' => 'ASC']);
                     },
                     'FoDebris' => function(Query $q) {
-                        return $q->select(['game_id', 'fo_position_id']);
+                        return $q->select(['id', 'game_id', 'fo_position_id']);
                     },
                     ])->
                 select(['id', 'name', 'game_state_id'])->
