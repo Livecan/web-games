@@ -52,6 +52,12 @@ export var CarDamagePanel = function (_React$Component) {
               React.createElement(
                 'td',
                 null,
+                React.createElement(Sprite, { src: "/img/formula/gears/" + Math.max(1, car.gear) + ".svg",
+                  width: '20', height: '20', unit: 'px' })
+              ),
+              React.createElement(
+                'td',
+                null,
                 _this2.props.users.find(function (user) {
                   return user.id == car.user_id;
                 }).name

@@ -23,6 +23,10 @@ export class CarDamagePanel extends React.Component {
                           width="20" height="50" unit="px" />
                       </td>
                       <td>
+                        <Sprite src={"/img/formula/gears/" + Math.max(1, car.gear) + ".svg"}
+                          width="20" height="20" unit="px" />
+                      </td>
+                      <td>
                         {this.props.users.find(user => user.id == car.user_id).name}
                       </td>
                       <DamagePanel damages={car.fo_damages} />
