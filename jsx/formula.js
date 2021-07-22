@@ -3,9 +3,16 @@
  */
 
 import { SlidePanel, SlidePanelStack } from './module/slidePanel.js';
-import { damageType } from './formula/variables.js';
 import { PitStopPanel } from './formula/pitStopPanel.js';
 import { GearChoicePanel } from './formula/gearChoicePanel.js';
+import { TrackImage } from './formula/trackImage.js';
+import { TrackCars } from './formula/trackCars.js';
+import { TrackDebris } from './formula/trackDebris.js';
+import { ZoomPanel } from './formula/zoomPanel.js';
+import { RefreshPanel } from './formula/refreshPanel.js';
+import { CarDamagePanel } from './formula/carDamagePanel.js';
+import { AvailableMovesSelectorOverlay } from './formula/availableMovesSelectorOverlay.js';
+import { MoveDamageSelector } from './formula/moveDamageSelector.js';
 
 class Board extends React.Component {
     constructor(props) {
@@ -187,218 +194,6 @@ class Board extends React.Component {
               </SlidePanel>
             </SlidePanelStack>
           </div>
-        );
-    }
-}
-
-class MoveDamageSelector extends React.Component {
-    render() {
-        console.log(JSON.stringify(this.props.moveOptions))//TODO: render the damage table; as props receive ONLY RELEVANT damages with corresponding MoveOptionId
-        return (
-          <table id={"damage_table_" + this.props.positionId}
-              className="move_option_damage damage_table">
-            <tbody>
-            {this.props.moveOptions.map(moveOption =>
-              <tr key={moveOption.id}
-                onClick={() => this.props.onSelected(moveOption.id)}>
-                <DamagePanel damages={moveOption.fo_damages} />
-              </tr>
-            )}
-            </tbody>
-          </table>
-        );
-    }
-}
-
-class AvailableMovesSelectorOverlay extends React.Component {
-    render() {
-        let availableMovesPositionIds = Array.from(new Set(this.props.availableMoves.map(move => move.fo_position_id)));
-        return (
-          <svg id="formula_board" className="board__svg">
-            {availableMovesPositionIds.map(positionId =>
-              <circle key={positionId}
-                id={"move_position_" + positionId} className="move_option"
-                cx={this.props.positions[positionId].x / 1000 + "%"}
-                cy={this.props.positions[positionId].y / 1000 + "%"}
-                r=".8%" fill="purple"
-                onClick={() => this.props.onMovePositionSelected(positionId)} />
-            )}
-          </svg>
-        );
-    }
-}
-
-class DamagePanel extends React.Component {
-    render() {
-        return (
-          <React.Fragment>
-          {this.props.damages.map(damage =>
-            <td key={damage.type}
-              className={"damage " + damageType[damage.type - 1]}>
-                {damage.wear_points}
-            </td>
-          )}
-          </React.Fragment>
-        );
-    }
-}
-
-class CarDamagePanel extends React.Component {
-    order(car) {
-        let value = (car.state == "R" ? -1000 : 0) + (car.order || 100);
-        return value;
-    }
-    
-    render() {
-        return (
-            <table id="car_stats_table" className="damage_table">
-              <tbody>
-                {this.props.cars
-                  .sort((first, second) =>
-                    this.order(first) - this.order(second) < 0 ? -1 : 0)
-                  .map(car =>
-                    <tr key={car.index}>
-                      <td>
-                        <Sprite src={"/img/formula/cars/" + carSprites[car.index]}
-                          className="car_img" key={car.id}
-                          width="20" height="50" unit="px" />
-                      </td>
-                      <td>
-                        {this.props.users.find(user => user.id == car.user_id).name}
-                      </td>
-                      <DamagePanel damages={car.fo_damages} />
-                    </tr>
-                )}
-              </tbody>
-            </table>
-        )
-    }
-}
-
-class RefreshPanel extends React.Component {
-    render() {
-        return (
-            <React.Fragment>
-              <button onClick={this.props.onPlayPause}>
-                {this.props.paused ?
-                  <img src="/img/formula/play.svg" width="30px" height="30px" /> :
-                  <img src="/img/formula/pause.svg" width="30px" height="30px" />
-                }
-              </button>
-            </React.Fragment>
-        );
-    }
-}
-
-class ZoomPanel extends React.Component {
-    constructor(props) {
-        super(props);
-    }
-    
-    render() {
-        return (
-            <React.Fragment>
-              <button onClick={this.props.onRefresh}>
-                <img src="/img/formula/refresh.svg" width="30px" height="30px" />
-              </button>
-              {this.props.noZoomIn ? null :
-                <button onClick={this.props.onZoomIn}>
-                  <img src="/img/formula/plus.svg" width="30px" height="30px" />
-                </button>
-              }
-              {this.props.noZoomOut ? null :
-                <button onClick={this.props.onZoomOut}>
-                  <img src="/img/formula/minus.svg" width="30px" height="30px" />
-                </button>
-              }
-            </React.Fragment>
-        );
-    }
-}
-
-class TrackImage extends React.Component {    
-    render() {
-        return (
-          <img className="board__track" src={this.props.src} />
-        );
-    }
-}
-
-let carSprites = ["1a.png",
-        "1b.png",
-        "2a.png",
-        "2b.png",
-        "3a.png",
-        "3b.png",
-        "4a.png",
-        "4b.png",
-        "5a.png",
-        "5b.png",
-        "6a.png",
-        "6b.png"
-    ];
-class TrackCars extends React.Component {
-    render() {
-        if (this.props.cars == null) {
-            return null;
-        } else {
-            return (
-              <React.Fragment>
-                {this.props.cars.map(car => (
-                  <Sprite src={"/img/formula/cars/" + carSprites[car.index]}
-                    className="car_img"
-                    key={car.index}
-                    x={this.props.positions[car.fo_position_id].x / 1000}
-                    y={this.props.positions[car.fo_position_id].y / 1000}
-                    angle={this.props.positions[car.fo_position_id].angle * 180 / Math.PI - 90}
-                  />
-                ))}
-              </React.Fragment>
-            );
-        }
-    }
-}
-
-class TrackDebris extends React.Component {
-    render() {
-        if (this.props.debris == null) {
-            return null;
-        } else {
-            return (
-              <React.Fragment>
-                {this.props.debris.map(item => (
-                  <Sprite src={"/img/formula/track-objects/oil.png"}
-                    className="debris_img"
-                    key={item.id}
-                    x={this.props.positions[item.fo_position_id].x / 1000}
-                    y={this.props.positions[item.fo_position_id].y / 1000}
-                    angle={this.props.positions[item.fo_position_id].angle * 180 / Math.PI - 90}
-                  />
-                ))}
-              </React.Fragment>
-            );
-        }
-    }
-}
-
-class Sprite extends React.Component {
-    render() {
-        let width = this.props.width || .8;
-        let height = this.props.height || 2;
-        let unit = this.props.unit || "%";
-        return (
-          <img src={this.props.src}
-              className={this.props.className}
-              width={width + unit} height={height + unit}
-              style={
-                {
-                  left: this.props.x - width / 2 + unit,
-                  top: this.props.y - height / 2 + unit,
-                  transform: "rotate(" + this.props.angle + "deg)",
-                  transformOrigin: this.props.transformOrigin
-                }
-              }>
-          </img>
         );
     }
 }
