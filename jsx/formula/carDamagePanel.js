@@ -23,7 +23,8 @@ export class CarDamagePanel extends React.Component {
                           width="20" height="50" unit="px" />
                       </td>
                       <td>
-                        <Sprite src={"/img/formula/gears/" + Math.max(1, car.gear) + ".svg"}
+                        <Sprite src={"/img/formula/gears/" + Math.max(1, car.gear || 1) + ".svg"}
+                          className="gear_img"
                           width="20" height="20" unit="px" />
                       </td>
                       <td>

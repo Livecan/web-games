@@ -52,7 +52,8 @@ export var CarDamagePanel = function (_React$Component) {
               React.createElement(
                 'td',
                 null,
-                React.createElement(Sprite, { src: "/img/formula/gears/" + Math.max(1, car.gear) + ".svg",
+                React.createElement(Sprite, { src: "/img/formula/gears/" + Math.max(1, car.gear || 1) + ".svg",
+                  className: 'gear_img',
                   width: '20', height: '20', unit: 'px' })
               ),
               React.createElement(
