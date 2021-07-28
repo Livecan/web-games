@@ -141,7 +141,7 @@ class Board extends React.Component {
                 }
                 <TrackCars cars={(this.state.cars || []).filter(car => car.fo_position_id != null)}
                   positions={this.props.positions} />
-                <TrackDebris debris={this.state.trackDebris || []} positions={this.props.positions} />
+                <TrackDebris debris={this.state.trackDebris} positions={this.props.positions} />
               </div>
             </div>
             <SlidePanelStack className="slide_panel_stack_top">

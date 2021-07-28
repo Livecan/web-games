@@ -163,7 +163,7 @@ var Board = function (_React$Component) {
                                 return car.fo_position_id != null;
                             }),
                             positions: this.props.positions }),
-                        React.createElement(TrackDebris, { debris: this.state.trackDebris || [], positions: this.props.positions })
+                        React.createElement(TrackDebris, { debris: this.state.trackDebris, positions: this.props.positions })
                     )
                 ),
                 React.createElement(
