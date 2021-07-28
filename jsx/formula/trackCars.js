@@ -17,6 +17,7 @@ export class TrackCars extends React.Component {
                     x={this.props.positions[car.fo_position_id].x / 1000}
                     y={this.props.positions[car.fo_position_id].y / 1000}
                     angle={this.props.positions[car.fo_position_id].angle * 180 / Math.PI - 90}
+                    disappearOnMouseOver={true}
                   />
                 ))}
               </React.Fragment>

@@ -37,7 +37,8 @@ export var TrackCars = function (_React$Component) {
               height: '2%',
               x: _this2.props.positions[car.fo_position_id].x / 1000,
               y: _this2.props.positions[car.fo_position_id].y / 1000,
-              angle: _this2.props.positions[car.fo_position_id].angle * 180 / Math.PI - 90
+              angle: _this2.props.positions[car.fo_position_id].angle * 180 / Math.PI - 90,
+              disappearOnMouseOver: true
             });
           })
         );

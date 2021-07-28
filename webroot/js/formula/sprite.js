@@ -9,23 +9,28 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 export var Sprite = function (_React$Component) {
     _inherits(Sprite, _React$Component);
 
-    function Sprite() {
-        var _ref;
-
-        var _temp, _this, _ret;
-
+    function Sprite(props) {
         _classCallCheck(this, Sprite);
 
-        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
-            args[_key] = arguments[_key];
-        }
+        var _this = _possibleConstructorReturn(this, (Sprite.__proto__ || Object.getPrototypeOf(Sprite)).call(this, props));
 
-        return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Sprite.__proto__ || Object.getPrototypeOf(Sprite)).call.apply(_ref, [this].concat(args))), _this), _this.dimensionRegex = /(?<amount>\d*(?:\.\d*|))(?<unit>[^\d].*|)/, _temp), _possibleConstructorReturn(_this, _ret);
+        _this.dimensionRegex = /(?<amount>\d*(?:\.\d*|))(?<unit>[^\d].*|)/;
+
+        _this.state = { opacity: undefined };
+        _this.setOpacity = _this.setOpacity.bind(_this);
+        return _this;
     }
 
     _createClass(Sprite, [{
+        key: "setOpacity",
+        value: function setOpacity(opacity) {
+            this.setState({ opacity: opacity });
+        }
+    }, {
         key: "render",
         value: function render() {
+            var _this2 = this;
+
             var widthX = this.props.width.match(this.dimensionRegex);
             var heightX = this.props.height.match(this.dimensionRegex);
 
@@ -36,8 +41,16 @@ export var Sprite = function (_React$Component) {
                     left: this.props.x - widthX.groups["amount"] / 2 + widthX.groups["unit"],
                     top: this.props.y - heightX.groups["amount"] / 2 + heightX.groups["unit"],
                     transform: "rotate(" + this.props.angle + "deg)",
-                    transformOrigin: this.props.transformOrigin
-                } });
+                    transformOrigin: this.props.transformOrigin,
+                    opacity: this.state.opacity
+                },
+                onMouseEnter: this.props.disappearOnMouseOver ? function () {
+                    return _this2.setOpacity(0);
+                } : null,
+                onMouseLeave: this.props.disappearOnMouseOver ? function () {
+                    return _this2.setOpacity(undefined);
+                } : null
+            });
         }
     }]);
 
