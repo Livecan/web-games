@@ -34,7 +34,9 @@ export var TrackDebris = function (_React$Component) {
               key: item.id,
               x: _this2.props.positions[item.fo_position_id].x / 1000,
               y: _this2.props.positions[item.fo_position_id].y / 1000,
-              angle: _this2.props.positions[item.fo_position_id].angle * 180 / Math.PI - 90
+              width: "2%",
+              height: "1.3%",
+              angle: _this2.props.positions[item.fo_position_id].angle * 180 / Math.PI
             });
           })
         );

@@ -33,6 +33,8 @@ export var TrackCars = function (_React$Component) {
             return React.createElement(Sprite, { src: "/img/formula/cars/" + carSprites[car.index],
               className: 'car_img',
               key: car.index,
+              width: '0.8%',
+              height: '2%',
               x: _this2.props.positions[car.fo_position_id].x / 1000,
               y: _this2.props.positions[car.fo_position_id].y / 1000,
               angle: _this2.props.positions[car.fo_position_id].angle * 180 / Math.PI - 90

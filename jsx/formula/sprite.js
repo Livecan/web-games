@@ -1,16 +1,18 @@
 export class Sprite extends React.Component {
+    dimensionRegex = /(?<amount>\d*(?:\.\d*|))(?<unit>[^\d].*|)/;
+    
     render() {
-        let width = this.props.width || .8;
-        let height = this.props.height || 2;
-        let unit = this.props.unit || "%";
+        let widthX = this.props.width.match(this.dimensionRegex);
+        let heightX = this.props.height.match(this.dimensionRegex);
+        
         return (
           <img src={this.props.src}
               className={this.props.className}
-              width={width + unit} height={height + unit}
+              width={this.props.width} height={this.props.height}
               style={
                 {
-                  left: this.props.x - width / 2 + unit,
-                  top: this.props.y - height / 2 + unit,
+                  left: this.props.x - widthX.groups["amount"] / 2 + widthX.groups["unit"],
+                  top: this.props.y - heightX.groups["amount"] / 2 + heightX.groups["unit"],
                   transform: "rotate(" + this.props.angle + "deg)",
                   transformOrigin: this.props.transformOrigin
                 }

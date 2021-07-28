@@ -13,7 +13,9 @@ export class TrackDebris extends React.Component {
                     key={item.id}
                     x={this.props.positions[item.fo_position_id].x / 1000}
                     y={this.props.positions[item.fo_position_id].y / 1000}
-                    angle={this.props.positions[item.fo_position_id].angle * 180 / Math.PI - 90}
+                    width="2%"
+                    height="1.3%"
+                    angle={this.props.positions[item.fo_position_id].angle * 180 / Math.PI}
                   />
                 ))}
               </React.Fragment>

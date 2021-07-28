@@ -10,23 +10,31 @@ export var Sprite = function (_React$Component) {
     _inherits(Sprite, _React$Component);
 
     function Sprite() {
+        var _ref;
+
+        var _temp, _this, _ret;
+
         _classCallCheck(this, Sprite);
 
-        return _possibleConstructorReturn(this, (Sprite.__proto__ || Object.getPrototypeOf(Sprite)).apply(this, arguments));
+        for (var _len = arguments.length, args = Array(_len), _key = 0; _key < _len; _key++) {
+            args[_key] = arguments[_key];
+        }
+
+        return _ret = (_temp = (_this = _possibleConstructorReturn(this, (_ref = Sprite.__proto__ || Object.getPrototypeOf(Sprite)).call.apply(_ref, [this].concat(args))), _this), _this.dimensionRegex = /(?<amount>\d*(?:\.\d*|))(?<unit>[^\d].*|)/, _temp), _possibleConstructorReturn(_this, _ret);
     }
 
     _createClass(Sprite, [{
         key: "render",
         value: function render() {
-            var width = this.props.width || .8;
-            var height = this.props.height || 2;
-            var unit = this.props.unit || "%";
+            var widthX = this.props.width.match(this.dimensionRegex);
+            var heightX = this.props.height.match(this.dimensionRegex);
+
             return React.createElement("img", { src: this.props.src,
                 className: this.props.className,
-                width: width + unit, height: height + unit,
+                width: this.props.width, height: this.props.height,
                 style: {
-                    left: this.props.x - width / 2 + unit,
-                    top: this.props.y - height / 2 + unit,
+                    left: this.props.x - widthX.groups["amount"] / 2 + widthX.groups["unit"],
+                    top: this.props.y - heightX.groups["amount"] / 2 + heightX.groups["unit"],
                     transform: "rotate(" + this.props.angle + "deg)",
                     transformOrigin: this.props.transformOrigin
                 } });
