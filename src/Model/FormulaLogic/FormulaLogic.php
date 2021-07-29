@@ -58,7 +58,7 @@ class FormulaLogic {
                         return $q->select(['id', 'name']);
                     },
                     'FoCars' => function(Query $q) {
-                        return $q->select(['id', 'game_id', 'user_id', 'team', 'fo_position_id', 'lap', 'gear', 'order', 'state'])->
+                        return $q->select(['id', 'game_id', 'user_id', 'team', 'fo_position_id', 'lap', 'gear', 'order', 'state', 'ranking'])->
                                 order(['team' => 'ASC', 'FoCars.id' => 'ASC']);
                     },
                     'FoCars.FoDamages' => function(Query $q) {
@@ -185,6 +185,7 @@ class FormulaLogic {
         //check if car is finishing the race now and if so assign ranking and skip collisions
         if ($foCar->lap > $formulaGame->fo_game->laps) {
             $foCar->state = FoCar::STATE_FINISHED;
+            $foCar->fo_position_id = null;
             $foCar->ranking = $formulaGame->getNextRanking();
         }
         
