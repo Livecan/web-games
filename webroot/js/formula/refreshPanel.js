@@ -24,7 +24,7 @@ export var RefreshPanel = function (_React$Component) {
         React.createElement(
           "button",
           { onClick: this.props.onPlayPause },
-          this.props.paused ? React.createElement("img", { src: "/img/formula/play.svg", width: "30px", height: "30px" }) : React.createElement("img", { src: "/img/formula/pause.svg", width: "30px", height: "30px" })
+          this.props.paused ? React.createElement("img", { src: "img/formula/play.svg", width: "30px", height: "30px" }) : React.createElement("img", { src: "img/formula/pause.svg", width: "30px", height: "30px" })
         )
       );
     }

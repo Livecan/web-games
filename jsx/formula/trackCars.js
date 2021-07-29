@@ -9,7 +9,7 @@ export class TrackCars extends React.Component {
             return (
               <React.Fragment>
                 {this.props.cars.map(car => (
-                  <Sprite src={"/img/formula/cars/" + carSprites[car.index]}
+                  <Sprite src={"img/formula/cars/" + carSprites[car.index]}
                     className="car_img"
                     key={car.index}
                     width="0.8%"

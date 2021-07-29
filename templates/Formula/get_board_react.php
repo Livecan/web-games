@@ -8,7 +8,7 @@
 <div id="root" style="width: 100%; height: 85vh; position: relative">
     <script>
         var id = <?= $formulaGame->id ?>;
-        var gameBoard = "/img/formula/<?= $formulaGame->fo_game->fo_track->game_plan ?>";
+        var gameBoard = "img/formula/<?= $formulaGame->fo_game->fo_track->game_plan ?>";
         var positions = {
         <?php foreach ($formulaGame->fo_game->fo_track->fo_positions as $foPosition) : ?>
             <?= '"' . $foPosition->id . '": { x: "' . $foPosition->pos_x . '", y: "' .
@@ -17,6 +17,6 @@
         };
     </script>
 <?=
-    $this->Html->script('/js/formula.js', ['type' => 'module']);
+    $this->Html->script('formula.js', ['type' => 'module']);
 ?>
 </div>

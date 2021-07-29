@@ -119,13 +119,13 @@ var Board = function (_React$Component) {
     }, {
         key: 'chooseGear',
         value: function chooseGear(gear) {
-            $.post('/formula/chooseGear/' + this.props.id, { _csrfToken: csrfToken, game_id: this.props.id, gear: gear }, this.update, "json");
+            $.post('formula/chooseGear/' + this.props.id, { _csrfToken: csrfToken, game_id: this.props.id, gear: gear }, this.update, "json");
             console.log("chooseGear(" + gear + ")");
         }
     }, {
         key: 'update',
         value: function update() {
-            $.getJSON('/formula/getBoardUpdateJson/' + this.props.id, this.updateGameData);
+            $.getJSON('formula/getBoardUpdateJson/' + this.props.id, this.updateGameData);
         }
     }, {
         key: 'showDamageOptions',
@@ -136,7 +136,7 @@ var Board = function (_React$Component) {
         key: 'chooseMoveOption',
         value: function chooseMoveOption(moveOptionId) {
             this.setState({ selectedPosition: null });
-            $.post('/formula/chooseMoveOption/' + this.props.id, { _csrfToken: csrfToken, game_id: this.props.id, move_option_id: moveOptionId }, this.update, "json");
+            $.post('formula/chooseMoveOption/' + this.props.id, { _csrfToken: csrfToken, game_id: this.props.id, move_option_id: moveOptionId }, this.update, "json");
             console.log("chooseMoveOption(" + moveOptionId + ")");
         }
     }, {
@@ -171,8 +171,8 @@ var Board = function (_React$Component) {
                     { className: 'slide_panel_stack_top' },
                     React.createElement(
                         SlidePanel,
-                        { showIcon: '/img/formula/downarrow.svg',
-                            hideIcon: '/img/formula/uparrow.svg' },
+                        { showIcon: 'img/formula/downarrow.svg',
+                            hideIcon: 'img/formula/uparrow.svg' },
                         React.createElement(ZoomPanel, { onRefresh: this.update,
                             noZoomIn: this.state.boardZoom == this.zooms.length - 1,
                             noZoomOut: this.state.boardZoom == 0,
@@ -182,8 +182,8 @@ var Board = function (_React$Component) {
                     ),
                     React.createElement(
                         SlidePanel,
-                        { showIcon: '/img/formula/downarrow.svg',
-                            hideIcon: '/img/formula/uparrow.svg' },
+                        { showIcon: 'img/formula/downarrow.svg',
+                            hideIcon: 'img/formula/uparrow.svg' },
                         React.createElement(RefreshPanel, { paused: this.state.refresher == null,
                             onPlayPause: this.changeRefresh })
                     )
@@ -193,16 +193,16 @@ var Board = function (_React$Component) {
                     { className: 'slide_panel_stack_bottom' },
                     this.state.actions != undefined && this.state.actions.type == "choose_gear" && React.createElement(
                         SlidePanel,
-                        { showIcon: '/img/formula/uparrow.svg',
-                            hideIcon: '/img/formula/downarrow.svg' },
+                        { showIcon: 'img/formula/uparrow.svg',
+                            hideIcon: 'img/formula/downarrow.svg' },
                         React.createElement(GearChoicePanel, { current: this.state.actions.current_gear,
                             available: this.state.actions.available_gears,
                             onChooseGear: this.chooseGear })
                     ),
                     this.state.selectedPosition != null && React.createElement(
                         SlidePanel,
-                        { showIcon: '/img/formula/uparrow.svg',
-                            hideIcon: '/img/formula/downarrow.svg' },
+                        { showIcon: 'img/formula/uparrow.svg',
+                            hideIcon: 'img/formula/downarrow.svg' },
                         React.createElement(MoveDamageSelector, { positionId: this.state.selectedPosition,
                             onSelected: this.chooseMoveOption,
                             moveOptions: this.state.actions.available_moves.filter(function (move) {
@@ -211,8 +211,8 @@ var Board = function (_React$Component) {
                     ),
                     this.state.actions != undefined && this.state.actions.type == "choose_pits" && React.createElement(
                         SlidePanel,
-                        { showIcon: '/img/formula/uparrow.svg',
-                            hideIcon: '/img/formula/downarrow.svg' },
+                        { showIcon: 'img/formula/uparrow.svg',
+                            hideIcon: 'img/formula/downarrow.svg' },
                         React.createElement(PitStopPanel, { car: this.state.cars.filter(function (car) {
                                 return car.state == "R";
                             }).sort(function (car) {
@@ -224,7 +224,7 @@ var Board = function (_React$Component) {
                     React.createElement(
                         SlidePanel,
                         { showText: 'cars stats',
-                            hideIcon: '/img/formula/downarrow.svg' },
+                            hideIcon: 'img/formula/downarrow.svg' },
                         React.createElement(CarDamagePanel, { update: Math.random(),
                             cars: this.state.cars || [], users: this.state.users })
                     )

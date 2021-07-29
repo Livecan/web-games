@@ -30,7 +30,7 @@ export var TrackCars = function (_React$Component) {
           React.Fragment,
           null,
           this.props.cars.map(function (car) {
-            return React.createElement(Sprite, { src: "/img/formula/cars/" + carSprites[car.index],
+            return React.createElement(Sprite, { src: "img/formula/cars/" + carSprites[car.index],
               className: 'car_img',
               key: car.index,
               width: '0.8%',

@@ -42,7 +42,7 @@ export class GearChoicePanel extends React.Component {
         console.log(JSON.stringify(this.props.available.filter(gear => gear != this.props.current)));
         return (
             <div style={{position: "relative"}}>
-              <img src="/img/formula/gearbox.svg" className="gear_choice"
+              <img src="img/formula/gearbox.svg" className="gear_choice"
                 width="100px" height="100px"/>
               <svg viewBox="0 0 600 600" width="100" height="100"
                 style={{position: "absolute", top: 0, left: 0}}>

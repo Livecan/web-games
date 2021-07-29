@@ -24,17 +24,17 @@ export var ZoomPanel = function (_React$Component) {
         React.createElement(
           "button",
           { onClick: this.props.onRefresh },
-          React.createElement("img", { src: "/img/formula/refresh.svg", width: "30px", height: "30px" })
+          React.createElement("img", { src: "img/formula/refresh.svg", width: "30px", height: "30px" })
         ),
         this.props.noZoomIn ? null : React.createElement(
           "button",
           { onClick: this.props.onZoomIn },
-          React.createElement("img", { src: "/img/formula/plus.svg", width: "30px", height: "30px" })
+          React.createElement("img", { src: "img/formula/plus.svg", width: "30px", height: "30px" })
         ),
         this.props.noZoomOut ? null : React.createElement(
           "button",
           { onClick: this.props.onZoomOut },
-          React.createElement("img", { src: "/img/formula/minus.svg", width: "30px", height: "30px" })
+          React.createElement("img", { src: "img/formula/minus.svg", width: "30px", height: "30px" })
         )
       );
     }

@@ -18,12 +18,12 @@ export class CarDamagePanel extends React.Component {
                   .map(car =>
                     <tr key={car.index}>
                       <td>
-                        <Sprite src={"/img/formula/cars/" + carSprites[car.index]}
+                        <Sprite src={"img/formula/cars/" + carSprites[car.index]}
                           className="car_img" key={car.id}
                           width="20" height="50" unit="px" />
                       </td>
                       <td>
-                        <Sprite src={"/img/formula/gears/" + Math.max(1, car.gear || 1) + ".svg"}
+                        <Sprite src={"img/formula/gears/" + Math.max(1, car.gear || 1) + ".svg"}
                           className="gear_img"
                           width="20" height="20" unit="px" />
                       </td>

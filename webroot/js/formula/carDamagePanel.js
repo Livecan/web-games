@@ -45,14 +45,14 @@ export var CarDamagePanel = function (_React$Component) {
               React.createElement(
                 'td',
                 null,
-                React.createElement(Sprite, { src: "/img/formula/cars/" + carSprites[car.index],
+                React.createElement(Sprite, { src: "img/formula/cars/" + carSprites[car.index],
                   className: 'car_img', key: car.id,
                   width: '20', height: '50', unit: 'px' })
               ),
               React.createElement(
                 'td',
                 null,
-                React.createElement(Sprite, { src: "/img/formula/gears/" + Math.max(1, car.gear || 1) + ".svg",
+                React.createElement(Sprite, { src: "img/formula/gears/" + Math.max(1, car.gear || 1) + ".svg",
                   className: 'gear_img',
                   width: '20', height: '20', unit: 'px' })
               ),

@@ -29,7 +29,7 @@ export var TrackDebris = function (_React$Component) {
           React.Fragment,
           null,
           this.props.debris.map(function (item) {
-            return React.createElement(Sprite, { src: "/img/formula/track-objects/oil.png",
+            return React.createElement(Sprite, { src: "img/formula/track-objects/oil.png",
               className: "debris_img",
               key: item.id,
               x: _this2.props.positions[item.fo_position_id].x / 1000,

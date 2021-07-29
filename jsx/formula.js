@@ -102,7 +102,7 @@ class Board extends React.Component {
     }
     
     chooseGear(gear) {
-        $.post('/formula/chooseGear/' + this.props.id,
+        $.post('formula/chooseGear/' + this.props.id,
             { _csrfToken: csrfToken, game_id: this.props.id, gear: gear },
             this.update,
             "json");
@@ -110,7 +110,7 @@ class Board extends React.Component {
     }
     
     update() {
-        $.getJSON('/formula/getBoardUpdateJson/' + this.props.id, this.updateGameData);
+        $.getJSON('formula/getBoardUpdateJson/' + this.props.id, this.updateGameData);
     }
     
     showDamageOptions(positionId) {
@@ -119,7 +119,7 @@ class Board extends React.Component {
     
     chooseMoveOption(moveOptionId) {
         this.setState({selectedPosition: null});
-        $.post('/formula/chooseMoveOption/' + this.props.id,
+        $.post('formula/chooseMoveOption/' + this.props.id,
                 { _csrfToken: csrfToken, game_id: this.props.id, move_option_id: moveOptionId },
                 this.update,
                 "json");
@@ -145,8 +145,8 @@ class Board extends React.Component {
               </div>
             </div>
             <SlidePanelStack className="slide_panel_stack_top">
-              <SlidePanel showIcon="/img/formula/downarrow.svg"
-                hideIcon="/img/formula/uparrow.svg">
+              <SlidePanel showIcon="img/formula/downarrow.svg"
+                hideIcon="img/formula/uparrow.svg">
                   <ZoomPanel onRefresh={this.update}
                     noZoomIn={this.state.boardZoom == this.zooms.length - 1}
                     noZoomOut={this.state.boardZoom == 0}
@@ -154,24 +154,24 @@ class Board extends React.Component {
                     onZoomIn={this.updateBoardZoom.bind(this, 1)}
                     />
               </SlidePanel>
-              <SlidePanel showIcon="/img/formula/downarrow.svg"
-                hideIcon="/img/formula/uparrow.svg">
+              <SlidePanel showIcon="img/formula/downarrow.svg"
+                hideIcon="img/formula/uparrow.svg">
                   <RefreshPanel paused={this.state.refresher == null}
                     onPlayPause={this.changeRefresh} />
               </SlidePanel>
             </SlidePanelStack>
             <SlidePanelStack className="slide_panel_stack_bottom">
               {this.state.actions != undefined && this.state.actions.type == "choose_gear" &&
-                <SlidePanel showIcon="/img/formula/uparrow.svg"
-                  hideIcon="/img/formula/downarrow.svg">
+                <SlidePanel showIcon="img/formula/uparrow.svg"
+                  hideIcon="img/formula/downarrow.svg">
                     <GearChoicePanel current={this.state.actions.current_gear}
                       available={this.state.actions.available_gears}
                       onChooseGear={this.chooseGear} />
                 </SlidePanel> 
               }
               {this.state.selectedPosition != null &&
-                <SlidePanel showIcon="/img/formula/uparrow.svg"
-                  hideIcon="/img/formula/downarrow.svg">
+                <SlidePanel showIcon="img/formula/uparrow.svg"
+                  hideIcon="img/formula/downarrow.svg">
                     <MoveDamageSelector positionId={this.state.selectedPosition}
                       onSelected={this.chooseMoveOption}
                       moveOptions={
@@ -180,15 +180,15 @@ class Board extends React.Component {
                 </SlidePanel>
               }
               {this.state.actions != undefined && this.state.actions.type == "choose_pits" &&
-                <SlidePanel showIcon="/img/formula/uparrow.svg"
-                  hideIcon="/img/formula/downarrow.svg">
+                <SlidePanel showIcon="img/formula/uparrow.svg"
+                  hideIcon="img/formula/downarrow.svg">
                   <PitStopPanel car={this.state.cars.filter(car => car.state == "R").sort(car => car.order)[0]}
                     availablePoints={this.state.actions.available_points}
                     maxPoints={this.state.actions.max_points} />
                 </SlidePanel>
               }
               <SlidePanel showText="cars stats"
-                hideIcon="/img/formula/downarrow.svg">
+                hideIcon="img/formula/downarrow.svg">
                   <CarDamagePanel update={Math.random()}
                     cars={this.state.cars || []} users={this.state.users} />
               </SlidePanel>

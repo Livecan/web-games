@@ -8,7 +8,7 @@ export class TrackDebris extends React.Component {
             return (
               <React.Fragment>
                 {this.props.debris.map(item => (
-                  <Sprite src={"/img/formula/track-objects/oil.png"}
+                  <Sprite src={"img/formula/track-objects/oil.png"}
                     className="debris_img"
                     key={item.id}
                     x={this.props.positions[item.fo_position_id].x / 1000}

@@ -76,7 +76,7 @@ export var GearChoicePanel = function (_React$Component2) {
             return React.createElement(
                 "div",
                 { style: { position: "relative" } },
-                React.createElement("img", { src: "/img/formula/gearbox.svg", className: "gear_choice",
+                React.createElement("img", { src: "img/formula/gearbox.svg", className: "gear_choice",
                     width: "100px", height: "100px" }),
                 React.createElement(
                     "svg",
