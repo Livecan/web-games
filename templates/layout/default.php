@@ -30,7 +30,8 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
     <link href="https://fonts.googleapis.com/css?family=Raleway:400,700" rel="stylesheet">
 
     <?= $this->Html->css(['normalize.min', 'milligram.min', 'cake']) ?>
-    <?= $this->Html->script('https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js') ?>
+    <!--?= $this->Html->script('https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js') ?-->
+    <?= $this->Html->script('/js/jquery.min.js') ?>
     <?= $this->Html->script('https://underscorejs.org/underscore-umd-min.js') ?>
     <?= $this->Html->scriptBlock(sprintf('var csrfToken = %s;',
         json_encode($this->request->getAttribute('csrfToken')))); 
@@ -39,6 +40,7 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
     <?= $this->fetch('meta') ?>
     <?= $this->fetch('css') ?>
     <?= $this->fetch('script') ?>
+    <base href='<?= \Cake\Routing\Router::fullBaseUrl() ?>/' />
 </head>
 <body>
     <nav class="top-nav">
