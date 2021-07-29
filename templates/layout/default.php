@@ -40,7 +40,7 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
     <?= $this->fetch('meta') ?>
     <?= $this->fetch('css') ?>
     <?= $this->fetch('script') ?>
-    <base href='<?= \Cake\Routing\Router::fullBaseUrl() ?>/' />
+    <base href='<?= \Cake\Routing\Router::url('/', true) ?>' />
 </head>
 <body>
     <nav class="top-nav">
