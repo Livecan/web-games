@@ -128,8 +128,23 @@ and open the template in the editor.
   transform: rotate(90deg);
   transform-origin: 25px 25px;
 }
-#car_stats_table img.gear_img {
+#car_stats_table .state {
   vertical-align: middle;
+}
+#car_stats_table .ranking {
+  position: relative;
+}
+#car_stats_table .ranking img {
+  opacity: 0.2;
+  vertical-align: text-bottom;
+}
+#car_stats_table .ranking span {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: large;
+  color: red;
 }
 
 .damage_table {

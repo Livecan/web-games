@@ -1,0 +1,18 @@
+<svg width="200" height="200" xmlns="http://www.w3.org/2000/svg">
+ <g id="Layer_1">
+  <title>Layer 1</title>
+  <rect fill="black" stroke="#000" x="-1" y="-1" width="52" height="52" id="svg_1" filter="url(#svg_1_blur)"/>
+  <rect fill="black" stroke="#000" x="99" y="-1" width="52" height="52" id="svg_2" filter="url(#svg_1_blur)"/>
+  <rect fill="black" stroke="#000" x="49" y="49" width="52" height="52" id="svg_3" filter="url(#svg_1_blur)"/>
+  <rect fill="black" stroke="#000" x="149" y="49" width="52" height="52" id="svg_4" filter="url(#svg_1_blur)"/>
+  <rect fill="black" stroke="#000" x="-1" y="99" width="52" height="52" id="svg_5" filter="url(#svg_1_blur)"/>
+  <rect fill="black" stroke="#000" x="99" y="99" width="52" height="52" id="svg_6" filter="url(#svg_1_blur)"/>
+  <rect fill="black" stroke="#000" x="49" y="149" width="52" height="52" id="svg_7" filter="url(#svg_1_blur)"/>
+  <rect fill="black" stroke="#000" x="149" y="149" width="52" height="52" id="svg_8" filter="url(#svg_1_blur)"/>
+ </g>
+ <defs>
+  <filter id="svg_1_blur">
+   <feGaussianBlur in="SourceGraphic" stdDeviation="2"/>
+  </filter>
+ </defs>
+</svg>

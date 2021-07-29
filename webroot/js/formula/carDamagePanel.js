@@ -52,9 +52,30 @@ export var CarDamagePanel = function (_React$Component) {
               React.createElement(
                 'td',
                 null,
-                React.createElement(Sprite, { src: "img/formula/gears/" + Math.max(1, car.gear || 1) + ".svg",
-                  className: 'gear_img',
-                  width: '20', height: '20', unit: 'px' })
+                {
+                  'R': //racing - display current gear
+                  React.createElement(Sprite, { src: "img/formula/gears/" + Math.max(1, car.gear || 1) + ".svg",
+                    className: 'state',
+                    width: '20px', height: '20px' }),
+                  'F': //finished - display ranking
+                  React.createElement(
+                    'span',
+                    { className: 'ranking' },
+                    React.createElement(Sprite, { src: 'img/formula/gears/finish.svg',
+                      className: 'finish_img',
+                      width: '20px', height: '20px'
+                    }),
+                    React.createElement(
+                      'span',
+                      null,
+                      car.ranking
+                    )
+                  ),
+                  'X': //retired - display X icon
+                  React.createElement(Sprite, { src: 'img/formula/gears/out.svg',
+                    className: 'state',
+                    width: '20px', height: '20px' })
+                }[car.state]
               ),
               React.createElement(
                 'td',
