@@ -70,9 +70,6 @@ export var GearChoicePanel = function (_React$Component2) {
         value: function render() {
             var _this3 = this;
 
-            console.log(JSON.stringify(this.props.available.filter(function (gear) {
-                return gear != _this3.props.current;
-            })));
             return React.createElement(
                 "div",
                 { style: { position: "relative" } },

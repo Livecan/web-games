@@ -39,7 +39,6 @@ class GearSelector extends React.Component {
 
 export class GearChoicePanel extends React.Component {    
     render() {
-        console.log(JSON.stringify(this.props.available.filter(gear => gear != this.props.current)));
         return (
             <div style={{position: "relative"}}>
               <img src="img/formula/gearbox.svg" className="gear_choice"
