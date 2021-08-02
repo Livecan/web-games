@@ -13,6 +13,7 @@ import { RefreshPanel } from './formula/refreshPanel.js';
 import { CarDamagePanel } from './formula/carDamagePanel.js';
 import { AvailableMovesSelectorOverlay } from './formula/availableMovesSelectorOverlay.js';
 import { MoveDamageSelector } from './formula/moveDamageSelector.js';
+import { Tooltip } from './module/tooltip.js';
 
 class Board extends React.Component {
     refreshInterval = 2000;
@@ -29,6 +30,8 @@ class Board extends React.Component {
         this.chooseGear = this.chooseGear.bind(this);
         this.showDamageOptions = this.showDamageOptions.bind(this);
         this.chooseMoveOption = this.chooseMoveOption.bind(this);
+        this.displayTooltip = this.displayTooltip.bind(this);
+        this.hideTooltip = this.hideTooltip.bind(this);
     }
     
     zooms = ["100%", "150%", "200%", "250%", "300%"];
@@ -95,6 +98,16 @@ class Board extends React.Component {
                 "json");
     }
     
+    displayTooltip(id, x, y, text) {
+        this.setState({tooltip: {id: id, x: x, y: y, text: text}});
+    }
+    
+    hideTooltip(id) {
+        if (this.state.tooltip != null && this.state.tooltip.id == id) {
+            this.setState({tooltip: null});
+        }
+    }
+    
     render() {
         return (
           <div id="board_parent">
@@ -137,7 +150,9 @@ class Board extends React.Component {
                   hideIcon="img/formula/downarrow.svg">
                     <GearChoicePanel current={this.state.actions.current_gear}
                       available={this.state.actions.available_gears}
-                      onChooseGear={this.chooseGear} />
+                      onChooseGear={this.chooseGear}
+                      onDisplayTooltip={this.displayTooltip}
+                      onHideTooltip={this.hideTooltip}/>
                 </SlidePanel> 
               }
               {this.state.selectedPosition != null &&
@@ -164,11 +179,14 @@ class Board extends React.Component {
                     cars={this.state.cars || []} users={this.state.users} />
               </SlidePanel>
             </SlidePanelStack>
+            {
+              this.state.tooltip != null &&
+              <Tooltip x={this.state.tooltip.x} y={this.state.tooltip.y}
+                text={this.state.tooltip.text}/>
+            }
           </div>
         );
     }
 }
 
 ReactDOM.render(<Board id={id} gameBoard={gameBoard} positions={positions} />, document.getElementById('root'));
-
-

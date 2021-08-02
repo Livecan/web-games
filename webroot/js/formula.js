@@ -21,6 +21,7 @@ import { RefreshPanel } from './formula/refreshPanel.js';
 import { CarDamagePanel } from './formula/carDamagePanel.js';
 import { AvailableMovesSelectorOverlay } from './formula/availableMovesSelectorOverlay.js';
 import { MoveDamageSelector } from './formula/moveDamageSelector.js';
+import { Tooltip } from './module/tooltip.js';
 
 var Board = function (_React$Component) {
   _inherits(Board, _React$Component);
@@ -43,6 +44,8 @@ var Board = function (_React$Component) {
     _this.chooseGear = _this.chooseGear.bind(_this);
     _this.showDamageOptions = _this.showDamageOptions.bind(_this);
     _this.chooseMoveOption = _this.chooseMoveOption.bind(_this);
+    _this.displayTooltip = _this.displayTooltip.bind(_this);
+    _this.hideTooltip = _this.hideTooltip.bind(_this);
     return _this;
   }
 
@@ -109,6 +112,18 @@ var Board = function (_React$Component) {
       $.post('formula/chooseMoveOption/' + this.props.id, { _csrfToken: csrfToken, game_id: this.props.id, move_option_id: moveOptionId }, this.update, "json");
     }
   }, {
+    key: 'displayTooltip',
+    value: function displayTooltip(id, x, y, text) {
+      this.setState({ tooltip: { id: id, x: x, y: y, text: text } });
+    }
+  }, {
+    key: 'hideTooltip',
+    value: function hideTooltip(id) {
+      if (this.state.tooltip != null && this.state.tooltip.id == id) {
+        this.setState({ tooltip: null });
+      }
+    }
+  }, {
     key: 'render',
     value: function render() {
       var _this2 = this;
@@ -165,7 +180,9 @@ var Board = function (_React$Component) {
               hideIcon: 'img/formula/downarrow.svg' },
             React.createElement(GearChoicePanel, { current: this.state.actions.current_gear,
               available: this.state.actions.available_gears,
-              onChooseGear: this.chooseGear })
+              onChooseGear: this.chooseGear,
+              onDisplayTooltip: this.displayTooltip,
+              onHideTooltip: this.hideTooltip })
           ),
           this.state.selectedPosition != null && React.createElement(
             SlidePanel,
@@ -196,7 +213,9 @@ var Board = function (_React$Component) {
             React.createElement(CarDamagePanel, { update: Math.random(),
               cars: this.state.cars || [], users: this.state.users })
           )
-        )
+        ),
+        this.state.tooltip != null && React.createElement(Tooltip, { x: this.state.tooltip.x, y: this.state.tooltip.y,
+          text: this.state.tooltip.text })
       );
     }
   }]);

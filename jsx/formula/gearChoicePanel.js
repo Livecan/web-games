@@ -30,17 +30,45 @@ class GearSelector extends React.Component {
             r="50" fillOpacity="0"
             strokeWidth={this.state.hover ? "20" : "10"}
             stroke={this.props.color}
-            onMouseEnter={this.handleMouseEnter}
-            onMouseLeave={this.handleMouseLeave}
-            onClick={this.handleMouseClick} />
+            onMouseEnter={() => {
+                this.handleMouseEnter();
+                this.props.onMouseEnter();}}
+            onMouseLeave={ () => {
+                this.handleMouseLeave();
+                this.props.onMouseLeave();}}
+            onClick={this.handleMouseClick}>
+          </circle>
         );
     }
 }
 
-export class GearChoicePanel extends React.Component {    
+export class GearChoicePanel extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {selected: null};
+        this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
+    }
+    
+    gearRolls = [[1, 2], [2, 4], [4, 8], [7, 12], [11, 20], [21, 30]];
+    
+    mouseMoveHandler(evt) {
+        console.log(evt);
+        let tooltipId = "gearChoice";
+        if (this.state.selected != null) {
+            this.props.onDisplayTooltip(
+                tooltipId,
+                evt.nativeEvent.clientX + 10,
+                evt.nativeEvent.clientY + 10,
+                `Rolls ${this.gearRolls[this.state.selected - 1][0]} - ${this.gearRolls[this.state.selected - 1][1]}.`);
+        }
+        if (this.state.selected == null) {
+            this.props.onHideTooltip(tooltipId);
+        }
+    }
+    
     render() {
         return (
-            <div style={{position: "relative"}}>
+            <div id="gear_choice" style={{position: "relative"}} onMouseMove={this.mouseMoveHandler}>
               <img src="img/formula/gearbox.svg" className="gear_choice"
                 width="100px" height="100px"/>
               <svg viewBox="0 0 600 600" width="100" height="100"
@@ -48,7 +76,9 @@ export class GearChoicePanel extends React.Component {
                   {this.props.available.map(gear =>
                     <GearSelector key={gear} gear={gear}
                       color={(gear == this.props.current) ? "green" : "red"}
-                      onClick={() => this.props.onChooseGear(gear)} />
+                      onClick={() => this.props.onChooseGear(gear)}
+                      onMouseEnter={() => this.setState({selected: gear})}
+                      onMouseLeave={() => this.setState({selected: null})}/>
                   )}
               </svg>
             </div>

@@ -41,14 +41,22 @@ var GearSelector = function (_React$Component) {
     }, {
         key: "render",
         value: function render() {
+            var _this2 = this;
+
             return React.createElement("circle", { className: "gear_select",
                 cx: this.gearPositions[this.props.gear - 1].x,
                 cy: this.gearPositions[this.props.gear - 1].y,
                 r: "50", fillOpacity: "0",
                 strokeWidth: this.state.hover ? "20" : "10",
                 stroke: this.props.color,
-                onMouseEnter: this.handleMouseEnter,
-                onMouseLeave: this.handleMouseLeave,
+                onMouseEnter: function onMouseEnter() {
+                    _this2.handleMouseEnter();
+                    _this2.props.onMouseEnter();
+                },
+                onMouseLeave: function onMouseLeave() {
+                    _this2.handleMouseLeave();
+                    _this2.props.onMouseLeave();
+                },
                 onClick: this.handleMouseClick });
         }
     }]);
@@ -59,20 +67,38 @@ var GearSelector = function (_React$Component) {
 export var GearChoicePanel = function (_React$Component2) {
     _inherits(GearChoicePanel, _React$Component2);
 
-    function GearChoicePanel() {
+    function GearChoicePanel(props) {
         _classCallCheck(this, GearChoicePanel);
 
-        return _possibleConstructorReturn(this, (GearChoicePanel.__proto__ || Object.getPrototypeOf(GearChoicePanel)).apply(this, arguments));
+        var _this3 = _possibleConstructorReturn(this, (GearChoicePanel.__proto__ || Object.getPrototypeOf(GearChoicePanel)).call(this, props));
+
+        _this3.gearRolls = [[1, 2], [2, 4], [4, 8], [7, 12], [11, 20], [21, 30]];
+
+        _this3.state = { selected: null };
+        _this3.mouseMoveHandler = _this3.mouseMoveHandler.bind(_this3);
+        return _this3;
     }
 
     _createClass(GearChoicePanel, [{
+        key: "mouseMoveHandler",
+        value: function mouseMoveHandler(evt) {
+            console.log(evt);
+            var tooltipId = "gearChoice";
+            if (this.state.selected != null) {
+                this.props.onDisplayTooltip(tooltipId, evt.nativeEvent.clientX + 10, evt.nativeEvent.clientY + 10, "Rolls " + this.gearRolls[this.state.selected - 1][0] + " - " + this.gearRolls[this.state.selected - 1][1] + ".");
+            }
+            if (this.state.selected == null) {
+                this.props.onHideTooltip(tooltipId);
+            }
+        }
+    }, {
         key: "render",
         value: function render() {
-            var _this3 = this;
+            var _this4 = this;
 
             return React.createElement(
                 "div",
-                { style: { position: "relative" } },
+                { id: "gear_choice", style: { position: "relative" }, onMouseMove: this.mouseMoveHandler },
                 React.createElement("img", { src: "img/formula/gearbox.svg", className: "gear_choice",
                     width: "100px", height: "100px" }),
                 React.createElement(
@@ -81,9 +107,15 @@ export var GearChoicePanel = function (_React$Component2) {
                         style: { position: "absolute", top: 0, left: 0 } },
                     this.props.available.map(function (gear) {
                         return React.createElement(GearSelector, { key: gear, gear: gear,
-                            color: gear == _this3.props.current ? "green" : "red",
+                            color: gear == _this4.props.current ? "green" : "red",
                             onClick: function onClick() {
-                                return _this3.props.onChooseGear(gear);
+                                return _this4.props.onChooseGear(gear);
+                            },
+                            onMouseEnter: function onMouseEnter() {
+                                return _this4.setState({ selected: gear });
+                            },
+                            onMouseLeave: function onMouseLeave() {
+                                return _this4.setState({ selected: null });
                             } });
                     })
                 )
