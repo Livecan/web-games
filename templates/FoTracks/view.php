@@ -79,7 +79,7 @@
             </div>
             <div style="width: 100%; max-height: 600px; overflow: auto;">
                 <div id="track" style="position: relative;">
-                    <img src="<?= "/img/formula/" . $foTrack->game_plan ?>" width= "200%" style="display: block;" />
+                    <img src="<?= "img/formula/" . $foTrack->game_plan ?>" width= "200%" style="display: block;" />
                     <?php foreach ($foTrack->fo_positions as $foPosition): ?>
                         <span class="position_number" style="position: absolute;
                               left: <?= ($foPosition->pos_x / 1000) ?>%;
@@ -146,13 +146,13 @@
                 <div class="table-responsive">
                     <table>
                         <tr>
-                            <th><?= __('Stops') ?></th>
                             <th><?= __('Name') ?></th>
+                            <th><?= __('Stops') ?></th>
                         </tr>
                         <?php foreach ($foTrack->fo_curves as $foCurves): ?>
                         <tr>
-                            <td><?= h($foCurves->stops) ?></td>
                             <td><?= h($foCurves->name) ?></td>
+                            <td><?= h($foCurves->stops) ?></td>
                         </tr>
                         <?php endforeach; ?>
                     </table>
