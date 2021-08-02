@@ -181,4 +181,13 @@ button {
   height: "100px";
 }
 
+.tooltip {
+  background-color: #555;
+  color: white;
+  z-index: 1000000;
+  border-radius: 5px;
+  padding: 0 4px;
+  opacity: 90%;
+}
+
 /*# sourceMappingURL=formula-game.css.map */

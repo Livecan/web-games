@@ -85,7 +85,7 @@ export var GearChoicePanel = function (_React$Component2) {
             console.log(evt);
             var tooltipId = "gearChoice";
             if (this.state.selected != null) {
-                this.props.onDisplayTooltip(tooltipId, evt.nativeEvent.clientX + 10, evt.nativeEvent.clientY + 10, "Rolls " + this.gearRolls[this.state.selected - 1][0] + " - " + this.gearRolls[this.state.selected - 1][1] + ".");
+                this.props.onDisplayTooltip(tooltipId, evt.nativeEvent.clientX + 10, evt.nativeEvent.clientY + 10, "Rolls " + this.gearRolls[this.state.selected - 1][0] + " - " + this.gearRolls[this.state.selected - 1][1]);
             }
             if (this.state.selected == null) {
                 this.props.onHideTooltip(tooltipId);

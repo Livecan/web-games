@@ -214,8 +214,11 @@ var Board = function (_React$Component) {
               cars: this.state.cars || [], users: this.state.users })
           )
         ),
-        this.state.tooltip != null && React.createElement(Tooltip, { x: this.state.tooltip.x, y: this.state.tooltip.y,
-          text: this.state.tooltip.text })
+        this.state.tooltip != null && React.createElement(
+          Tooltip,
+          { x: this.state.tooltip.x, y: this.state.tooltip.y },
+          this.state.tooltip.text
+        )
       );
     }
   }]);

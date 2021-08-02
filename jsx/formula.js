@@ -181,8 +181,9 @@ class Board extends React.Component {
             </SlidePanelStack>
             {
               this.state.tooltip != null &&
-              <Tooltip x={this.state.tooltip.x} y={this.state.tooltip.y}
-                text={this.state.tooltip.text}/>
+              <Tooltip x={this.state.tooltip.x} y={this.state.tooltip.y}>
+                {this.state.tooltip.text}
+              </Tooltip>
             }
           </div>
         );

@@ -13,6 +13,7 @@ $board__car_img-z: 100;
 $debris_img-z: 10;
 $gears-z: 1001;
 $slide_panel-z: 10000;
+$tooltip-z: 1000000;
 $onboard-opacity: 65%;
 
 #board_parent {
@@ -188,6 +189,15 @@ button {
 }
 
 .gear_choice {
-     width: "100px";
-     height: "100px";
+    width: "100px";
+    height: "100px";
+}
+
+.tooltip {
+    background-color: #555;
+    color: white;
+    z-index: $tooltip-z;
+    border-radius: 5px;
+    padding: 0 4px;
+    opacity: 90%;
 }
