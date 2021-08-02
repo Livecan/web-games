@@ -150,10 +150,6 @@ if (!$fullBaseUrl) {
         $fullBaseUrl = 'http' . $s . '://' . $httpHost;
     }
     unset($httpHost, $s);
-	$base = Configure::read('App.base');
-	if ($base) {
-		$fullBaseUrl .= $base;
-	}
 }
 if ($fullBaseUrl) {
     Router::fullBaseUrl($fullBaseUrl);
