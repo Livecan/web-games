@@ -24,25 +24,32 @@ export var CarDamagePanel = function (_React$Component) {
     value: function compare(a, b) {
       if (a.state == b.state) {
         if (a.state == "R" && a.order < b.order) {
+          //both racing - compare order
           return -1;
         }
         if (a.state == "F" && a.ranking < b.ranking) {
+          //both finished - compare ranking
           return -1;
         }
         return 1;
       }
       if (a.state == "R") {
+        //only A is racing
         return -1;
       }
       if (b.state == "R") {
+        //only B is racing
         return 1;
       }
       if (a.state == "F") {
+        //A is racing and B retired
         return -1;
       }
       if (b.state == "F") {
+        //B is racing and A retired
         return -1;
       }
+      return 1;
     }
   }, {
     key: 'render',
