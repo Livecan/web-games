@@ -2,10 +2,29 @@ import { Sprite } from './sprite.js';
 import { carSprites } from './variables.js';
 import { DamagePanel } from './damagePanel.js';
 
-export class CarDamagePanel extends React.Component {
-    order(car) {
-        let value = (car.state == "R" ? -1000 : 0) + (car.order || 100);
-        return value;
+export class CarDamagePanel extends React.Component {    
+    compare(a, b) {
+        if (a.state == b.state) {
+            if (a.state == "R" && a.order < b.order) {
+                return -1;
+            }
+            if (a.state == "F" && a.ranking < b.ranking) {
+                return -1;
+            }
+            return 1;
+        }
+        if (a.state == "R") {
+            return -1;
+        }
+        if (b.state == "R") {
+            return 1;
+        }
+        if (a.state == "F") {
+            return -1;
+        }
+        if (b.state == "F") {
+            return -1;
+        }
     }
     
     render() {
@@ -13,8 +32,7 @@ export class CarDamagePanel extends React.Component {
             <table id="car_stats_table" className="damage_table">
               <tbody>
                 {this.props.cars
-                  .sort((first, second) =>
-                    this.order(first) - this.order(second) < 0 ? -1 : 0)
+                  .sort(this.compare)
                   .map(car =>
                     <tr key={car.index}>
                       <td>

@@ -20,10 +20,29 @@ export var CarDamagePanel = function (_React$Component) {
   }
 
   _createClass(CarDamagePanel, [{
-    key: 'order',
-    value: function order(car) {
-      var value = (car.state == "R" ? -1000 : 0) + (car.order || 100);
-      return value;
+    key: 'compare',
+    value: function compare(a, b) {
+      if (a.state == b.state) {
+        if (a.state == "R" && a.order < b.order) {
+          return -1;
+        }
+        if (a.state == "F" && a.ranking < b.ranking) {
+          return -1;
+        }
+        return 1;
+      }
+      if (a.state == "R") {
+        return -1;
+      }
+      if (b.state == "R") {
+        return 1;
+      }
+      if (a.state == "F") {
+        return -1;
+      }
+      if (b.state == "F") {
+        return -1;
+      }
     }
   }, {
     key: 'render',
@@ -36,9 +55,7 @@ export var CarDamagePanel = function (_React$Component) {
         React.createElement(
           'tbody',
           null,
-          this.props.cars.sort(function (first, second) {
-            return _this2.order(first) - _this2.order(second) < 0 ? -1 : 0;
-          }).map(function (car) {
+          this.props.cars.sort(this.compare).map(function (car) {
             return React.createElement(
               'tr',
               { key: car.index },
