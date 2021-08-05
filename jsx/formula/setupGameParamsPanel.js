@@ -8,15 +8,15 @@ export class SetupGameParamsPanel extends React.Component {
     }
     
     handleTrackChoiceChange(event) {
-        this.props.onUpdate({trackChoice: event.target.value});
+        this.props.onUpdate({fo_track_id: event.target.value});
     }
     
     handleCarsPerPlayerChange(event) {
-        this.props.onUpdate({carPerPlayer: event.target.value});
+        this.props.onUpdate({cars_per_player: event.target.value});
     }
     
     handleWPAvailableChange(event) {
-        this.props.onUpdate({wPAvailable: event.target.value});
+        this.props.onUpdate({wear_points: event.target.value});
     }
     
     handleLapsChange(event) {
@@ -33,7 +33,10 @@ export class SetupGameParamsPanel extends React.Component {
                   </td>
                   <td>
                     <select name="track-choice" id="track-choice"
-                        onChange={this.handleTrackChoiceChange}>
+                        onChange={this.handleTrackChoiceChange}
+                        defaultValue={this.props.game.fo_game.fo_track_id}
+                        value={!this.props.editable ? this.props.game.fo_game.fo_track_id : null}
+                        disabled={!this.props.editable} >
                       <option value="1">Monaco</option>
                       <option value="2">Daytona</option>
                       //TODO: load these option from the server
@@ -54,7 +57,9 @@ export class SetupGameParamsPanel extends React.Component {
                     <input type="number" id="cars-per-player"
                         name="cars-per-player" min="1"
                         defaultValue={this.props.game.fo_game.cars_per_player}
-                        onChange={this.handleCarsPerPlayerChange} />
+                        value={!this.props.editable ? this.props.game.fo_game.cars_per_player : null}
+                        onChange={this.handleCarsPerPlayerChange}
+                        disabled={!this.props.editable} />
                   </td>
                 </tr>
                 <tr>
@@ -65,7 +70,9 @@ export class SetupGameParamsPanel extends React.Component {
                     <input type="number" id="wear-points-available"
                         name="wear-points-available" min="6"
                         defaultValue={this.props.game.fo_game.wear_points}
-                        onChange={this.handleWPAvailableChange} />
+                        value={!this.props.editable ? this.props.game.fo_game.wear_points : null}
+                        onChange={this.handleWPAvailableChange}
+                        disabled={!this.props.editable} />
                   </td>
                 </tr>
                 <tr>
@@ -75,14 +82,19 @@ export class SetupGameParamsPanel extends React.Component {
                   <td>
                     <input type="number" id="laps" name="laps" min="1"
                         defaultValue={this.props.game.fo_game.laps}
-                        onChange={this.handleLapsChange} />
+                        value={!this.props.editable ? this.props.game.fo_game.laps : null}
+                        onChange={this.handleLapsChange}
+                        disabled={!this.props.editable} />
                   </td>
                 </tr>
-                <tr>
-                  <td colSpan="2">
-                    <button>Start</button>
-                  </td>
-                </tr>
+                {
+                  this.props.editable &&
+                  <tr>
+                    <td colSpan="2">
+                      <button>Start</button>
+                    </td>
+                  </tr>
+                }
               </tbody>
             </table>
         )

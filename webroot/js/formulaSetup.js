@@ -22,12 +22,17 @@ var Setup = function (_React$Component) {
 
         var _this = _possibleConstructorReturn(this, (Setup.__proto__ || Object.getPrototypeOf(Setup)).call(this, props));
 
-        _this.refreshInterval = 2000;
+        _this.gameParams = {};
+        _this.gameParamsTimeoutMiliseconds = 2000;
+        _this.refreshIntervalMiliseconds = 2000;
 
         _this.state = {};
         _this.update = _this.update.bind(_this);
         _this.updateData = _this.updateData.bind(_this);
+        _this.updateGameParams = _this.updateGameParams.bind(_this);
+        _this.sendGameParams = _this.sendGameParams.bind(_this);
         _this.update();
+        setInterval(_this.update, _this.refreshIntervalMiliseconds);
         return _this;
     }
 
@@ -35,7 +40,16 @@ var Setup = function (_React$Component) {
         key: 'updateData',
         value: function updateData(data) {
             console.log(JSON.stringify(data));
-            this.setState({ data: data });
+            var state = {
+                name: data.name,
+                users: data.users
+            };
+            var game = data;
+            delete game.users;
+            if (this.state.game == null || !this.state.game.editable) {
+                state.game = game;
+            }
+            this.setState(state);
         }
     }, {
         key: 'update',
@@ -44,9 +58,31 @@ var Setup = function (_React$Component) {
             $.getJSON(url, this.updateData);
         }
     }, {
+        key: 'updateGameParams',
+        value: function updateGameParams(gameParams) {
+            for (var property in gameParams) {
+                this.gameParams[property] = gameParams[property];
+            }
+            this.gameParamsTimeout = setTimeout(this.sendGameParams, this.gameParamsTimeoutMiliseconds);
+            console.log(JSON.stringify(gameParams));
+            console.log(JSON.stringify(this.gameParams));
+        }
+    }, {
+        key: 'sendGameParams',
+        value: function sendGameParams() {
+            var _this2 = this;
+
+            var url = 'formula/editSetup/' + this.props.id;
+            var payload = this.gameParams;
+            payload["_csrfToken"] = csrfToken;
+            $.post(url, this.gameParams, null, 'json').fail(function () {
+                return _this2.updateGameParams({});
+            });
+        }
+    }, {
         key: 'render',
         value: function render() {
-            if (this.state.data == null) {
+            if (this.state.game == null) {
                 return null;
             } else {
                 return React.createElement(
@@ -55,7 +91,7 @@ var Setup = function (_React$Component) {
                     React.createElement(
                         'h2',
                         { id: 'game-name' },
-                        this.state.data.name
+                        this.state.name
                     ),
                     React.createElement(
                         'div',
@@ -63,12 +99,14 @@ var Setup = function (_React$Component) {
                         React.createElement(
                             'div',
                             { id: 'player-car-column' },
-                            React.createElement(SetupPlayersCarsPanel, { users: this.state.data.users })
+                            React.createElement(SetupPlayersCarsPanel, { users: this.state.users })
                         ),
                         React.createElement(
                             'div',
                             { id: 'setup-column' },
-                            React.createElement(SetupGameParamsPanel, { game: this.state.data })
+                            React.createElement(SetupGameParamsPanel, { game: this.state.game,
+                                onUpdate: this.updateGameParams,
+                                editable: this.state.game.editable })
                         )
                     )
                 );

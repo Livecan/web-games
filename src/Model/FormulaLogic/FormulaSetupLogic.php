@@ -30,6 +30,7 @@ class FormulaSetupLogic {
         $this->FoLogs = $this->getTableLocator()->get('FoLogs');
         $this->FoTracks = $this->getTableLocator()->get('FoTracks');
         $this->FoPositions = $this->getTableLocator()->get('FoPositions');
+        $this->Users = $this->getTableLocator()->get('Users');
     }
     
     public function createNewGame(User $user) {
@@ -114,8 +115,10 @@ class FormulaSetupLogic {
         }
         $foUsers = collection($formulaGame->users);
         $foCars = collection($formulaGame->fo_cars)->groupBy('user_id')->toArray();
-        $foUsers->each(function(User $_user) use ($foCars, $user) {
-            $_user->fo_cars = $foCars[$_user->id];
+        $foUsers->each(function(User $_user) use ($formulaGame, $foCars, $user) {
+            $_user->fo_cars = collection($foCars[$_user->id])->
+                sortBy('id', SORT_ASC)->take($formulaGame->fo_game->cars_per_player)->
+                toList();
             $_user->editable = ($user->id === $_user->id);
             $_user->unset('_joinData');
         });
@@ -128,6 +131,10 @@ class FormulaSetupLogic {
     public function editSetup(FormulaGame $formulaGame, array $data) {
         $this->FormulaGames->patchEntity($formulaGame, $data);
         $this->FoGames->patchEntity($formulaGame->fo_game, $data);
+        $foTrack = $this->FoTracks->get($formulaGame->fo_game->fo_track_id);
+        //TODO: check and fix loading of assiciations and rewrite the following
+        $creator = $this->Users->get($formulaGame->creator_id);
+        $formulaGame->name = $creator->name . "'s " . $foTrack->name . " GP";
         $formulaGame->setDirty('fo_game');
         
         $carsMissing = false;

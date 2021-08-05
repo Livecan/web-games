@@ -24,17 +24,17 @@ export var SetupGameParamsPanel = function (_React$Component) {
   _createClass(SetupGameParamsPanel, [{
     key: "handleTrackChoiceChange",
     value: function handleTrackChoiceChange(event) {
-      this.props.onUpdate({ trackChoice: event.target.value });
+      this.props.onUpdate({ fo_track_id: event.target.value });
     }
   }, {
     key: "handleCarsPerPlayerChange",
     value: function handleCarsPerPlayerChange(event) {
-      this.props.onUpdate({ carPerPlayer: event.target.value });
+      this.props.onUpdate({ cars_per_player: event.target.value });
     }
   }, {
     key: "handleWPAvailableChange",
     value: function handleWPAvailableChange(event) {
-      this.props.onUpdate({ wPAvailable: event.target.value });
+      this.props.onUpdate({ wear_points: event.target.value });
     }
   }, {
     key: "handleLapsChange",
@@ -68,7 +68,10 @@ export var SetupGameParamsPanel = function (_React$Component) {
               React.createElement(
                 "select",
                 { name: "track-choice", id: "track-choice",
-                  onChange: this.handleTrackChoiceChange },
+                  onChange: this.handleTrackChoiceChange,
+                  defaultValue: this.props.game.fo_game.fo_track_id,
+                  value: !this.props.editable ? this.props.game.fo_game.fo_track_id : null,
+                  disabled: !this.props.editable },
                 React.createElement(
                   "option",
                   { value: "1" },
@@ -111,7 +114,9 @@ export var SetupGameParamsPanel = function (_React$Component) {
               React.createElement("input", { type: "number", id: "cars-per-player",
                 name: "cars-per-player", min: "1",
                 defaultValue: this.props.game.fo_game.cars_per_player,
-                onChange: this.handleCarsPerPlayerChange })
+                value: !this.props.editable ? this.props.game.fo_game.cars_per_player : null,
+                onChange: this.handleCarsPerPlayerChange,
+                disabled: !this.props.editable })
             )
           ),
           React.createElement(
@@ -132,7 +137,9 @@ export var SetupGameParamsPanel = function (_React$Component) {
               React.createElement("input", { type: "number", id: "wear-points-available",
                 name: "wear-points-available", min: "6",
                 defaultValue: this.props.game.fo_game.wear_points,
-                onChange: this.handleWPAvailableChange })
+                value: !this.props.editable ? this.props.game.fo_game.wear_points : null,
+                onChange: this.handleWPAvailableChange,
+                disabled: !this.props.editable })
             )
           ),
           React.createElement(
@@ -152,10 +159,12 @@ export var SetupGameParamsPanel = function (_React$Component) {
               null,
               React.createElement("input", { type: "number", id: "laps", name: "laps", min: "1",
                 defaultValue: this.props.game.fo_game.laps,
-                onChange: this.handleLapsChange })
+                value: !this.props.editable ? this.props.game.fo_game.laps : null,
+                onChange: this.handleLapsChange,
+                disabled: !this.props.editable })
             )
           ),
-          React.createElement(
+          this.props.editable && React.createElement(
             "tr",
             null,
             React.createElement(
