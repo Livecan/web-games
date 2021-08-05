@@ -39,7 +39,7 @@ export var SetupPlayersCarsPanel = function (_React$Component) {
                   React.createElement(
                     "span",
                     null,
-                    user.name
+                    user.editable ? "You" : user.name
                   )
                 )
               ),

@@ -10,7 +10,9 @@ export class SetupPlayersCarsPanel extends React.Component {
                     <React.Fragment key={user.id}>
                       <tr>
                         <td colSpan="8">
-                          <span>{user.name}</span>
+                          <span>
+                            {user.editable ? "You" : user.name}
+                          </span>
                         </td>
                       </tr>
                       {
