@@ -19,6 +19,7 @@ class Setup extends React.Component {
         this.updateData = this.updateData.bind(this);
         this.updateGameParams = this.updateGameParams.bind(this);
         this.sendGameParams = this.sendGameParams.bind(this);
+        this.sendUpdateDamage = this.sendUpdateDamage.bind(this);
         this.update();
         setInterval(this.update, this.refreshIntervalMiliseconds);
     }
@@ -51,11 +52,17 @@ class Setup extends React.Component {
         console.log(JSON.stringify(this.gameParams));
     }
     
+    sendUpdateDamage(damageId, wearPoints) {
+        let url = 'formula/editDamage/' + this.props.id;
+        let payload = { _csrfToken: csrfToken, damage_id: damageId, wear_points: wearPoints };
+        $.post(url, payload, null, 'json');
+    }
+    
     sendGameParams() {
         let url = 'formula/editSetup/' + this.props.id;
         let payload = this.gameParams;
         payload["_csrfToken"] = csrfToken;
-        $.post(url, this.gameParams, null, 'json')
+        $.post(url, payload, null, 'json')
             .fail(() => this.updateGameParams({}));
     }
     
@@ -69,7 +76,9 @@ class Setup extends React.Component {
                   <h2 id="game-name">{this.state.name}</h2>
                   <div className="row">
                     <div id="player-car-column">
-                      <SetupPlayersCarsPanel users={this.state.users} />
+                      <SetupPlayersCarsPanel users={this.state.users}
+                          totalWP={this.state.game.fo_game.wear_points}
+                          onDamageChange={this.sendUpdateDamage} />
                     </div>
                     <div id="setup-column">
                       <SetupGameParamsPanel game={this.state.game}

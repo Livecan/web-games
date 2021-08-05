@@ -31,6 +31,7 @@ var Setup = function (_React$Component) {
         _this.updateData = _this.updateData.bind(_this);
         _this.updateGameParams = _this.updateGameParams.bind(_this);
         _this.sendGameParams = _this.sendGameParams.bind(_this);
+        _this.sendUpdateDamage = _this.sendUpdateDamage.bind(_this);
         _this.update();
         setInterval(_this.update, _this.refreshIntervalMiliseconds);
         return _this;
@@ -68,6 +69,13 @@ var Setup = function (_React$Component) {
             console.log(JSON.stringify(this.gameParams));
         }
     }, {
+        key: 'sendUpdateDamage',
+        value: function sendUpdateDamage(damageId, wearPoints) {
+            var url = 'formula/editDamage/' + this.props.id;
+            var payload = { _csrfToken: csrfToken, damage_id: damageId, wear_points: wearPoints };
+            $.post(url, payload, null, 'json');
+        }
+    }, {
         key: 'sendGameParams',
         value: function sendGameParams() {
             var _this2 = this;
@@ -75,7 +83,7 @@ var Setup = function (_React$Component) {
             var url = 'formula/editSetup/' + this.props.id;
             var payload = this.gameParams;
             payload["_csrfToken"] = csrfToken;
-            $.post(url, this.gameParams, null, 'json').fail(function () {
+            $.post(url, payload, null, 'json').fail(function () {
                 return _this2.updateGameParams({});
             });
         }
@@ -99,7 +107,9 @@ var Setup = function (_React$Component) {
                         React.createElement(
                             'div',
                             { id: 'player-car-column' },
-                            React.createElement(SetupPlayersCarsPanel, { users: this.state.users })
+                            React.createElement(SetupPlayersCarsPanel, { users: this.state.users,
+                                totalWP: this.state.game.fo_game.wear_points,
+                                onDamageChange: this.sendUpdateDamage })
                         ),
                         React.createElement(
                             'div',
