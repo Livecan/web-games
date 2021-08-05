@@ -9,13 +9,39 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 export var SetupGameParamsPanel = function (_React$Component) {
   _inherits(SetupGameParamsPanel, _React$Component);
 
-  function SetupGameParamsPanel() {
+  function SetupGameParamsPanel(props) {
     _classCallCheck(this, SetupGameParamsPanel);
 
-    return _possibleConstructorReturn(this, (SetupGameParamsPanel.__proto__ || Object.getPrototypeOf(SetupGameParamsPanel)).apply(this, arguments));
+    var _this = _possibleConstructorReturn(this, (SetupGameParamsPanel.__proto__ || Object.getPrototypeOf(SetupGameParamsPanel)).call(this, props));
+
+    _this.handleTrackChoiceChange = _this.handleTrackChoiceChange.bind(_this);
+    _this.handleCarsPerPlayerChange = _this.handleCarsPerPlayerChange.bind(_this);
+    _this.handleWPAvailableChange = _this.handleWPAvailableChange.bind(_this);
+    _this.handleLapsChange = _this.handleLapsChange.bind(_this);
+    return _this;
   }
 
   _createClass(SetupGameParamsPanel, [{
+    key: "handleTrackChoiceChange",
+    value: function handleTrackChoiceChange(event) {
+      this.props.onUpdate({ trackChoice: event.target.value });
+    }
+  }, {
+    key: "handleCarsPerPlayerChange",
+    value: function handleCarsPerPlayerChange(event) {
+      this.props.onUpdate({ carPerPlayer: event.target.value });
+    }
+  }, {
+    key: "handleWPAvailableChange",
+    value: function handleWPAvailableChange(event) {
+      this.props.onUpdate({ wPAvailable: event.target.value });
+    }
+  }, {
+    key: "handleLapsChange",
+    value: function handleLapsChange(event) {
+      this.props.onUpdate({ laps: event.target.value });
+    }
+  }, {
     key: "render",
     value: function render() {
       return React.createElement(
@@ -41,7 +67,8 @@ export var SetupGameParamsPanel = function (_React$Component) {
               null,
               React.createElement(
                 "select",
-                { name: "track-choice", id: "track-choice" },
+                { name: "track-choice", id: "track-choice",
+                  onChange: this.handleTrackChoiceChange },
                 React.createElement(
                   "option",
                   { value: "1" },
@@ -74,6 +101,27 @@ export var SetupGameParamsPanel = function (_React$Component) {
               null,
               React.createElement(
                 "label",
+                { htmlFor: "cars-per-player" },
+                "Cars per player"
+              )
+            ),
+            React.createElement(
+              "td",
+              null,
+              React.createElement("input", { type: "number", id: "cars-per-player",
+                name: "cars-per-player", min: "1",
+                defaultValue: this.props.game.fo_game.cars_per_player,
+                onChange: this.handleCarsPerPlayerChange })
+            )
+          ),
+          React.createElement(
+            "tr",
+            null,
+            React.createElement(
+              "td",
+              null,
+              React.createElement(
+                "label",
                 { htmlFor: "wear-points-available" },
                 "WP"
               )
@@ -83,7 +131,8 @@ export var SetupGameParamsPanel = function (_React$Component) {
               null,
               React.createElement("input", { type: "number", id: "wear-points-available",
                 name: "wear-points-available", min: "6",
-                defaultValue: this.props.game.fo_game.wear_points })
+                defaultValue: this.props.game.fo_game.wear_points,
+                onChange: this.handleWPAvailableChange })
             )
           ),
           React.createElement(
@@ -102,7 +151,8 @@ export var SetupGameParamsPanel = function (_React$Component) {
               "td",
               null,
               React.createElement("input", { type: "number", id: "laps", name: "laps", min: "1",
-                defaultValue: this.props.game.fo_game.laps })
+                defaultValue: this.props.game.fo_game.laps,
+                onChange: this.handleLapsChange })
             )
           ),
           React.createElement(

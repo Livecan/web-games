@@ -8,12 +8,14 @@ import { SetupGameParamsPanel } from './formula/setupGameParamsPanel.js';
 
 class Setup extends React.Component {
     refreshInterval = 2000;
+    gameParams = {};
     
     constructor(props) {
         super(props);
         this.state = {};
         this.update = this.update.bind(this);
         this.updateData = this.updateData.bind(this);
+        this.updateGameParams = this.updateGameParams.bind(this);
         this.update();
     }
     
@@ -25,6 +27,14 @@ class Setup extends React.Component {
     update() {
         let url = 'formula/getSetupUpdateJson/' + this.props.id;
         $.getJSON(url, this.updateData);
+    }
+    
+    updateGameParams(gameParams) {
+        for (const property in gameParams) {
+            this.gameParams[property] = gameParams[property];
+        }
+        console.log(JSON.stringify(gameParams));
+        console.log(JSON.stringify(this.gameParams));
     }
     
     render() {
@@ -40,7 +50,7 @@ class Setup extends React.Component {
                       <SetupPlayersCarsPanel users={this.state.data.users} />
                     </div>
                     <div id="setup-column">
-                      <SetupGameParamsPanel game={this.state.data} />
+                      <SetupGameParamsPanel game={this.state.data} onUpdate={this.updateGameParams} />
                     </div>
                   </div>
                 </div>
