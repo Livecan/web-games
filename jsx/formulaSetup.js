@@ -25,7 +25,7 @@ class Setup extends React.Component {
     }
     
     updateData(data) {
-        console.log(JSON.stringify(data));
+        console.log(JSON.stringify(Object.keys(data)));
         let state = {
             name: data.name,
             users: data.users
@@ -44,11 +44,13 @@ class Setup extends React.Component {
     }
     
     updateGameParams(gameParams) {
-        for (const property in gameParams) {
-            this.gameParams[property] = gameParams[property];
+        Object.assign(this.gameParams, gameParams);
+        Object.assign(this.state.game, gameParams);
+        this.setState({game: this.state.game});
+        if (this.gameParamsTimeout == null) {
+            this.gameParamsTimeout = setTimeout(this.sendGameParams, this.gameParamsTimeoutMiliseconds);
         }
-        this.gameParamsTimeout = setTimeout(this.sendGameParams, this.gameParamsTimeoutMiliseconds);
-        console.log(JSON.stringify(gameParams));
+        console.log("new params: " + JSON.stringify(gameParams));
         console.log(JSON.stringify(this.gameParams));
     }
     
@@ -61,6 +63,7 @@ class Setup extends React.Component {
     sendGameParams() {
         let url = 'formula/editSetup/' + this.props.id;
         let payload = this.gameParams;
+        this.gameParamsTimeout = null;
         payload["_csrfToken"] = csrfToken;
         $.post(url, payload, null, 'json')
             .fail(() => this.updateGameParams({}));
@@ -77,7 +80,7 @@ class Setup extends React.Component {
                   <div className="row">
                     <div id="player-car-column">
                       <SetupPlayersCarsPanel users={this.state.users}
-                          totalWP={this.state.game.fo_game.wear_points}
+                          totalWP={this.state.game.wear_points}
                           onDamageChange={this.sendUpdateDamage} />
                     </div>
                     <div id="setup-column">

@@ -105,6 +105,10 @@ class FormulaSetupLogic {
             'FoGames', 'FoGames.FoTracks',
             'Users', 'FoCars', 'FoCars.FoDamages', 'FoGames.FoTracks',
         ]]);
+        foreach ($formulaGame->fo_game->toArray() as $property => $value) {
+            $formulaGame->set($property, $value);
+        }
+        $formulaGame->unsetProperty('fo_game');
         if ($formulaGame->game_state_id == 2) {
             return new Entity([
                 'has_updated' => true,
@@ -117,7 +121,7 @@ class FormulaSetupLogic {
         $foCars = collection($formulaGame->fo_cars)->groupBy('user_id')->toArray();
         $foUsers->each(function(User $_user) use ($formulaGame, $foCars, $user) {
             $_user->fo_cars = collection($foCars[$_user->id])->
-                sortBy('id', SORT_ASC)->take($formulaGame->fo_game->cars_per_player)->
+                sortBy('id', SORT_ASC)->take($formulaGame->cars_per_player)->
                 toList();
             $_user->editable = ($user->id === $_user->id);
             $_user->unset('_joinData');
