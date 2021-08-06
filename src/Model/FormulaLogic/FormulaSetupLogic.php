@@ -13,6 +13,7 @@ use App\Model\Entity\FoGame;
 use App\Model\Entity\FoCar;
 use App\Model\Entity\User;
 use App\Model\Entity\FoLog;
+use App\Model\Entity\GamesUser;
 
 /**
  * Description of FormulaSetupLogic
@@ -124,6 +125,7 @@ class FormulaSetupLogic {
                 sortBy('id', SORT_ASC)->take($formulaGame->cars_per_player)->
                 toList();
             $_user->editable = ($user->id === $_user->id);
+            $_user->ready_state = $_user->_joinData->ready_state == GamesUser::STATE_READY;
             $_user->unset('_joinData');
         });
         $formulaGame->unset('fo_cars');
@@ -136,10 +138,16 @@ class FormulaSetupLogic {
         $this->FormulaGames->patchEntity($formulaGame, $data);
         $this->FoGames->patchEntity($formulaGame->fo_game, $data);
         $foTrack = $this->FoTracks->get($formulaGame->fo_game->fo_track_id);
+        $formulaGame->setDirty('fo_game');
+        
         //TODO: check and fix loading of assiciations and rewrite the following
         $creator = $this->Users->get($formulaGame->creator_id);
         $formulaGame->name = $creator->name . "'s " . $foTrack->name . " GP";
-        $formulaGame->setDirty('fo_game');
+        
+        foreach ($formulaGame->users as $user) {
+            $user->_joinData->ready_state = GamesUser::STATE_NOT_READY;
+        }
+        $formulaGame->setDirty('users');
         
         $carsMissing = false;
         if (array_key_exists('cars_per_player', $data)) {
@@ -251,5 +259,13 @@ class FormulaSetupLogic {
         return $formulaGame;
     }
     
-    //TODO: before game starts, check damage points add up and do ready buttons functionality
+    public function setUserReady(FormulaGame $formulaGame, $user, bool $ready) {
+        $gameUserState = $this->getTableLocator()->get('GamesUsers')->find()->
+            where(['game_id' => $formulaGame->id, 'user_id' => $user->id])->
+            first();
+        $gameUserState->ready_state = $ready ? GamesUser::STATE_READY : GamesUser::STATE_NOT_READY;
+        $this->getTableLocator()->get('GamesUsers')->save($gameUserState);
+    }
+    
+    //TODO: before game starts, check damage points add up
 }

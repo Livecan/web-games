@@ -78,6 +78,10 @@ class FormulaGamePolicy
         return $user->id == $formulaGame->creator_id || $user->is_admin;
     }
     
+    public function canSetUserReady(IdentityInterface $user, FormulaGame $formulaGame) {
+        return $this->isGamePlayer($user, $formulaGame);
+    }
+    
     private function isGamePlayer(IdentityInterface $user, FormulaGame $formulaGame)
     {
         return collection($formulaGame->users)->some(

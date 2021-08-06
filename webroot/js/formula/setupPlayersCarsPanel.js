@@ -11,13 +11,21 @@ import { SetupPlayerCars } from './setupPlayerCars.js';
 export var SetupPlayersCarsPanel = function (_React$Component) {
     _inherits(SetupPlayersCarsPanel, _React$Component);
 
-    function SetupPlayersCarsPanel() {
+    function SetupPlayersCarsPanel(props) {
         _classCallCheck(this, SetupPlayersCarsPanel);
 
-        return _possibleConstructorReturn(this, (SetupPlayersCarsPanel.__proto__ || Object.getPrototypeOf(SetupPlayersCarsPanel)).apply(this, arguments));
+        var _this = _possibleConstructorReturn(this, (SetupPlayersCarsPanel.__proto__ || Object.getPrototypeOf(SetupPlayersCarsPanel)).call(this, props));
+
+        _this.handlePlayerReadyChange = _this.handlePlayerReadyChange.bind(_this);
+        return _this;
     }
 
     _createClass(SetupPlayersCarsPanel, [{
+        key: 'handlePlayerReadyChange',
+        value: function handlePlayerReadyChange(ready) {
+            this.props.onPlayerReadyChange(ready);
+        }
+    }, {
         key: 'render',
         value: function render() {
             var _this2 = this;
@@ -30,9 +38,11 @@ export var SetupPlayersCarsPanel = function (_React$Component) {
                     null,
                     this.props.users.map(function (user) {
                         return React.createElement(SetupPlayerCars, { key: user.id, name: user.name,
+                            readyState: user.ready_state,
                             cars: user.fo_cars, editable: user.editable,
                             totalWP: _this2.props.totalWP,
-                            onDamageChange: _this2.props.onDamageChange });
+                            onDamageChange: _this2.props.onDamageChange,
+                            onPlayerReadyChange: _this2.handlePlayerReadyChange });
                     })
                 )
             );

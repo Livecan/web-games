@@ -32,6 +32,7 @@ var Setup = function (_React$Component) {
         _this.updateGameParams = _this.updateGameParams.bind(_this);
         _this.sendGameParams = _this.sendGameParams.bind(_this);
         _this.sendUpdateDamage = _this.sendUpdateDamage.bind(_this);
+        _this.sendUpdatePlayerReady = _this.sendUpdatePlayerReady.bind(_this);
         _this.update();
         setInterval(_this.update, _this.refreshIntervalMiliseconds);
         return _this;
@@ -91,6 +92,21 @@ var Setup = function (_React$Component) {
             });
         }
     }, {
+        key: 'sendUpdatePlayerReady',
+        value: function sendUpdatePlayerReady(ready) {
+            var url = 'formula/setUserReady/' + this.props.id;
+            var payload = {
+                gameId: this.props.id,
+                ready: ready,
+                _csrfToken: csrfToken
+            };
+            $.post(url, payload, null, 'json');
+            this.state.users.find(function (user) {
+                return user.editable;
+            }).ready_state = ready;
+            this.setState({ users: this.state.users });
+        }
+    }, {
         key: 'render',
         value: function render() {
             if (this.state.game == null) {
@@ -112,7 +128,8 @@ var Setup = function (_React$Component) {
                             { id: 'player-car-column' },
                             React.createElement(SetupPlayersCarsPanel, { users: this.state.users,
                                 totalWP: this.state.game.wear_points,
-                                onDamageChange: this.sendUpdateDamage })
+                                onDamageChange: this.sendUpdateDamage,
+                                onPlayerReadyChange: this.sendUpdatePlayerReady })
                         ),
                         React.createElement(
                             'div',

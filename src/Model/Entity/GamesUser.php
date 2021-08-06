@@ -38,4 +38,7 @@ class GamesUser extends Entity
         'game' => true,
         'user' => true,
     ];
+    
+    const STATE_READY = 'R';
+    const STATE_NOT_READY = 'N';
 }

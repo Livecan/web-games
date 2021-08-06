@@ -203,4 +203,15 @@ class FormulaController extends AppController
             $this->redirect(['action' => 'getWaitingRoom', $id]);
         }
     }
+    
+    public function setUserReady($id) {
+        $ready = $this->request->getData('ready') == 'true';
+        $formulaGame = $this->FormulaGames->get($id);
+        $this->Authorization->authorize($formulaGame);
+        if ($this->request->is('post') && $formulaGame->game_state_id == 1) {
+            $this->FormulaSetup->setUserReady($formulaGame,
+                    $this->request->getAttribute('identity')->getOriginalData(), $ready);
+            $this->viewBuilder()->setOption('serialize', '');
+        }
+    }
 }

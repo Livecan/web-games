@@ -1,9 +1,11 @@
 import { damageType } from './variables.js';
+import { SetupPlayerReadyButton } from './setupPlayerReadyButton.js';
 
 export class SetupPlayerCars extends React.Component {
     constructor(props) {
         super(props);
         this.handleChangeDamage = this.handleChangeDamage.bind(this);
+        this.handlePlayerReadyChange = this.handlePlayerReadyChange.bind(this);
     }
     
     carDamageReduceSum(accumulator, currentValue) {
@@ -12,26 +14,38 @@ export class SetupPlayerCars extends React.Component {
     
     handleChangeDamage(event) {
         console.log(event.target.id + " " + event.target.value);
+        if (this.props.readyState) {
+            this.handlePlayerReadyChange(false);
+        }
         this.props.onDamageChange(event.target.id, event.target.value);
     }
     
-    render() {        
+    handlePlayerReadyChange(ready) {
+        this.props.onPlayerReadyChange(ready);
+    }
+    
+    carDamageConditionsCheck(cars, totalWP) {
+        return cars.every(car =>
+            car.fo_damages.reduce(this.carDamageReduceSum, 0) == this.props.totalWP
+        )
+    }
+    
+    render() {
         return (
             <React.Fragment>
               <tr>
-                <td colSpan="5">
+                <td colSpan="6">
                   <span>
                     {this.props.editable ? "You" : this.props.name}
                   </span>
-                </td>
-                <td>
-                  <span>
-                    {
-                      this.props.cars.every(car =>
-                        car.fo_damages.reduce(this.carDamageReduceSum, 0) == this.props.totalWP
-                      ) ? "WP OK" : "not ready"
-                    }
-                  </span>
+                  <SetupPlayerReadyButton
+                      disabled={!this.props.editable}
+                      conditionsMet={
+                        this.carDamageConditionsCheck(this.props.cars, this.props.totalWP)
+                      }
+                      ready={this.props.readyState}
+                      onClick={this.handlePlayerReadyChange}
+                  />
                 </td>
               </tr>
               {
