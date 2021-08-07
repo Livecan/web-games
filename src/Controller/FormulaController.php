@@ -7,6 +7,7 @@ use Cake\I18n\Time;
 use App\Model\FormulaLogic\FormulaLogic;
 use App\Model\FormulaLogic\FormulaSetupLogic;
 use App\Model\Entity\FoDamage;
+use App\Model\Entity\Game;
 
 /**
  * Formula Controller
@@ -46,7 +47,7 @@ class FormulaController extends AppController
         $formulaGame = $this->FormulaGames->get($id, ['contain' => ['FoGames', 'Users', 'FoCars'],
             ]);
         $this->Authorization->authorize($formulaGame);
-        if ($formulaGame->game_state_id == 1) {
+        if ($formulaGame->game_state_id == Game::STATE_INITIAL) {
             if ($this->request->is('post') && $formulaGame = $this->FormulaSetup->startGame($formulaGame)) {
                 $this->Flash->success(__('The formula has been saved.'));
                 return $this->redirect(['action' => 'getBoard', $id]);
@@ -85,7 +86,7 @@ class FormulaController extends AppController
             ['Users', 'FoGames.FoTracks', 'FoGames.FoTracks.FoPositions']]);
         
         $this->Authorization->authorize($formulaGame);
-        if ($this->request->is('get') && $formulaGame->game_state_id != 1) {
+        if ($this->request->is('get') && $formulaGame->game_state_id != Game::STATE_INITIAL) {
             $this->set(compact('formulaGame'));
         } else {
             $this->Flash->error(__('Error occurred while retrieving board. Please, try again.'));
@@ -99,7 +100,7 @@ class FormulaController extends AppController
         $formulaGame = $this->FormulaGames->get($id, ['contain' => ['FoCars']]);
         
         $this->Authorization->authorize($formulaGame);
-        if ($this->request->is('post') && $formulaGame->game_state_id == 2) {
+        if ($this->request->is('post') && $formulaGame->game_state_id == Game::STATE_IN_PROGRESS) {
             $data = $this->request->getData();
             $this->Formula->chooseMoveOptionById($formulaGame, intval($data["move_option_id"]));
         } else {
@@ -114,7 +115,7 @@ class FormulaController extends AppController
         $formulaGame = $this->FormulaGames->get($id, ['contain' => ['FoCars']]);
         
         $this->Authorization->authorize($formulaGame);
-        if ($this->request->is('post') && $formulaGame->game_state_id == 2) {
+        if ($this->request->is('post') && $formulaGame->game_state_id == Game::STATE_IN_PROGRESS) {
             $data = $this->request->getData();
             $this->Formula->chooseGear($formulaGame, intval($data["gear"]));
         } else {
@@ -176,7 +177,7 @@ class FormulaController extends AppController
                 ['contain' => ['Users', 'FoGames']]);
         $this->Authorization->authorize($formulaGame);
         
-        if ($this->request->is('post') && $formulaGame->game_state_id == 1) {
+        if ($this->request->is('post') && $formulaGame->game_state_id == Game::STATE_INITIAL) {
             $this->FormulaSetup->editSetup($formulaGame, $this->request->getData());
             $this->viewBuilder()->setOption('serialize', '');
         }
@@ -188,7 +189,7 @@ class FormulaController extends AppController
         $foDamage = $this->FoDamages->get($damageId, ['contain' => ['FoCars']]);
         $formulaGame = $this->FormulaGames->get($id);
         $this->Authorization->authorize($foDamage);
-        if ($this->request->is('post') && $formulaGame->game_state_id == 1) {
+        if ($this->request->is('post') && $formulaGame->game_state_id == Game::STATE_INITIAL) {
             $this->FormulaSetup->editDamage($formulaGame, $foDamage, $wearPoints);
             $this->viewBuilder()->setOption('serialize', '');
         }
@@ -197,7 +198,7 @@ class FormulaController extends AppController
     public function joinGame($id) {
         $formulaGame = $this->FormulaGames->get($id, ['contain' => ['Users', 'FoGames']]);
         $this->Authorization->skipAuthorization();
-        if ($this->request->is('post')) {
+        if ($this->request->is('post') && Game::STATE_INITIAL) {
             $this->FormulaSetup->joinGame($formulaGame,
                     $this->request->getAttribute('identity')->getOriginalData());
             $this->redirect(['action' => 'getWaitingRoom', $id]);
@@ -208,7 +209,7 @@ class FormulaController extends AppController
         $ready = $this->request->getData('ready') == 'true';
         $formulaGame = $this->FormulaGames->get($id);
         $this->Authorization->authorize($formulaGame);
-        if ($this->request->is('post') && $formulaGame->game_state_id == 1) {
+        if ($this->request->is('post') && $formulaGame->game_state_id == Game::STATE_INITIAL) {
             $this->FormulaSetup->setUserReady($formulaGame,
                     $this->request->getAttribute('identity')->getOriginalData(), $ready);
             $this->viewBuilder()->setOption('serialize', '');

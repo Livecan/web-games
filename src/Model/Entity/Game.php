@@ -40,4 +40,8 @@ class Game extends Entity
         'creator' => true,
         'users' => true,
     ];
+    
+    const STATE_INITIAL = 1;
+    const STATE_IN_PROGRESS = 2;
+    const STATE_FINISHED = 3;
 }
