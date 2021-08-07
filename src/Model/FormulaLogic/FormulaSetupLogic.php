@@ -200,6 +200,13 @@ class FormulaSetupLogic {
     }
     
     public function startGame(FormulaGame $formulaGame) {
+        $gameUsers = $this->GamesUsers->find('all')->
+            where(['game_id' => $formulaGame->id]);
+        $allUsersReady = collection($gameUsers)->every(
+                function($gameUser) { return $gameUser->ready_state == GamesUser::STATE_READY; });
+        if (!$allUsersReady) {
+            return false;
+        }
         $foExcessCars = collection($formulaGame->fo_cars)->
                 groupBy('user_id')->
                 map(function($foUserCars) use ($formulaGame) {

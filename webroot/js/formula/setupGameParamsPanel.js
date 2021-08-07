@@ -184,7 +184,8 @@ export var SetupGameParamsPanel = function (_React$Component) {
               { colSpan: "2" },
               React.createElement(
                 "button",
-                null,
+                { disabled: !this.props.playersReady,
+                  onClick: this.props.onStart },
                 "Start"
               )
             )

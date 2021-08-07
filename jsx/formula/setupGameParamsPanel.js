@@ -125,7 +125,10 @@ export class SetupGameParamsPanel extends React.Component {
                   this.props.editable &&
                   <tr>
                     <td colSpan="2">
-                      <button>Start</button>
+                      <button disabled={!this.props.playersReady}
+                          onClick={this.props.onStart}>
+                        Start
+                      </button>
                     </td>
                   </tr>
                 }

@@ -145,10 +145,8 @@ class FormulaController extends AppController
             $this->Flash->error(__('Error occurred while retrieving board. Please, try again.'));
             $this->redirect(['controller' => 'Games', 'action' => 'newGames']);
         }
-        $react = $this->request->getQuery('react');
-        if ($react) {
-            $this->viewBuilder()->setTemplate('get_setup');
-        }
+        
+        $this->viewBuilder()->setTemplate('get_setup');
     }
     
     public function getSetupUpdateJson($id) {

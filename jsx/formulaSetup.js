@@ -21,12 +21,16 @@ class Setup extends React.Component {
         this.sendGameParams = this.sendGameParams.bind(this);
         this.sendUpdateDamage = this.sendUpdateDamage.bind(this);
         this.sendUpdatePlayerReady = this.sendUpdatePlayerReady.bind(this);
+        this.startGame = this.startGame.bind(this);
         this.update();
         setInterval(this.update, this.refreshIntervalMiliseconds);
     }
     
     updateData(data) {
         console.log(JSON.stringify(Object.keys(data)));
+        if (data["has_started"]) {
+            window.location.href = 'formula/getBoard/' + this.props.id;
+        }
         let state = {
             name: data.name,
             users: data.users
@@ -82,6 +86,12 @@ class Setup extends React.Component {
         this.setState({users: this.state.users});
     }
     
+    startGame() {
+        let url = 'formula/start/' + this.props.id;
+        let payload = { _csrfToken: csrfToken };
+        $.post(url, payload, null, 'json');
+    }
+    
     render() {
         if (this.state.game == null) {
             return null;
@@ -100,7 +110,9 @@ class Setup extends React.Component {
                     <div id="setup-column">
                       <SetupGameParamsPanel game={this.state.game}
                           onUpdate={this.updateGameParams}
-                          editable={this.state.game.editable} />
+                          editable={this.state.game.editable}
+                          playersReady={this.state.users.every(user => user.ready_state)}
+                          onStart={this.startGame}/>
                     </div>
                   </div>
                 </div>

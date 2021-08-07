@@ -33,6 +33,7 @@ var Setup = function (_React$Component) {
         _this.sendGameParams = _this.sendGameParams.bind(_this);
         _this.sendUpdateDamage = _this.sendUpdateDamage.bind(_this);
         _this.sendUpdatePlayerReady = _this.sendUpdatePlayerReady.bind(_this);
+        _this.startGame = _this.startGame.bind(_this);
         _this.update();
         setInterval(_this.update, _this.refreshIntervalMiliseconds);
         return _this;
@@ -42,6 +43,9 @@ var Setup = function (_React$Component) {
         key: 'updateData',
         value: function updateData(data) {
             console.log(JSON.stringify(Object.keys(data)));
+            if (data["has_started"]) {
+                window.location.href = 'formula/getBoard/' + this.props.id;
+            }
             var state = {
                 name: data.name,
                 users: data.users
@@ -107,6 +111,13 @@ var Setup = function (_React$Component) {
             this.setState({ users: this.state.users });
         }
     }, {
+        key: 'startGame',
+        value: function startGame() {
+            var url = 'formula/start/' + this.props.id;
+            var payload = { _csrfToken: csrfToken };
+            $.post(url, payload, null, 'json');
+        }
+    }, {
         key: 'render',
         value: function render() {
             if (this.state.game == null) {
@@ -136,7 +147,11 @@ var Setup = function (_React$Component) {
                             { id: 'setup-column' },
                             React.createElement(SetupGameParamsPanel, { game: this.state.game,
                                 onUpdate: this.updateGameParams,
-                                editable: this.state.game.editable })
+                                editable: this.state.game.editable,
+                                playersReady: this.state.users.every(function (user) {
+                                    return user.ready_state;
+                                }),
+                                onStart: this.startGame })
                         )
                     )
                 );
