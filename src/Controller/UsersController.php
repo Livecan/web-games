@@ -119,11 +119,23 @@ class UsersController extends AppController
     public function login()
     {
         $this->Authorization->skipAuthorization();
+        if ($this->request->getAttribute('isAjax')) {
+            $target = $this->request->getPath();
+            if ($target[0] == '/') {
+                $target = substr($target, 1);
+            }
+            $redirect = [
+                'redirect' => true,
+                'target' => $target,
+            ];
+            $this->set(compact('redirect'));
+            $this->viewBuilder()->setOption('serialize', 'redirect');
+        }
         $this->request->allowMethod(['get', 'post']);
         $result = $this->Authentication->getResult();
         // regardless of POST or GET, redirect if user is logged in
         if ($result->isValid()) {
-            // redirect to /articles after login success
+            // redirect to /formula after login success
             $redirect = $this->request->getQuery('redirect', [
                 'controller' => 'Formula',
                 'action' => 'index',

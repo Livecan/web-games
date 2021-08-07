@@ -31,6 +31,9 @@ class Setup extends React.Component {
         if (data["has_started"]) {
             window.location.href = 'formula/getBoard/' + this.props.id;
         }
+        if (data.redirect) {
+            window.location.href = data.target + "?redirect=" + encodeURI('/formula/get_waiting_room/') + this.props.id;
+        }
         let state = {
             name: data.name,
             users: data.users

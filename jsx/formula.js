@@ -56,6 +56,9 @@ class Board extends React.Component {
     }
     
     updateGameData(data) {
+        if (data.redirect) {
+            window.location.href = data.target + "?redirect=" + encodeURI('/formula/get_board/') + this.props.id;
+        }
         if (data.has_updated) {
             this.setState({
                 gameState: data.game_state_id,
