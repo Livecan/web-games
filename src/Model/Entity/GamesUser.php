@@ -14,6 +14,7 @@ use Cake\ORM\Entity;
  * @property string $ready_state
  * @property int|null $order_number
  * @property int|null $next_user_id
+ * @property \Cake\I18n\FrozenTime $last_request
  *
  * @property \App\Model\Entity\Game $game
  * @property \App\Model\Entity\User $user
@@ -35,6 +36,7 @@ class GamesUser extends Entity
         'ready_state' => true,
         'order_number' => true,
         'next_user_id' => true,
+        'last_request' => true,
         'game' => true,
         'user' => true,
     ];

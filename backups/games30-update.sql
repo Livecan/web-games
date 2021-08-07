@@ -1,0 +1,1 @@
+ALTER TABLE `games_users` ADD `last_request` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `next_user_id`;

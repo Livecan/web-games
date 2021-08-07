@@ -32,6 +32,7 @@ class FormulaSetupLogic {
         $this->FoTracks = $this->getTableLocator()->get('FoTracks');
         $this->FoPositions = $this->getTableLocator()->get('FoPositions');
         $this->Users = $this->getTableLocator()->get('Users');
+        $this->GamesUsers = $this->getTableLocator()->get('GamesUsers');
     }
     
     public function createNewGame(User $user) {
@@ -106,6 +107,7 @@ class FormulaSetupLogic {
             'FoGames', 'FoGames.FoTracks',
             'Users', 'FoCars', 'FoCars.FoDamages', 'FoGames.FoTracks',
         ]]);
+        $this->setUserLastRequest($formulaGame, $user);
         foreach ($formulaGame->fo_game->toArray() as $property => $value) {
             $formulaGame->set($property, $value);
         }
@@ -262,11 +264,19 @@ class FormulaSetupLogic {
     }
     
     public function setUserReady(FormulaGame $formulaGame, $user, bool $ready) {
-        $gameUserState = $this->getTableLocator()->get('GamesUsers')->find()->
+        $gameUser = $this->GamesUsers->find()->
             where(['game_id' => $formulaGame->id, 'user_id' => $user->id])->
             first();
-        $gameUserState->ready_state = $ready ? GamesUser::STATE_READY : GamesUser::STATE_NOT_READY;
-        $this->getTableLocator()->get('GamesUsers')->save($gameUserState);
+        $gameUser->ready_state = $ready ? GamesUser::STATE_READY : GamesUser::STATE_NOT_READY;
+        $this->GamesUsers->save($gameUser);
+    }
+    
+    public function setUserLastRequest(FormulaGame $formulaGame, $user) {
+        $gameUser = $this->GamesUsers->find()->
+            where(['game_id' => $formulaGame->id, 'user_id' => $user->id])->
+            first();
+        $gameUser->last_request = new \Cake\I18n\Time('now');
+        $this->GamesUsers->save($gameUser);
     }
     
     //TODO: before game starts, check damage points add up
