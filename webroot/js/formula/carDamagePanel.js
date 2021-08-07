@@ -9,6 +9,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 import { Sprite } from './sprite.js';
 import { carSprites } from './variables.js';
 import { DamagePanel } from './damagePanel.js';
+import { nvl } from '../module/missingJSXFunctions.js';
 
 export var CarDamagePanel = function (_React$Component) {
   _inherits(CarDamagePanel, _React$Component);
@@ -22,8 +23,9 @@ export var CarDamagePanel = function (_React$Component) {
   _createClass(CarDamagePanel, [{
     key: 'compare',
     value: function compare(a, b) {
+      var lastOrder = 999;
       if (a.state == b.state) {
-        if (a.state == "R" && a.order < b.order) {
+        if (a.state == "R" && nvl(a.order, lastOrder) < nvl(b.order, lastOrder)) {
           //both racing - compare order
           return -1;
         }
