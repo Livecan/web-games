@@ -28,6 +28,7 @@ use Cake\ORM\Locator\LocatorAwareTrait;
  * @property bool $np_slipstream_checked Is set to true after slipstreaming conditions were checked, so that they don't need to be checked again.
  * @property bool $np_is_slipstreaming Is true if the current FoMoveOption is slipstreaming to determine slipstreaming into a corner.
  * @property bool $np_drafted_in_curve Is true if the car slipstreamed into a corner - it will get one tire WP.
+ * @property bool $np_initial_position Is true if the car the MoveOption contains car's original position, this applies for original position and if the car was braking on the initial position and hasn't moved.
  *
  * @property \App\Model\Entity\FoCar $fo_car
  * @property \App\Model\Entity\FoPosition $fo_position
@@ -69,6 +70,7 @@ class FoMoveOption extends Entity
         'np_slipstream_checked' => true,
         'np_is_slipstreaming' => true,
         'np_drafted_in_curve' => true,
+        'np_initial_position' => true,
     ];    
     
     public static function getFirstMoveOption(FoCar $foCar, int $movesLeft, $foDamages)
@@ -85,6 +87,7 @@ class FoMoveOption extends Entity
             'np_overshooting' => false,
             'fo_damages' => $foDamages,
             'np_traverse' => null,
+            'np_initial_position' => true,
             ]);
     }
     

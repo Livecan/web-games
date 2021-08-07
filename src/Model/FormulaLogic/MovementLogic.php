@@ -65,7 +65,10 @@ class MovementLogic {
                                 $overtakingLeft));
             }
             
-            $moveOptions = FoMoveOption::addUniqueMoveOption($moveOptions, $this->getBrakingOption($currentMoveOption));
+            //braking options should be considered only at the initial position to save calculating redundant options for braking later
+            if ($currentMoveOption->np_initial_position) {
+                $moveOptions = FoMoveOption::addUniqueMoveOption($moveOptions, $this->getBrakingOption($currentMoveOption));
+            }
             
             $moveOptions = FoMoveOption::addUniqueMoveOption($moveOptions, $this->getPitlaneOption($currentMoveOption));
             
@@ -152,6 +155,7 @@ class MovementLogic {
         $nextMoveOption->np_moves_left = $currentMoveOption->np_moves_left - 1;
         $nextMoveOption->np_traverse = $currentMoveOption;
         $nextMoveOption->np_overtaking = 0;
+        $nextMoveOption->np_initial_position = false;
         
         if ($overtaking == 3 || $overtaking == 2 && $nextPosition2Positions->is_straight) {
             $nextMoveOption->np_overtaking = $overtaking - 1;
