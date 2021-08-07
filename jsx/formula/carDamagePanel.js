@@ -1,13 +1,12 @@
 import { Sprite } from './sprite.js';
 import { carSprites } from './variables.js';
 import { DamagePanel } from './damagePanel.js';
-import { nvl } from '../module/missingJSXFunctions.js';
 
 export class CarDamagePanel extends React.Component {   
     compare(a, b) {
         let lastOrder = 999;
         if (a.state == b.state) {
-            if (a.state == "R" && nvl(a.order, lastOrder) < nvl(b.order, lastOrder)) {  //both racing - compare order
+            if (a.state == "R" && (a.order ?? lastOrder) < (b.order ?? lastOrder)) {  //both racing - compare order
                 return -1;
             }
             if (a.state == "F" && a.ranking < b.ranking) {  //both finished - compare ranking
