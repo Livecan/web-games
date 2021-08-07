@@ -175,6 +175,8 @@ class FormulaSetupLogic {
         $foDamage = $this->FoDamages->save($foDamage);
         $formulaGame->modified = $foDamage->modified;
         $this->FormulaGames->save($formulaGame);
+        $foCar = $foDamage->fo_car;
+        $this->setUserReady($foCar->formula_game, $foCar->user, false);
         return $foDamage;
     }
     

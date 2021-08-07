@@ -5,7 +5,6 @@ export class SetupPlayerCars extends React.Component {
     constructor(props) {
         super(props);
         this.handleChangeDamage = this.handleChangeDamage.bind(this);
-        this.handlePlayerReadyChange = this.handlePlayerReadyChange.bind(this);
     }
     
     carDamageReduceSum(accumulator, currentValue) {
@@ -14,14 +13,7 @@ export class SetupPlayerCars extends React.Component {
     
     handleChangeDamage(event) {
         console.log(event.target.id + " " + event.target.value);
-        if (this.props.readyState) {
-            this.handlePlayerReadyChange(false);
-        }
         this.props.onDamageChange(event.target.id, event.target.value);
-    }
-    
-    handlePlayerReadyChange(ready) {
-        this.props.onPlayerReadyChange(ready);
     }
     
     carDamageConditionsCheck(cars, totalWP) {
@@ -44,7 +36,7 @@ export class SetupPlayerCars extends React.Component {
                         this.carDamageConditionsCheck(this.props.cars, this.props.totalWP)
                       }
                       ready={this.props.readyState}
-                      onClick={this.handlePlayerReadyChange}
+                      onClick={this.props.onPlayerReadyChange}
                   />
                 </td>
               </tr>
