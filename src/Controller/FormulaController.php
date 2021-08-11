@@ -27,14 +27,14 @@ class FormulaController extends AppController
     
     public function index()
     {
-        $formulaGames = $this->paginate(
-                $this->FormulaGames->find('all')->
-                where(['game_type_id' => 2])->
+        $formulaGames = $this->FormulaGames->find('all')->
+                where(['game_type_id' => 2, 'game_state_id' => Game::STATE_INITIAL])->
                 contain(['FoGames'])->
-                order(['FormulaGames.created' => 'DESC']));
+                order(['FormulaGames.created' => 'DESC']);
         $this->Authorization->skipAuthorization();
 
         $this->set(compact('formulaGames'));
+        $this->viewBuilder()->setOption('serialize', 'formulaGames');
     }
 
     /**
