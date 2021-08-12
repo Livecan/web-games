@@ -111,7 +111,7 @@ class FormulaSetupLogic {
         foreach ($formulaGame->fo_game->toArray() as $property => $value) {
             $formulaGame->set($property, $value);
         }
-        $formulaGame->unsetProperty('fo_game');
+        $formulaGame->unset('fo_game');
         if ($formulaGame->game_state_id == 2) {
             return new Entity([
                 'has_updated' => true,
