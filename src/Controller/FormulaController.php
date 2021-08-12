@@ -29,7 +29,7 @@ class FormulaController extends AppController
     {
         $formulaGames = $this->FormulaGames->find('all')->
                 where(['game_type_id' => 2, 'game_state_id' => Game::STATE_INITIAL])->
-                contain(['FoGames'])->
+                contain(['FoGames', 'Users'])->
                 order(['FormulaGames.created' => 'DESC']);
         $this->Authorization->skipAuthorization();
 
@@ -146,6 +146,9 @@ class FormulaController extends AppController
             $this->redirect(['controller' => 'Games', 'action' => 'newGames']);
         }
         
+        $this->set(compact('formulaGame'));
+        $this->viewBuilder()->setOption('serialize', 'formulaGame');
+        
         $this->viewBuilder()->setTemplate('get_setup');
     }
     
@@ -192,7 +195,7 @@ class FormulaController extends AppController
             $this->viewBuilder()->setOption('serialize', '');
         }
     }
-    
+
     public function joinGame($id) {
         $formulaGame = $this->FormulaGames->get($id, ['contain' => ['Users', 'FoGames']]);
         $this->Authorization->skipAuthorization();
