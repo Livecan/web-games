@@ -122,7 +122,7 @@ class Board extends React.Component {
   }
 
   hideTooltip(id) {
-    if (this.state.tooltip != null && this.state.tooltip.id == id) {
+    if (this.state.tooltip?.id == id) {
       this.setState({
         tooltip: null
       });
@@ -141,12 +141,12 @@ class Board extends React.Component {
       }
     }, /*#__PURE__*/React.createElement(TrackImage, {
       src: this.props.gameBoard
-    }), this.state.actions != undefined && this.state.actions.type == "choose_move" && /*#__PURE__*/React.createElement(AvailableMovesSelectorOverlay, {
+    }), this.state.actions?.type == "choose_move" && /*#__PURE__*/React.createElement(AvailableMovesSelectorOverlay, {
       availableMoves: this.state.actions.available_moves,
       positions: this.props.positions,
       onMovePositionSelected: this.showDamageOptions
     }), /*#__PURE__*/React.createElement(TrackCars, {
-      cars: (this.state.cars || []).filter(car => car.fo_position_id != null),
+      cars: this.state.cars?.filter(car => car.fo_position_id != null) ?? [],
       positions: this.props.positions
     }), /*#__PURE__*/React.createElement(TrackDebris, {
       debris: this.state.trackDebris,
@@ -162,15 +162,9 @@ class Board extends React.Component {
       noZoomOut: this.state.boardZoom == 0,
       onZoomOut: this.updateBoardZoom.bind(this, -1),
       onZoomIn: this.updateBoardZoom.bind(this, 1)
-    })), false && /*#__PURE__*/React.createElement(SlidePanel, {
-      showIcon: "img/formula/downarrow.svg",
-      hideIcon: "img/formula/uparrow.svg"
-    }, /*#__PURE__*/React.createElement(RefreshPanel, {
-      paused: this.state.refresher == null,
-      onPlayPause: this.changeRefresh
     }))), /*#__PURE__*/React.createElement(SlidePanelStack, {
       className: "slide_panel_stack_bottom"
-    }, this.state.actions != undefined && this.state.actions.type == "choose_gear" && /*#__PURE__*/React.createElement(SlidePanel, {
+    }, this.state.actions?.type == "choose_gear" && /*#__PURE__*/React.createElement(SlidePanel, {
       showIcon: "img/formula/uparrow.svg",
       hideIcon: "img/formula/downarrow.svg"
     }, /*#__PURE__*/React.createElement(GearChoicePanel, {
@@ -186,7 +180,7 @@ class Board extends React.Component {
       positionId: this.state.selectedPosition,
       onSelected: this.chooseMoveOption,
       moveOptions: this.state.actions.available_moves.filter(move => move.fo_position_id == this.state.selectedPosition)
-    })), this.state.actions != undefined && this.state.actions.type == "choose_pits" && /*#__PURE__*/React.createElement(SlidePanel, {
+    })), this.state.actions?.type == "choose_pits" && /*#__PURE__*/React.createElement(SlidePanel, {
       showIcon: "img/formula/uparrow.svg",
       hideIcon: "img/formula/downarrow.svg"
     }, /*#__PURE__*/React.createElement(PitStopPanel, {
@@ -198,7 +192,7 @@ class Board extends React.Component {
       hideIcon: "img/formula/downarrow.svg"
     }, /*#__PURE__*/React.createElement(CarDamagePanel, {
       update: Math.random(),
-      cars: this.state.cars || [],
+      cars: this.state.cars ?? [],
       users: this.state.users
     }))), this.state.tooltip != null && /*#__PURE__*/React.createElement(Tooltip, {
       x: this.state.tooltip.x,

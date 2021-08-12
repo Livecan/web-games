@@ -106,7 +106,7 @@ class Board extends React.Component {
     }
     
     hideTooltip(id) {
-        if (this.state.tooltip != null && this.state.tooltip.id == id) {
+        if (this.state.tooltip?.id == id) {
             this.setState({tooltip: null});
         }
     }
@@ -117,13 +117,13 @@ class Board extends React.Component {
             <div className="overflow_helper">
               <div id="board" style={{width: this.zooms[this.state.boardZoom]}}>
                 <TrackImage src={this.props.gameBoard}></TrackImage>
-                {this.state.actions != undefined && this.state.actions.type == "choose_move" &&
+                {this.state.actions?.type == "choose_move" &&
                   <AvailableMovesSelectorOverlay
                     availableMoves={this.state.actions.available_moves}
                     positions={this.props.positions}
                     onMovePositionSelected={this.showDamageOptions}/>
                 }
-                <TrackCars cars={(this.state.cars || []).filter(car => car.fo_position_id != null)}
+                <TrackCars cars={this.state.cars?.filter(car => car.fo_position_id != null) ?? []}
                   positions={this.props.positions} />
                 <TrackDebris debris={this.state.trackDebris} positions={this.props.positions} />
               </div>
@@ -138,17 +138,9 @@ class Board extends React.Component {
                     onZoomIn={this.updateBoardZoom.bind(this, 1)}
                     />
               </SlidePanel>
-              {
-                false &&
-                <SlidePanel showIcon="img/formula/downarrow.svg"
-                  hideIcon="img/formula/uparrow.svg">
-                    <RefreshPanel paused={this.state.refresher == null}
-                      onPlayPause={this.changeRefresh} />
-                </SlidePanel>
-              }
             </SlidePanelStack>
             <SlidePanelStack className="slide_panel_stack_bottom">
-              {this.state.actions != undefined && this.state.actions.type == "choose_gear" &&
+              {this.state.actions?.type == "choose_gear" &&
                 <SlidePanel showIcon="img/formula/uparrow.svg"
                   hideIcon="img/formula/downarrow.svg">
                     <GearChoicePanel current={this.state.actions.current_gear}
@@ -168,7 +160,7 @@ class Board extends React.Component {
                           move.fo_position_id == this.state.selectedPosition)} />
                 </SlidePanel>
               }
-              {this.state.actions != undefined && this.state.actions.type == "choose_pits" &&
+              {this.state.actions?.type == "choose_pits" &&
                 <SlidePanel showIcon="img/formula/uparrow.svg"
                   hideIcon="img/formula/downarrow.svg">
                   <PitStopPanel car={this.state.cars.filter(car => car.state == "R").sort(car => car.order)[0]}
@@ -179,7 +171,7 @@ class Board extends React.Component {
               <SlidePanel showText="cars stats"
                 hideIcon="img/formula/downarrow.svg">
                   <CarDamagePanel update={Math.random()}
-                    cars={this.state.cars || []} users={this.state.users} />
+                    cars={this.state.cars ?? []} users={this.state.users} />
               </SlidePanel>
             </SlidePanelStack>
             {
