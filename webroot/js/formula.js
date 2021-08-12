@@ -95,13 +95,17 @@ class Board extends React.Component {
 
   showDamageOptions(positionId) {
     this.setState({
-      selectedPosition: positionId
+      actions: { ...this.state.actions,
+        selectedPosition: positionId
+      }
     });
   }
 
   chooseMoveOption(moveOptionId) {
     this.setState({
-      selectedPosition: null
+      actions: { ...this.state.actions,
+        selectedPosition: null
+      }
     });
     $.post('formula/chooseMoveOption/' + this.props.id, {
       _csrfToken: csrfToken,
@@ -173,13 +177,13 @@ class Board extends React.Component {
       onChooseGear: this.chooseGear,
       onDisplayTooltip: this.displayTooltip,
       onHideTooltip: this.hideTooltip
-    })), this.state.selectedPosition != null && /*#__PURE__*/React.createElement(SlidePanel, {
+    })), this.state.actions?.selectedPosition != null && /*#__PURE__*/React.createElement(SlidePanel, {
       showIcon: "img/formula/uparrow.svg",
       hideIcon: "img/formula/downarrow.svg"
     }, /*#__PURE__*/React.createElement(MoveDamageSelector, {
-      positionId: this.state.selectedPosition,
+      positionId: this.state.actions.selectedPosition,
       onSelected: this.chooseMoveOption,
-      moveOptions: this.state.actions.available_moves.filter(move => move.fo_position_id == this.state.selectedPosition)
+      moveOptions: this.state.actions.available_moves.filter(move => move.fo_position_id == this.state.actions.selectedPosition)
     })), this.state.actions?.type == "choose_pits" && /*#__PURE__*/React.createElement(SlidePanel, {
       showIcon: "img/formula/uparrow.svg",
       hideIcon: "img/formula/downarrow.svg"

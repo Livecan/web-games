@@ -90,11 +90,21 @@ class Board extends React.Component {
     }
     
     showDamageOptions(positionId) {
-        this.setState({selectedPosition: positionId});
+        this.setState({actions:
+            {
+                ...this.state.actions,
+                selectedPosition: positionId
+            }
+        });
     }
     
     chooseMoveOption(moveOptionId) {
-        this.setState({selectedPosition: null});
+        this.setState({actions:
+            {
+                ...this.state.actions,
+                selectedPosition: null
+            }
+        });
         $.post('formula/chooseMoveOption/' + this.props.id,
                 { _csrfToken: csrfToken, game_id: this.props.id, move_option_id: moveOptionId },
                 this.update,
@@ -150,14 +160,14 @@ class Board extends React.Component {
                       onHideTooltip={this.hideTooltip}/>
                 </SlidePanel> 
               }
-              {this.state.selectedPosition != null &&
+              {this.state.actions?.selectedPosition != null &&
                 <SlidePanel showIcon="img/formula/uparrow.svg"
                   hideIcon="img/formula/downarrow.svg">
-                    <MoveDamageSelector positionId={this.state.selectedPosition}
+                    <MoveDamageSelector positionId={this.state.actions.selectedPosition}
                       onSelected={this.chooseMoveOption}
                       moveOptions={
                         this.state.actions.available_moves.filter(move =>
-                          move.fo_position_id == this.state.selectedPosition)} />
+                          move.fo_position_id == this.state.actions.selectedPosition)} />
                 </SlidePanel>
               }
               {this.state.actions?.type == "choose_pits" &&
