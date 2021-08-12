@@ -148,7 +148,9 @@ class Board extends React.Component {
     }), this.state.actions?.type == "choose_move" && /*#__PURE__*/React.createElement(AvailableMovesSelectorOverlay, {
       availableMoves: this.state.actions.available_moves,
       positions: this.props.positions,
-      onMovePositionSelected: this.showDamageOptions
+      selectedPositionId: this.state.actions?.selectedPosition,
+      onMovePositionSelected: this.showDamageOptions,
+      onSelected: this.chooseMoveOption
     }), /*#__PURE__*/React.createElement(TrackCars, {
       cars: this.state.cars?.filter(car => car.fo_position_id != null) ?? [],
       positions: this.props.positions

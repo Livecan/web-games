@@ -32,6 +32,7 @@ export class Sprite extends React.Component {
                 () => this.setOpacity(0) : null}
               onMouseLeave={this.props.disappearOnMouseOver ?
                 () => this.setOpacity(undefined) : null}
+              onClick={this.props.onClick}
           />
         );
     }
