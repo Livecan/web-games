@@ -18,7 +18,7 @@ use Cake\Database\Expression\QueryExpression;
  */
 class MovementLogic {
     use LocatorAwareTrait;
-    
+
     public function __construct() {
         $this->FoPositions = $this->getTableLocator()->get('FoPositions');
         $this->FoCars = $this->getTableLocator()->get('FoCars');
@@ -28,7 +28,7 @@ class MovementLogic {
         $this->FoMoveOptions = $this->getTableLocator()->get('FoMoveOptions');
         $this->FoCurves = $this->getTableLocator()->get('FoCurves');
     }
-    
+
     public function getAvailableMoves(FoCar $foCar, int $movesLeft) : array {
         $raceLaps = $foCar->formula_game->fo_game->laps;
         $moveOptions = collection([FoMoveOption::getFirstMoveOption(
@@ -36,7 +36,7 @@ class MovementLogic {
         if ($movesLeft == 0) {
             return $moveOptions->toList();
         }
-        
+
         $savedMoveOptions = $foCar->formula_game->getSavedMoveOptions();
         if (count($savedMoveOptions) > 0) {
             //$this->FoMoveOptions->deleteMany($savedMoveOptions);
@@ -48,7 +48,7 @@ class MovementLogic {
             //take out the first FoMoveOption from the collection and remove it from it
             $currentMoveOption = $moveOptions->first();
             $moveOptions = $moveOptions->skip(1);
-            
+
             $overtakingLeft = $this->canOvertake($foCar->game_id,
                     $currentMoveOption->fo_position_id) ? 3 : $currentMoveOption->np_overtaking;
             $position2Positions = $this->FoPositions->
@@ -57,38 +57,38 @@ class MovementLogic {
                             $currentMoveOption->np_allowed_left,
                             $currentMoveOption->np_allowed_right,
                             $overtakingLeft > 0);
-            
+
             foreach ($position2Positions as $position2Position) {
                 $moveOptions = FoMoveOption::addUniqueMoveOption($moveOptions,
                         $this->getNextPositionMoveOption($currentMoveOption,
                                 $position2Position,
                                 $overtakingLeft));
             }
-            
+
             //braking options should be considered only at the initial position to save calculating redundant options for braking later
             if ($currentMoveOption->np_initial_position) {
                 $moveOptions = FoMoveOption::addUniqueMoveOption($moveOptions, $this->getBrakingOption($currentMoveOption));
             }
-            
+
             $moveOptions = FoMoveOption::addUniqueMoveOption($moveOptions, $this->getPitlaneOption($currentMoveOption));
-            
+
             $noMovesLeft = $moveOptions->count() > 0 && $moveOptions->first()->np_moves_left == 0;
-            
+
             if ($noMovesLeft) {
                 foreach ($moveOptions as $moveOption) {
                     if (!$moveOption->np_slipstream_checked && $moveOption->canSlipstream()) {
                         $moveOptions = $moveOptions->appendItem(debug($moveOption->getSlipstreamOption()));
                     }
-                        
+
                 }
             }
-            
+
             foreach ($moveOptions as $moveOption) {
                 if ($moveOption->is_next_lap && $foCar->lap == $raceLaps) {
                     $moveOption->np_moves_left = 0;
                 }
             }
-            
+
             $moveOptions = $moveOptions->sortBy('np_moves_left', SORT_DESC, SORT_NUMERIC);
         }
         foreach ($moveOptions as $moveOption) {
@@ -98,7 +98,7 @@ class MovementLogic {
                 $moveOption->getDamageByType(FoDamage::TYPE_BRAKES)->wear_points++;
             }
         }
-        
+
         if (!$moveOptions->isEmpty()) {
             $positionToCurve = $this->FoPositions->
                     find('list', ['keyField' => 'id', 'valueField' => 'fo_curve_id'])->
@@ -120,17 +120,17 @@ class MovementLogic {
             return $foCar->isDamageOk(collection($moveOption->fo_damages),
                     collection([FoDamage::TYPE_TIRES, FoDamage::TYPE_BRAKES]));
         });
-        
+
         $moveOptions = FoMoveOption::makeUnique($moveOptions);
         foreach ($moveOptions as $moveOption) {
             $moveOption->stops++;
         };
-        
+
         return $this->FoMoveOptions->
                 saveMany($moveOptions, ['associated' => ['FoDamages']])->
                 toList();
     }
-    
+
     private function canOvertake(int $gameId, int $positionFromId): bool {
         $foPosition2PositionStraight = $this->FoPosition2Positions->find('all')->
                 contain(['FoPositionTo.FoCars' => function(Query $q) use ($gameId) {
@@ -146,7 +146,7 @@ class MovementLogic {
         }
         return false;
     }
-    
+
     private function getNextPositionMoveOption(FoMoveOption $currentMoveOption,
             FoPosition2Position $nextPosition2Positions,
             int $overtaking = null): ?FoMoveOption {
@@ -156,16 +156,16 @@ class MovementLogic {
         $nextMoveOption->np_traverse = $currentMoveOption;
         $nextMoveOption->np_overtaking = 0;
         $nextMoveOption->np_initial_position = false;
-        
+
         if ($overtaking == 3 || $overtaking == 2 && $nextPosition2Positions->is_straight) {
             $nextMoveOption->np_overtaking = $overtaking - 1;
         }
-        
+
         if (!$nextPosition2Positions->fo_position_from->is_finish &&
                 $nextPosition2Positions->fo_position_to->is_finish) {
             $nextMoveOption->is_next_lap = true;
         }
-        
+
         if ($nextPosition2Positions->is_left || $nextPosition2Positions->is_curve) {
             $nextMoveOption->np_allowed_right = false;
         }
@@ -181,11 +181,11 @@ class MovementLogic {
                 wear_points += $shocksDamage;
         $nextMoveOption = $this->processCurveHandlingDamage($nextMoveOption);
         $foCar = $this->FoCars->get($currentMoveOption->fo_car_id, ['contain' => ['FoDamages']]);
-        
+
         if ($nextMoveOption->np_is_slipstreaming && $nextMoveOption->fo_curve_id != null) {
             $nextMoveOption->np_drafted_in_curve = true;
         }
-        
+
         if ($nextMoveOption != null &&
                 $foCar->isDamageOk(collection($nextMoveOption->fo_damages), collection([FoDamage::TYPE_TIRES]))) {
             return $nextMoveOption;
@@ -193,7 +193,7 @@ class MovementLogic {
             return null;
         }
     }
-    
+
     private function getBrakingOption(FoMoveOption $moveOption): ?FoMoveOption {
         $moveOptionBrakeDamage = $moveOption->
                 getDamageByType(FoDamage::TYPE_BRAKES)->wear_points + 1;
@@ -203,23 +203,23 @@ class MovementLogic {
                 getDamageByType(FoDamage::TYPE_TIRES)->wear_points;
         $brakingOptionBrakesLeft = $carBrakesWearPoints - min($moveOptionBrakeDamage, 3);
         $brakingOptionTiresLeft = $carTiresWearPoints - max($moveOptionBrakeDamage - 3, 0);
-        
+
         if ($brakingOptionBrakesLeft < 1 || $brakingOptionTiresLeft < 0 ||
                $moveOptionBrakeDamage >= 7) {    //can't add another brake damage
             return null;
         }
-        
+
         $brakingOption = clone $moveOption;
         $brakingOption->np_moves_left = $moveOption->np_moves_left - 1;
         $brakingOption->np_traverse = $moveOption;
         $brakingOption->fo_damages = FoDamage::getDamagesCopy($moveOption->fo_damages);
         $brakingOption->getDamageByType(FoDamage::TYPE_BRAKES)->wear_points++;
-        
+
         return $brakingOption;
     }
-    
+
     private function processCurveHandlingDamage(FoMoveOption $nextMoveOption): ?FoMoveOption {
-        
+
         $nextPosition = $this->FoPositions->get($nextMoveOption->fo_position_id,
                 ['contain' => ['FoCurves']]);
         //entering a curve normally
@@ -228,7 +228,7 @@ class MovementLogic {
             $nextMoveOption->stops = 0;
             return $nextMoveOption;
         }
-        
+
         //leaving a curve
         if ($nextMoveOption->fo_curve_id != null && $nextPosition->fo_curve_id == null &&
                 !$nextMoveOption->np_overshooting) {
@@ -248,30 +248,34 @@ class MovementLogic {
             //otherwise overshooting by more than one stop - invalid MoveOption
             return null;
         }
-        
+
         //when overshooting the second curve within one turn - invalid MoveOption
         if ($nextPosition->fo_curve_id == null && $nextMoveOption->np_overshooting) {
             return null;
         }
-        
+
         //when overshooting into the second curve within one turn
         if ($nextMoveOption->fo_curve_id != null && $nextPosition->fo_curve_id != null &&
                 $nextMoveOption->fo_curve_id != $nextPosition->fo_curve_id) {
-            $nextMoveOption->fo_curve_id = $nextPosition->fo_curve_id;
-            $nextMoveOption->stops = -1;
+            //the curve id is only changed in the final Move Option, otherwise it would stop
+            //adding extra tire damage after entering the extra corner
+            if ($nextMoveOption->np_moves_left == 0) {
+                $nextMoveOption->fo_curve_id = $nextPosition->fo_curve_id;
+                $nextMoveOption->stops = -1;
+            }
             $nextMoveOption->np_overshooting = true;
             $nextMoveOption->getDamageByType(FoDamage::TYPE_TIRES)->wear_points++;
             return $nextMoveOption;
         }
-        
+
         return $nextMoveOption;
     }
-    
+
     private function getPitlaneOption(FoMoveOption $currentMoveOption) {
         if ($currentMoveOption->fo_position == null) {
             $currentMoveOption->fo_position = $this->FoPositions->get($currentMoveOption->fo_position_id);
         }
-        
+
         $foCar = $currentMoveOption->fo_car;
         $gameId = $foCar->game_id;
         $nextPosition = $currentMoveOption->fo_position;
@@ -279,31 +283,31 @@ class MovementLogic {
         $pitlaneMoveCount = 0;
         $passedFirstPits = $nextPosition->team_pits == $foCar->team;
         $nextPositionTemp;
-        
+
         while (($nextPositionTemp = $nextPosition->getNextPitlanePosition($gameId)) != null) {
             if ($currentMoveOption->np_moves_left <= $pitlaneMoveCount) {    //can't move more than the remaining number of spaces
                 break;
             }
-            
+
             $pitlaneMoveCount++;
             $nextPosition = $nextPositionTemp;
-            
+
             $isTeamPits = $nextPosition->team_pits == $foCar->team;
-            
+
             if ($isTeamPits && $passedFirstPits &&
                     $foCar->last_pit_lap != $foCar->lap) {
                 break;
             }
-            
+
             if ($isTeamPits) {
                 $passedFirstPits = true;
             }
         }
-        
+
         if ($pitlaneMoveCount == 0) {
             return null;
         }
-        
+
         $nextMoveOption = new FoMoveOption([
             'fo_car_id' => $currentMoveOption->fo_car_id,
             'fo_car' => $currentMoveOption->fo_car,
