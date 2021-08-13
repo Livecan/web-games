@@ -20,8 +20,8 @@ export class AvailableMovesSelectorOverlay extends React.Component {
   render() {
     let availableMovesPositionIds = Array.from(new Set(this.props.availableMoves.map(move => move.fo_position_id)));
     return /*#__PURE__*/React.createElement(React.Fragment, null, availableMovesPositionIds.map(positionId => /*#__PURE__*/React.createElement(Sprite, {
-      src: "img/formula/move-options/" + (this.props.availableMoves.find(move => move.fo_position_id == positionId).fo_damages.every(damage => damage.wear_points == 0) ? "car-outline-nodamage" : "car-outline-damage") + (this.props.selectedPositionId == positionId ? "-selected" : "") + ".svg",
-      className: "car_img",
+      src: "img/formula/move-options/" + (this.props.selectedPositionId == positionId ? "car-outline-selected.svg" : this.props.availableMoves.find(move => move.fo_position_id == positionId).fo_damages.every(damage => damage.wear_points == 0) ? "car-outline-nodamage.svg" : "car-outline-damage.svg"),
+      className: "car_img move_option" + (this.props.selectedPositionId == positionId ? " selected" : ""),
       key: positionId,
       width: "1.2%",
       height: "1.8%",

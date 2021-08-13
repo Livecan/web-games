@@ -8,7 +8,7 @@ and open the template in the editor.
     Author     : roman
 */
 
-$move_option_layer-z: 95;
+$move_option_layer-z: 1000;
 $board__car_img-z: 100;
 $debris_img-z: 10;
 $gears-z: 1001;
@@ -29,16 +29,16 @@ $onboard-opacity: 65%;
             .board__track {
                 display: block;
             }
-            .board__svg {
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                z-index: $move_option_layer-z;
-            }
             .car_img {
                 z-index: $board__car_img-z;
+            }
+            .car_img.move_option {
+                opacity: $onboard-opacity;
+                cursor: pointer;
+                z-index: $move_option_layer-z;
+            }
+            .car_img.move_option.selected {
+                opacity: 1;
             }
         }
     }
@@ -166,11 +166,6 @@ $onboard-opacity: 65%;
     td {
         padding: 0px 15px;
     }
-}
-
-.move_option {
-    opacity: $onboard-opacity;
-    cursor: pointer;
 }
 
 .car_img, .debris_img {

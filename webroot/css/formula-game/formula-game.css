@@ -23,16 +23,16 @@ and open the template in the editor.
 #board_parent .overflow_helper #board .board__track {
   display: block;
 }
-#board_parent .overflow_helper #board .board__svg {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  z-index: 95;
-}
 #board_parent .overflow_helper #board .car_img {
   z-index: 100;
+}
+#board_parent .overflow_helper #board .car_img.move_option {
+  opacity: 65%;
+  cursor: pointer;
+  z-index: 1000;
+}
+#board_parent .overflow_helper #board .car_img.move_option.selected {
+  opacity: 1;
 }
 #board_parent .slide_panel_stack {
   position: absolute;
@@ -154,11 +154,6 @@ and open the template in the editor.
 }
 .damage_table td {
   padding: 0px 15px;
-}
-
-.move_option {
-  opacity: 65%;
-  cursor: pointer;
 }
 
 .car_img, .debris_img {

@@ -23,14 +23,18 @@ export class AvailableMovesSelectorOverlay extends React.Component {
           <React.Fragment>
             {availableMovesPositionIds.map(positionId =>
               <Sprite src={"img/formula/move-options/" +
-                          (this.props.availableMoves.find(move => move.fo_position_id == positionId)
-                            .fo_damages.every(damage => damage.wear_points == 0) ?
-                          "car-outline-nodamage" :
-                          "car-outline-damage") +
-                          (this.props.selectedPositionId == positionId ? "-selected" : "") +
-                          ".svg"
+                          (this.props.selectedPositionId == positionId ?
+                            "car-outline-selected.svg"
+                            :
+                            this.props.availableMoves.find(move => move.fo_position_id == positionId)
+                              .fo_damages.every(damage => damage.wear_points == 0) ?
+                              "car-outline-nodamage.svg" :
+                              "car-outline-damage.svg"
+                          )
                         }
-                    className="car_img"
+                    className={"car_img move_option" +
+                      (this.props.selectedPositionId == positionId ?
+                        " selected" : "")}
                     key={positionId}
                     width="1.2%"
                     height="1.8%"
