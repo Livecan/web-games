@@ -282,7 +282,6 @@ class MovementLogic {
         $damages = FoDamage::getDamagesCopy($currentMoveOption->fo_damages);
         $pitlaneMoveCount = 0;
         $passedFirstPits = $nextPosition->team_pits == $foCar->team;
-        $nextPositionTemp;
 
         while (($nextPositionTemp = $nextPosition->getNextPitlanePosition($gameId)) != null) {
             if ($currentMoveOption->np_moves_left <= $pitlaneMoveCount) {    //can't move more than the remaining number of spaces
