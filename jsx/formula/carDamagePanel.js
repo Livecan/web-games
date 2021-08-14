@@ -2,7 +2,7 @@ import { Sprite } from './sprite.js';
 import { carSprites } from './variables.js';
 import { DamagePanel } from './damagePanel.js';
 
-export class CarDamagePanel extends React.Component {   
+export class CarDamagePanel extends React.Component {
     compare(a, b) {
         let lastOrder = 999;
         if (a.state == b.state) {
@@ -10,6 +10,9 @@ export class CarDamagePanel extends React.Component {
                 return -1;
             }
             if (a.state == "F" && a.ranking < b.ranking) {  //both finished - compare ranking
+                return -1;
+            }
+            if (a.state == "X" && a.id < b.id) {  //if both out, just make sure that there is a given order
                 return -1;
             }
             return 1;
@@ -24,11 +27,11 @@ export class CarDamagePanel extends React.Component {
             return -1;
         }
         if (b.state == "F") {   //B is racing and A retired
-            return -1;
+            return 1;
         }
         return 1;
-    } 
-    
+    }
+
     render() {
         return (
             <table id="car_stats_table" className="damage_table">

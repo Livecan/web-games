@@ -16,6 +16,11 @@ export class CarDamagePanel extends React.Component {
         return -1;
       }
 
+      if (a.state == "X" && a.id < b.id) {
+        //if both out, just make sure that there is a given order
+        return -1;
+      }
+
       return 1;
     }
 
@@ -36,7 +41,7 @@ export class CarDamagePanel extends React.Component {
 
     if (b.state == "F") {
       //B is racing and A retired
-      return -1;
+      return 1;
     }
 
     return 1;
