@@ -255,14 +255,11 @@ class MovementLogic {
         }
 
         //when overshooting into the second curve within one turn
-        if ($nextMoveOption->fo_curve_id != null && $nextPosition->fo_curve_id != null &&
-                $nextMoveOption->fo_curve_id != $nextPosition->fo_curve_id) {
-            //the curve id is only changed in the final Move Option, otherwise it would stop
-            //adding extra tire damage after entering the extra corner
-            if ($nextMoveOption->np_moves_left == 0) {
-                $nextMoveOption->fo_curve_id = $nextPosition->fo_curve_id;
-                $nextMoveOption->stops = -1;
-            }
+        if ($nextMoveOption->np_overshooting ||
+              ($nextMoveOption->fo_curve_id != null && $nextPosition->fo_curve_id != null &&
+                $nextMoveOption->fo_curve_id != $nextPosition->fo_curve_id)) {
+            $nextMoveOption->fo_curve_id = $nextPosition->fo_curve_id;
+            $nextMoveOption->stops = -1;
             $nextMoveOption->np_overshooting = true;
             $nextMoveOption->getDamageByType(FoDamage::TYPE_TIRES)->wear_points++;
             return $nextMoveOption;
