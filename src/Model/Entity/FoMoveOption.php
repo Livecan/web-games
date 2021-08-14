@@ -56,23 +56,13 @@ class FoMoveOption extends Entity
         'fo_curve_id' => true,
         'stops' => true,
         'is_next_lap' => true,
-        'np_moves_left' => true,
-        'np_allowed_left' => true,
-        'np_allowed_right' => true,
-        'np_overshooting' => true,
-        'np_overtaking' => true,
         'fo_car' => true,
         'fo_position' => true,
         'fo_curve' => true,
         'fo_damages' => true,
         'fo_traverses' => true,
-        'np_traverse' => true,
-        'np_slipstream_checked' => true,
-        'np_is_slipstreaming' => true,
-        'np_drafted_in_curve' => true,
-        'np_initial_position' => true,
-    ];    
-    
+    ];
+
     public static function getFirstMoveOption(FoCar $foCar, int $movesLeft, $foDamages)
             : self {
         return new FoMoveOption(['fo_car_id' => $foCar->id,
@@ -90,7 +80,7 @@ class FoMoveOption extends Entity
             'np_initial_position' => true,
             ]);
     }
-    
+
     public function adjustBrakeDamage() : self {
         $foDamages = collection($this->fo_damages);
         $brakeDamage = $this->getDamageByType(FoDamage::TYPE_BRAKES);
@@ -100,13 +90,13 @@ class FoMoveOption extends Entity
         }
         return $this;
     }
-    
+
     /**
      * The input params need to be sets of the same damage types, the function
      * returns true, if the $compare returns true for each pair of wear_points.
      * If no $compare function provided, it returns true if the damage sets
      * have the same wear_points.
-     * 
+     *
      * @param array<FoDamage> $damages1
      * @param array<FoDamage> $damages2
      * @param callable $compare
@@ -123,9 +113,9 @@ class FoMoveOption extends Entity
                     return $compare($damagePair[0]->wear_points, $damagePair[1]->wear_points);
         });
     }
-    
+
     /**
-     * 
+     *
      * @param array<FoMoveOption> $moveOptions
      * @return array
      */
@@ -155,7 +145,7 @@ class FoMoveOption extends Entity
         }
         return $moveOptions;
     }
-    
+
     public static function addUniqueMoveOption(CollectionInterface $moveOptions, FoMoveOption $moveOption2 = null): ?CollectionInterface {
         if ($moveOption2 == null) {
             return $moveOptions;
@@ -172,10 +162,10 @@ class FoMoveOption extends Entity
             return $moveOptions;
         }
     }
-    
+
     public function canSlipstream() {
         $this->np_slipstream_checked = true;
-        
+
         //a car is supposed to reach the position for slipstreaming without braking
         if ($this->getDamageByType(FoDamage::TYPE_BRAKES)->wear_points > 0) {
             return false;
@@ -207,7 +197,7 @@ class FoMoveOption extends Entity
         }
         return true;
     }
-    
+
     public function getSlipstreamOption() : self {
         $slipstreamMoveOption = clone $this;
         $slipstreamMoveOption->fo_damages = FoDamage::getDamagesCopy($this->fo_damages);
