@@ -46,7 +46,7 @@ class FoCar extends Entity
         EntitySaveTrait::_repository insteadof LazyLoadEntityTrait;
     }
     use FoDamageTrait;
-    
+
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
      *
@@ -79,12 +79,12 @@ class FoCar extends Entity
         'fo_logs' => true,
         'fo_move_options' => true,
     ];
-    
+
     const STATE_NOT_READY = 'N';
     const STATE_RACING = 'R';
     const STATE_RETIRED = 'X';
     const STATE_FINISHED = 'F';
-    
+
     const GEAR_START = -1;
     const GEAR_NEXT_1ST = 0;
 
@@ -96,7 +96,7 @@ class FoCar extends Entity
         }
         return true;
     }
-    
+
     public function isDamageOk(CollectionInterface $foDamages, CollectionInterface $foDamageTypes = null) : bool {
         if ($foDamageTypes != null) {
             $foDamages = $foDamages->
@@ -104,7 +104,7 @@ class FoCar extends Entity
                         return $foDamageTypes->contains($foDamage->type);
                     });
         }
-        
+
         foreach ($this->fo_damages as $foCarDamage) {
             $matchingDamage = $foDamages->firstMatch(['type' => $foCarDamage->type]);
             if ($matchingDamage == null) {
@@ -114,10 +114,10 @@ class FoCar extends Entity
                 return false;
             }
         }
-        
+
         return true;
     }
-    
+
     /**
      * Checks if tire damage dropped to zero and if it did, then puts the car
      * in 0 gear and restores tire damage to 1.
@@ -130,7 +130,7 @@ class FoCar extends Entity
             $this->gear = 0;
         }
     }
-    
+
     public function assignMovementDamages(array $movementDamages) : FoCar {
         foreach ($movementDamages as $movementDamage) {
             if ($movementDamage->wear_points > 0) {
@@ -149,11 +149,11 @@ class FoCar extends Entity
         $this->save();
         return $this;
     }
-    
+
     public function assignDamage(FoDamage $damage, $badRoll = null) : int {
         return $this->assignDamageInternal($damage, $badRoll, true);
     }
-    
+
     private function assignDamageInternal(FoDamage $damage, $badRoll = null, $save = false) : int {
         $carWear = $this->getDamageByType($damage->type);
         $totalDamageDealt = 0;
@@ -166,7 +166,7 @@ class FoCar extends Entity
                     'damage_type' => $damage->type,
                     'type' => FoLog::TYPE_DAMAGE,
                 ]))->save();
-                
+
                 if ($roll <= $badRoll) {
                     $carWear->wear_points--;
                     $totalDamageDealt++;
@@ -183,7 +183,7 @@ class FoCar extends Entity
                 ],
             ]))->save();
         }
-        
+
         $this->setDirty('fo_damages');
         if (!$this->isOk()) {
             $this->retireInternal(false);
@@ -191,22 +191,22 @@ class FoCar extends Entity
         if ($save) {
             $this->save();
         }
-        
+
         return $totalDamageDealt;
     }
-    
+
     public function shift(int $gear) {
         $gearDiff = $gear - $this->gear;
         if ($gearDiff < -1) {
             $this->processGearChangeDamage($gearDiff);
         }
-        
+
         $this->gear = $gear;
         $this->save();
-        
+
         return $this->getNextMoveLength();
     }
-    
+
     private function processGearChangeDamage(int $gearDiff) {
         switch ($gearDiff) {
             case (-4):
@@ -218,37 +218,37 @@ class FoCar extends Entity
                 break;
         }
     }
-    
+
     public function retire() {
         return $this->retireInternal(true);
     }
-    
+
     public function retireInternal($save = false) {
         $this->order = null;
         $this->state = FoCar::STATE_RETIRED;
         $this->fo_position_id = null;
         return $this->save();
     }
-    
+
     public static function createUserCar($game_id, $user_id, $damages) {
         $foCar = new FoCar(['game_id' => $game_id,
             'user_id' => $user_id,
             ]);
         $foCar->fo_damages = $damages;
-        
+
         return $foCar->save();
     }
-    
+
     public function getStartMoveLength(): int {
         $blackDiceStartRoll = DiceLogic::getDiceLogic()->getRoll(0);
         FoLog::logRoll($this, $blackDiceStartRoll, FoLog::TYPE_INITIAL);
         if ($blackDiceStartRoll <= DiceLogic::BLACK_POOR_START_TOP) {   //slow start
             $this->gear = self::GEAR_NEXT_1ST;
             $this->save();
-            FoLog::logRoll($foCar, 0, FoLog::TYPE_MOVE);
+            FoLog::logRoll($this, 0, FoLog::TYPE_MOVE);
             return 0;
         }
-        
+
         $this->gear = 1;
         $this->save();
 
@@ -256,10 +256,10 @@ class FoCar extends Entity
             FoLog::logRoll($this, 4, FoLog::TYPE_MOVE);
             return 4;
         }
-        
+
         return $this->getNextMoveLength();
     }
-    
+
     private function getNextMoveLength(): int {
         if ($this->gear == self::GEAR_START) { //processing start
             return $this->getStartMoveLength();
