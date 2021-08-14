@@ -11,6 +11,7 @@ use JeremyHarris\LazyLoad\ORM\LazyLoadEntityTrait;
 use \Livecan\EntityUtility\EntitySaveTrait;
 use App\Model\Entity\FoLog;
 use App\Model\Entity\FoDamageTrait;
+use App\Model\Entity\PitstopTrait;
 
 /**
  * FoCar Entity
@@ -47,6 +48,7 @@ class FoCar extends Entity
         EntitySaveTrait::_repository insteadof LazyLoadEntityTrait;
     }
     use FoDamageTrait;
+    use PitstopTrait;
 
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().

@@ -34,7 +34,6 @@ class FormulaLogic {
         $this->FoPosition2Positions = $this->getTableLocator()->get('FoPosition2Positions');
         $this->FoDebris = $this->getTableLocator()->get('FoDebris');
         $this->MovementLogic = new MovementLogic();
-        $this->PitstopLogic = new PitstopLogic();
     }
 
     public function getBoard(FormulaGame $formulaGame, $user_id = null, Time $modifiedDateParam = null) {
@@ -95,17 +94,13 @@ class FormulaLogic {
             $formulaGame->modified = new Time();
             $this->FormulaGames->save($formulaGame);
         }
-        if ($currentCar->pits_state == FoCar::PITS_STATE_LONG_STOP) {
-            $currentCar->pits_state = null;
-            $currentCar->save();
-        }
 
         if ($currentCar["user_id"] != $user_id) {
             return;
         }
 
-        if ($currentCar->pits_state == FoCar::PITS_STATE_IN_PITS) {
-            $this->PitstopLogic->finishPitstop($currentCar,
+        if ($currentCar->pits_state != null) {
+            $currentCar->finishPitstop(
                 function($foCar, $movesLeft) {
                     $this->chooseMoveOption($foCar->formula_game,
                         $this->MovementLogic->getAvailableMoves($foCar, $movesLeft)[0]);
@@ -232,8 +227,8 @@ class FormulaLogic {
                 toList();
         $this->FoMoveOptions->deleteMany($moveOptionsToDelete);
 
-        if ($foCar->fo_position->team_pits == $foCar->team && $foCar->last_pit_lap != $foCar->lap) {
-            $this->PitstopLogic->fixCar($foCar);
+        if ($foCar->isEnteringPits()) {
+            $foCar->fixCar();
         }
     }
 
