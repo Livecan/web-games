@@ -28,6 +28,7 @@ use App\Model\Entity\FoDamageTrait;
  * @property int|null $stops
  * @property int $last_pit_lap Contains the last lap number when the car was in the pits. Default is 0.
  * @property string $state
+ * @property string $pits_state
  * @property \Cake\I18n\FrozenTime $created
  * @property \Cake\I18n\FrozenTime $modified
  *
@@ -69,6 +70,7 @@ class FoCar extends Entity
         'stops' => true,
         'last_pit_lap' => true,
         'state' => true,
+        'pits_state' => true,
         'created' => true,
         'modified' => true,
         'formula_game' => true,
@@ -84,6 +86,9 @@ class FoCar extends Entity
     const STATE_RACING = 'R';
     const STATE_RETIRED = 'X';
     const STATE_FINISHED = 'F';
+
+    const PITS_STATE_IN_PITS = 'P';
+    const PITS_STATE_LONG_STOP = 'L';
 
     const GEAR_START = -1;
     const GEAR_NEXT_1ST = 0;

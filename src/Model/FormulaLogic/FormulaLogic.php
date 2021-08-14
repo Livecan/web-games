@@ -22,7 +22,7 @@ use App\Model\Entity\FoDebri;
  */
 class FormulaLogic {
     use LocatorAwareTrait;
-    
+
     public function __construct() {
         $this->FoPositions = $this->getTableLocator()->get('FoPositions');
         $this->FoCars = $this->getTableLocator()->get('FoCars');
@@ -36,7 +36,7 @@ class FormulaLogic {
         $this->MovementLogic = new MovementLogic();
         $this->PitstopLogic = new PitstopLogic();
     }
-    
+
     public function getBoard(FormulaGame $formulaGame, $user_id = null, Time $modifiedDateParam = null) {
         $foLogLastModified = $this->FoLogs->find('all')->
                 contain(['FoCars'])->
@@ -48,9 +48,9 @@ class FormulaLogic {
         if ($modifiedDateParam != null && $modifiedDateParam >= $modified) {
             return new Entity(['has_updated' => false]);
         }
-        
+
         $actions = $this->getActions($formulaGame, $user_id);
-        
+
         $board = $this->FormulaGames->
                 find('all')->
                 contain([
@@ -85,7 +85,7 @@ class FormulaLogic {
         $board->has_updated = true;
         return $board;
     }
-    
+
     private function getActions(FormulaGame $formulaGame, $user_id) {
 
         $currentCar = $formulaGame->getNextCar();
@@ -95,13 +95,27 @@ class FormulaLogic {
             $formulaGame->modified = new Time();
             $this->FormulaGames->save($formulaGame);
         }
-        
+        if ($currentCar->pits_state == FoCar::PITS_STATE_LONG_STOP) {
+            $currentCar->pits_state = null;
+            $currentCar->save();
+        }
+
         if ($currentCar["user_id"] != $user_id) {
             return;
         }
-        
+
+        if ($currentCar->pits_state == FoCar::PITS_STATE_IN_PITS) {
+            $this->PitstopLogic->finishPitstop($currentCar,
+                function($foCar, $movesLeft) {
+                    $this->chooseMoveOption($foCar->formula_game,
+                        $this->MovementLogic->getAvailableMoves($foCar, $movesLeft)[0]);
+                }
+            );
+            return $this->getActions($formulaGame, $user_id);
+        }
+
         $actions = new Entity();
-        
+
         $lastCarTurn = $this->FoLogs->
                 find('all')->
                 contain(['FoCars'])->
@@ -152,16 +166,16 @@ class FormulaLogic {
         }
         return $actions;
     }
-    
+
     public function chooseMoveOptionById(FormulaGame $formulaGame, int $foMoveOptionId) {
         $foMoveOption = $this->FoMoveOptions->get($foMoveOptionId, ['contain' => ['FoDamages']]);
         $this->chooseMoveOption($formulaGame, $foMoveOption);
     }
-    
+
     //FIX & //REFACTORING: tidy the function, rewrite methods to OO and do move, then collisions
     public function chooseMoveOption(FormulaGame $formulaGame, FoMoveOption $foMoveOption) {
         $foPositionId = $foMoveOption->fo_position_id;
-        
+
         $foCar = $foMoveOption->fo_car;
         $foLogMove = $this->FoLogs->find('all')->
                 contain(['FoCars'])->
@@ -170,7 +184,7 @@ class FormulaLogic {
                 first();
         $foLogMove->fo_position_id = $foPositionId;
         $foLogMove->save();
-        
+
         $foCar->fo_position_id = $foPositionId;
         $foCar->fo_position = $this->FoPositions->get($foPositionId);
         $foCar->fo_curve_id = $foMoveOption->fo_curve_id;
@@ -179,16 +193,16 @@ class FormulaLogic {
             $foCar->lap++;
         }
         $foCar->order = null;
-        
+
         $foCar->assignMovementDamages($foMoveOption->fo_damages);
-        
+
         //check if car is finishing the race now and if so assign ranking and skip collisions
         if ($foCar->lap > $formulaGame->fo_game->laps) {
             $foCar->state = FoCar::STATE_FINISHED;
             $foCar->fo_position_id = null;
             $foCar->ranking = $formulaGame->getNextRanking();
         }
-        
+
         $foCar->save();
 
         if ($foCar->state != FoCar::STATE_FINISHED) {
@@ -212,24 +226,17 @@ class FormulaLogic {
                 }
             }
         }
-        
+
         $moveOptionsToDelete = $this->FoMoveOptions->find('all')->
                 where(['fo_car_id' => $foCar->id])->
                 toList();
         $this->FoMoveOptions->deleteMany($moveOptionsToDelete);
-        
+
         if ($foCar->fo_position->team_pits == $foCar->team && $foCar->last_pit_lap != $foCar->lap) {
             $this->PitstopLogic->fixCar($foCar);
-            
-            $this->PitstopLogic->finishPitstop($foCar, 
-                function($foCar, $movesLeft) {
-                    $this->chooseMoveOption($foCar->formula_game,
-                        $this->MovementLogic->getAvailableMoves($foCar, $movesLeft)[0]);
-                }
-            );
         }
     }
-    
+
     public function getCollidedCars(int $gameId, int $foPositionId) {
         return collection($this->FoCars->find('all')->
             contain(['FoPositions.FoPosition2PositionsFrom' => function(Query $q) use ($foPositionId) {
@@ -245,15 +252,15 @@ class FormulaLogic {
                     $foCar->fo_position->fo_position2_positions_to != null;
         })->toList();
     }
-    
+
     public function chooseGear(FormulaGame $formulaGame, int $gear) {
         $currentCar = $formulaGame->getNextCar($formulaGame->id);
         if ($gear < max($currentCar->gear - 4, 1) || $gear > min($currentCar->gear + 1, 6)) {
             return;
         }
-        
+
         $roll = $currentCar->shift($gear);
-        
+
         if ($roll == 20 || $roll == 30) {
             $formulaGame->assignEngineDamages();
         }
