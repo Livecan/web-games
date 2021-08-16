@@ -11,7 +11,7 @@ use JeremyHarris\LazyLoad\ORM\LazyLoadEntityTrait;
 use \Livecan\EntityUtility\EntitySaveTrait;
 use App\Model\Entity\FoLog;
 use App\Model\Entity\FoDamageTrait;
-use App\Model\Entity\PitstopTrait;
+use App\Model\FormulaLogic\TirePitstop;
 
 /**
  * FoCar Entity
@@ -48,7 +48,6 @@ class FoCar extends Entity
         EntitySaveTrait::_repository insteadof LazyLoadEntityTrait;
     }
     use FoDamageTrait;
-    use PitstopTrait;
 
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
@@ -94,6 +93,11 @@ class FoCar extends Entity
 
     const GEAR_START = -1;
     const GEAR_NEXT_1ST = 0;
+
+    public function __construct(array $properties = [], array $options = []) {
+        parent::__construct($properties, $options);
+        $this->tirePitStop = new TirePitstop($this);
+    }
 
     public function isOk() : bool {
         foreach ($this->fo_damages as $foDamage) {
@@ -274,5 +278,17 @@ class FoCar extends Entity
         $roll = DiceLogic::getDiceLogic()->getRoll($this->gear);
         FoLog::logRoll($this, $roll, FoLog::TYPE_MOVE);
         return $roll;
+    }
+
+    public function isEnteringPits() {
+        return $this->tirePitStop->isEnteringPits();
+    }
+
+    public function fixCar() {
+        return $this->tirePitstop->fixCar();
+    }
+
+    public function finishPitstop(callable $moveCar) {
+        return $this->finishPitstop($moveCar);
     }
 }
