@@ -28,6 +28,7 @@ use App\Model\FormulaLogic\PitstopLogic;
  * @property int|null $ranking
  * @property int|null $fo_curve_id
  * @property int|null $stops
+ * @property int $tech_pitstops_left Contains the number of technical pitstops left.
  * @property int $last_pit_lap Contains the last lap number when the car was in the pits. Default is 0.
  * @property string $state
  * @property string $pits_state
@@ -70,6 +71,7 @@ class FoCar extends Entity
         'ranking' => true,
         'fo_curve_id' => true,
         'stops' => true,
+        'tech_pitstops_left' => true,
         'last_pit_lap' => true,
         'state' => true,
         'pits_state' => true,

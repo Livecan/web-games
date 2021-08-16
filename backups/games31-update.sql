@@ -30,3 +30,5 @@ SELECT MAX(f1.`id`),
     '0',
     '0'
 FROM `fo_positions` f1 WHERE f1.`order` = 101 AND f1.`fo_track_id` = 2;
+
+ALTER TABLE `fo_cars` ADD `tech_pitstops_left` INT NOT NULL DEFAULT '0' AFTER `stops`;

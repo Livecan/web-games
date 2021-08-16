@@ -99,6 +99,16 @@ class FormulaLogic {
             return;
         }
 
+        if ($currentCar->isEnteringPits()) {
+            if ($currentCar->tech_pitstops_left == 0) {
+                //TODO: non-technical pitstop
+            } else {
+                //TODO: technical pitstop
+            }
+            //TODO: move the following somewhere in choosePits as appropriate
+            $currentCar->fixCar();
+        }
+
         if ($currentCar->pits_state != null) {
             $currentCar->finishPitstop(
                 function($foCar, $movesLeft) {
@@ -226,10 +236,6 @@ class FormulaLogic {
                 where(['fo_car_id' => $foCar->id])->
                 toList();
         $this->FoMoveOptions->deleteMany($moveOptionsToDelete);
-
-        if ($foCar->isEnteringPits()) {
-            $foCar->fixCar();
-        }
     }
 
     public function getCollidedCars(int $gameId, int $foPositionId) {
