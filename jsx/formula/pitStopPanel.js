@@ -7,36 +7,31 @@ export class PitStopPanel extends React.Component {
         this.addPoint = this.addPoint.bind(this);
         this.removePoint = this.removePoint.bind(this);
     }
-    
+
     addPoint(damageType) {
-        assignedPoints = this.state.assignedPoints;
-        console.log(damageType);
-        console.log(JSON.stringify(this.props.car.fo_damages.find(damage => damage.type == damageType)));
+        let assignedPoints = this.state.assignedPoints;
         assignedPoints[damageType] =
             Math.min(
                 this.props.maxPoints.find(
-                    maxPoint => maxPoint.damage_type == damageType).max_points -
+                    maxPoint => maxPoint.damage_type == damageType).wear_points -
                 this.props.car.fo_damages.find(damage => damage.type == damageType).wear_points,
                 (assignedPoints[damageType] || 0) + 1);
         this.setState({assignedPoints: assignedPoints});
     }
-    
+
     removePoint(damageType) {
-        assignedPoints = this.state.assignedPoints;
+        let assignedPoints = this.state.assignedPoints;
         assignedPoints[damageType] = Math.max(0,(assignedPoints[damageType] || 0) - 1);
         this.setState({assignedPoints: assignedPoints});
     }
-    
+
     render() {
-        console.log(JSON.stringify(this.props.availablePoints));
-        console.log(JSON.stringify(this.props.maxPoints));
-        console.log(JSON.stringify(this.props.car));
         return (
             <table className="damage_table">
               <tbody>
                 {this.props.car.fo_damages.map(damage =>
                   <tr key={damage.type}
-                      className={"damage " + damageTypeClass[damage.type - 1]}>
+                      className={"damage " + damageType[damage.type - 1]}>
                     <td>
                       <button onClick={() => this.removePoint(damage.type)}>-</button>
                     </td>

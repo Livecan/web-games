@@ -99,11 +99,22 @@ class FormulaLogic {
             return;
         }
 
+        $actions = new Entity();
         if ($currentCar->isEnteringPits()) {
-            if ($currentCar->tech_pitstops_left == 0) {
+            if ($currentCar->tech_pitstops_left <= 0) {
                 //TODO: non-technical pitstop
             } else {
-                //TODO: technical pitstop
+                $actions->type = "choose_pits";
+                $actions->car_id = $currentCar->id;
+                $actions->available_points = 2;    //TODO: use const instead of magic number
+                $actions->max_points = [   //TODO: load Initial damage from logs for the car
+                    new Entity(['damage_type' => 2, 'wear_points' => 4]),
+                    new Entity(['damage_type' => 3, 'wear_points' => 3]),
+                    new Entity(['damage_type' => 4, 'wear_points' => 4]),
+                    new Entity(['damage_type' => 5, 'wear_points' => 3]),
+                    new Entity(['damage_type' => 6, 'wear_points' => 3])
+                ];
+                return $actions;
             }
             //TODO: move the following somewhere in choosePits as appropriate
             $currentCar->fixCar();
@@ -119,7 +130,6 @@ class FormulaLogic {
             return $this->getActions($formulaGame, $user_id);
         }
 
-        $actions = new Entity();
 
         $lastCarTurn = $this->FoLogs->
                 find('all')->

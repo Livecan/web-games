@@ -1,4 +1,4 @@
-/* 
+/*
  * Formula Game React App
  */
 
@@ -17,7 +17,7 @@ import { Tooltip } from './module/tooltip.js';
 
 class Board extends React.Component {
     refreshInterval = 2000;
-    
+
     constructor(props) {
         super(props);
         this.state = {};
@@ -33,9 +33,9 @@ class Board extends React.Component {
         this.displayTooltip = this.displayTooltip.bind(this);
         this.hideTooltip = this.hideTooltip.bind(this);
     }
-    
+
     zooms = ["100%", "150%", "200%", "250%", "300%"];
-    
+
     /*changeRefresh() {
         if (this.state.refresher != null) {
             clearInterval(this.state.refresher);
@@ -44,7 +44,7 @@ class Board extends React.Component {
             this.setState({refresher: setInterval(this.updateModified, this.refreshInterval)});
         }
     }*/
-    
+
     updateBoardZoom(zoom) {
         if (zoom > 0) {
             this.state.boardZoom = Math.min(this.state.boardZoom + 1, this.zooms.length - 1);
@@ -54,7 +54,7 @@ class Board extends React.Component {
         }
         this.setState(this.state);
     }
-    
+
     updateGameData(data) {
         if (data.redirect) {
             window.location.href = data.target + "?redirect=" + encodeURI('/formula/get_board/') + this.props.id;
@@ -76,19 +76,19 @@ class Board extends React.Component {
             });
         }
     }
-    
+
     chooseGear(gear) {
         $.post('formula/chooseGear/' + this.props.id,
             { _csrfToken: csrfToken, game_id: this.props.id, gear: gear },
             this.update,
             "json");
     }
-    
+
     update(sendModified) {
         let url = 'formula/getBoardUpdateJson/' + this.props.id;
         $.getJSON(url, {modified: sendModified ? this.state.modified : null}, this.updateGameData);
     }
-    
+
     showDamageOptions(positionId) {
         this.setState({actions:
             {
@@ -97,7 +97,7 @@ class Board extends React.Component {
             }
         });
     }
-    
+
     chooseMoveOption(moveOptionId) {
         this.setState({actions:
             {
@@ -110,17 +110,17 @@ class Board extends React.Component {
                 this.update,
                 "json");
     }
-    
+
     displayTooltip(id, x, y, text) {
         this.setState({tooltip: {id: id, x: x, y: y, text: text}});
     }
-    
+
     hideTooltip(id) {
         if (this.state.tooltip?.id == id) {
             this.setState({tooltip: null});
         }
     }
-    
+
     render() {
         return (
           <div id="board_parent">
@@ -160,7 +160,7 @@ class Board extends React.Component {
                       onChooseGear={this.chooseGear}
                       onDisplayTooltip={this.displayTooltip}
                       onHideTooltip={this.hideTooltip}/>
-                </SlidePanel> 
+                </SlidePanel>
               }
               {this.state.actions?.selectedPosition != null &&
                 <SlidePanel showIcon="img/formula/uparrow.svg"
@@ -175,7 +175,7 @@ class Board extends React.Component {
               {this.state.actions?.type == "choose_pits" &&
                 <SlidePanel showIcon="img/formula/uparrow.svg"
                   hideIcon="img/formula/downarrow.svg">
-                  <PitStopPanel car={this.state.cars.filter(car => car.state == "R").sort(car => car.order)[0]}
+                  <PitStopPanel car={this.state.cars.find(car => car.id == this.state.actions.car_id)}
                     availablePoints={this.state.actions.available_points}
                     maxPoints={this.state.actions.max_points} />
                 </SlidePanel>

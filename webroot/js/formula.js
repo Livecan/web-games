@@ -1,4 +1,4 @@
-/* 
+/*
  * Formula Game React App
  */
 import { SlidePanel, SlidePanelStack } from './module/slidePanel.js';
@@ -190,7 +190,7 @@ class Board extends React.Component {
       showIcon: "img/formula/uparrow.svg",
       hideIcon: "img/formula/downarrow.svg"
     }, /*#__PURE__*/React.createElement(PitStopPanel, {
-      car: this.state.cars.filter(car => car.state == "R").sort(car => car.order)[0],
+      car: this.state.cars.find(car => car.id == this.state.actions.car_id),
       availablePoints: this.state.actions.available_points,
       maxPoints: this.state.actions.max_points
     })), /*#__PURE__*/React.createElement(SlidePanel, {
