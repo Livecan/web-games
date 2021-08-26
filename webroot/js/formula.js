@@ -192,7 +192,8 @@ class Board extends React.Component {
     }, /*#__PURE__*/React.createElement(PitStopPanel, {
       car: this.state.cars.find(car => car.id == this.state.actions.car_id),
       availablePoints: this.state.actions.available_points,
-      maxPoints: this.state.actions.max_points
+      maxPoints: this.state.actions.max_points,
+      onPitStopSelected: (tyres, repairs) => console.log(tyres + JSON.stringify(repairs))
     })), /*#__PURE__*/React.createElement(SlidePanel, {
       showText: "cars stats",
       hideIcon: "img/formula/downarrow.svg"

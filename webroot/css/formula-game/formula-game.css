@@ -34,6 +34,9 @@ and open the template in the editor.
 #board_parent .overflow_helper #board .car_img.move_option.selected {
   opacity: 1;
 }
+#board_parent table {
+  background-color: transparent;
+}
 #board_parent .slide_panel_stack {
   position: absolute;
 }

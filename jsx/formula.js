@@ -177,7 +177,8 @@ class Board extends React.Component {
                   hideIcon="img/formula/downarrow.svg">
                   <PitStopPanel car={this.state.cars.find(car => car.id == this.state.actions.car_id)}
                     availablePoints={this.state.actions.available_points}
-                    maxPoints={this.state.actions.max_points} />
+                    maxPoints={this.state.actions.max_points}
+                    onPitStopSelected={(tyres, repairs) => console.log(tyres + JSON.stringify(repairs))} />
                 </SlidePanel>
               }
               <SlidePanel showText="cars stats"

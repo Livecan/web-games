@@ -108,6 +108,7 @@ class FormulaLogic {
                 $actions->car_id = $currentCar->id;
                 $actions->available_points = 2;    //TODO: use const instead of magic number
                 $actions->max_points = [   //TODO: load Initial damage from logs for the car
+                    new Entity(['damage_type' => 1, 'wear_points' => 6]),
                     new Entity(['damage_type' => 2, 'wear_points' => 4]),
                     new Entity(['damage_type' => 3, 'wear_points' => 3]),
                     new Entity(['damage_type' => 4, 'wear_points' => 4]),
