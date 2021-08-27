@@ -21,6 +21,12 @@ export class PitStopPanel extends React.Component {
 
   addPoint(damageType) {
     let assignedPoints = this.state.assignedPoints;
+    let totalAssignedPoints = Object.values(assignedPoints).reduce((previous, current) => previous + current, 0);
+
+    if (totalAssignedPoints >= this.props.availablePoints) {
+      return;
+    }
+
     assignedPoints[damageType] = Math.min(this.props.maxPoints.find(maxPoint => maxPoint.damage_type == damageType).wear_points - this.props.car.fo_damages.find(damage => damage.type == damageType).wear_points, (assignedPoints[damageType] || 0) + 1);
 
     if (assignedPoints[damageType] == 0) {
@@ -52,13 +58,13 @@ export class PitStopPanel extends React.Component {
   render() {
     return /*#__PURE__*/React.createElement("table", {
       className: "damage_table"
-    }, /*#__PURE__*/React.createElement("tbody", null, this.props.car.fo_damages.map(damage => /*#__PURE__*/React.createElement("tr", {
-      key: damage.type,
-      className: "damage " + damageType[damage.type - 1]
+    }, /*#__PURE__*/React.createElement("tbody", null, this.props.maxPoints.map(maxWP => /*#__PURE__*/React.createElement("tr", {
+      key: maxWP.damage_type,
+      className: "damage " + damageType[maxWP.damage_type - 1]
     }, /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("button", {
-      onClick: () => this.removePoint(damage.type)
-    }, "-")), /*#__PURE__*/React.createElement("td", null, damage.wear_points + (this.state.assignedPoints[damage.type] > 0 && " + " + this.state.assignedPoints[damage.type]), /*#__PURE__*/React.createElement("span", null, " (" + this.props.maxPoints.find(maxPoint => maxPoint.damage_type == damage.type)?.wear_points + ")")), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("button", {
-      onClick: () => this.addPoint(damage.type)
+      onClick: () => this.removePoint(maxWP.damage_type)
+    }, "-")), /*#__PURE__*/React.createElement("td", null, this.props.car.fo_damages.find(carDamage => carDamage.type == maxWP.damage_type)?.wear_points + (this.state.assignedPoints[maxWP.damage_type] > 0 && " + " + this.state.assignedPoints[maxWP.damage_type]), /*#__PURE__*/React.createElement("span", null, " (" + +maxWP.wear_points + ")")), /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("button", {
+      onClick: () => this.addPoint(maxWP.damage_type)
     }, "+")))), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
       colSpan: 3
     }, /*#__PURE__*/React.createElement("button", {

@@ -19,6 +19,11 @@ export class PitStopPanel extends React.Component {
 
     addPoint(damageType) {
         let assignedPoints = this.state.assignedPoints;
+        let totalAssignedPoints =
+          Object.values(assignedPoints).reduce((previous, current) => previous + current, 0);
+        if (totalAssignedPoints >= this.props.availablePoints) {
+          return;
+        }
         assignedPoints[damageType] =
             Math.min(
                 this.props.maxPoints.find(
@@ -48,25 +53,25 @@ export class PitStopPanel extends React.Component {
         return (
             <table className="damage_table">
               <tbody>
-                {this.props.car.fo_damages.map(damage =>
-                  <tr key={damage.type}
-                      className={"damage " + damageType[damage.type - 1]}>
+                {this.props.maxPoints.map(maxWP =>
+                  <tr key={maxWP.damage_type}
+                      className={"damage " + damageType[maxWP.damage_type - 1]}>
                     <td>
-                      <button onClick={() => this.removePoint(damage.type)}>-</button>
+                      <button onClick={() => this.removePoint(maxWP.damage_type)}>-</button>
                     </td>
                     <td>
-                      {damage.wear_points +
-                      (this.state.assignedPoints[damage.type] > 0 &&
-                        " + " + this.state.assignedPoints[damage.type])}
+                      {this.props.car.fo_damages.find(
+                          carDamage => carDamage.type == maxWP.damage_type)?.wear_points +
+                      (this.state.assignedPoints[maxWP.damage_type] > 0 &&
+                        " + " + this.state.assignedPoints[maxWP.damage_type])}
                       <span>
                         {" (" +
-                        this.props.maxPoints.find(
-                          maxPoint => maxPoint.damage_type == damage.type)?.wear_points +
+                         + maxWP.wear_points +
                         ")"}
                       </span>
                     </td>
                     <td>
-                      <button onClick={() => this.addPoint(damage.type)}>+</button>
+                      <button onClick={() => this.addPoint(maxWP.damage_type)}>+</button>
                     </td>
                   </tr>
                 )}

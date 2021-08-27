@@ -22,28 +22,20 @@ class Board extends React.Component {
         super(props);
         this.state = {};
         this.state.boardZoom = 0;
-        this.updateModified = this.update.bind(this, true);
-        this.update = this.update.bind(this, false);
+        this.getUpdateModified = this.getUpdate.bind(this, true);
+        this.getUpdate = this.getUpdate.bind(this, false);
         this.updateGameData = this.updateGameData.bind(this);
-        this.update();  //TODO: run this after the document loaded
-        this.state.refresher = setInterval(this.updateModified, this.refreshInterval);
-        this.chooseGear = this.chooseGear.bind(this);
+        this.getUpdate();  //TODO: run this after the document loaded
+        this.state.refresher = setInterval(this.getUpdateModified, this.refreshInterval);
+        this.postChooseGear = this.postChooseGear.bind(this);
         this.showDamageOptions = this.showDamageOptions.bind(this);
-        this.chooseMoveOption = this.chooseMoveOption.bind(this);
+        this.postChooseMoveOption = this.postChooseMoveOption.bind(this);
+        this.postChoosePitsFix = this.postChoosePitsFix.bind(this);
         this.displayTooltip = this.displayTooltip.bind(this);
         this.hideTooltip = this.hideTooltip.bind(this);
     }
 
     zooms = ["100%", "150%", "200%", "250%", "300%"];
-
-    /*changeRefresh() {
-        if (this.state.refresher != null) {
-            clearInterval(this.state.refresher);
-            this.setState({refresher: null});
-        } else {
-            this.setState({refresher: setInterval(this.updateModified, this.refreshInterval)});
-        }
-    }*/
 
     updateBoardZoom(zoom) {
         if (zoom > 0) {
@@ -77,14 +69,14 @@ class Board extends React.Component {
         }
     }
 
-    chooseGear(gear) {
+    postChooseGear(gear) {
         $.post('formula/chooseGear/' + this.props.id,
             { _csrfToken: csrfToken, game_id: this.props.id, gear: gear },
-            this.update,
+            this.getUpdate,
             "json");
     }
 
-    update(sendModified) {
+    getUpdate(sendModified) {
         let url = 'formula/getBoardUpdateJson/' + this.props.id;
         $.getJSON(url, {modified: sendModified ? this.state.modified : null}, this.updateGameData);
     }
@@ -98,7 +90,7 @@ class Board extends React.Component {
         });
     }
 
-    chooseMoveOption(moveOptionId) {
+    postChooseMoveOption(moveOptionId) {
         this.setState({actions:
             {
                 ...this.state.actions,
@@ -107,8 +99,15 @@ class Board extends React.Component {
         });
         $.post('formula/chooseMoveOption/' + this.props.id,
                 { _csrfToken: csrfToken, game_id: this.props.id, move_option_id: moveOptionId },
-                this.update,
+                this.getUpdate,
                 "json");
+    }
+
+    postChoosePitsFix(tires, fixes) {
+      $.post('formula/choosePitsOptions/' + this.props.id,
+      { _csrfToken: csrfToken, game_id: this.props.id, tires: tires, fixes: fixes },
+      this.getUpdate,
+      "json");
     }
 
     displayTooltip(id, x, y, text) {
@@ -133,7 +132,7 @@ class Board extends React.Component {
                     positions={this.props.positions}
                     selectedPositionId={this.state.actions?.selectedPosition}
                     onMovePositionSelected={this.showDamageOptions}
-                    onSelected={this.chooseMoveOption}/>
+                    onSelected={this.postChooseMoveOption}/>
                 }
                 <TrackCars cars={this.state.cars?.filter(car => car.fo_position_id != null) ?? []}
                   positions={this.props.positions} />
@@ -143,7 +142,7 @@ class Board extends React.Component {
             <SlidePanelStack className="slide_panel_stack_top">
               <SlidePanel showIcon="img/formula/downarrow.svg"
                 hideIcon="img/formula/uparrow.svg">
-                  <ZoomPanel onRefresh={this.update}
+                  <ZoomPanel onRefresh={this.getUpdate}
                     noZoomIn={this.state.boardZoom == this.zooms.length - 1}
                     noZoomOut={this.state.boardZoom == 0}
                     onZoomOut={this.updateBoardZoom.bind(this, -1)}
@@ -157,7 +156,7 @@ class Board extends React.Component {
                   hideIcon="img/formula/downarrow.svg">
                     <GearChoicePanel current={this.state.actions.current_gear}
                       available={this.state.actions.available_gears}
-                      onChooseGear={this.chooseGear}
+                      onChooseGear={this.postChooseGear}
                       onDisplayTooltip={this.displayTooltip}
                       onHideTooltip={this.hideTooltip}/>
                 </SlidePanel>
@@ -166,7 +165,7 @@ class Board extends React.Component {
                 <SlidePanel showIcon="img/formula/uparrow.svg"
                   hideIcon="img/formula/downarrow.svg">
                     <MoveDamageSelector positionId={this.state.actions.selectedPosition}
-                      onSelected={this.chooseMoveOption}
+                      onSelected={this.postChooseMoveOption}
                       moveOptions={
                         this.state.actions.available_moves.filter(move =>
                           move.fo_position_id == this.state.actions.selectedPosition)} />
@@ -178,13 +177,12 @@ class Board extends React.Component {
                   <PitStopPanel car={this.state.cars.find(car => car.id == this.state.actions.car_id)}
                     availablePoints={this.state.actions.available_points}
                     maxPoints={this.state.actions.max_points}
-                    onPitStopSelected={(tyres, repairs) => console.log(tyres + JSON.stringify(repairs))} />
+                    onPitStopSelected={this.postChoosePitsFix} />
                 </SlidePanel>
               }
               <SlidePanel showText="cars stats"
                 hideIcon="img/formula/downarrow.svg">
-                  <CarDamagePanel update={Math.random()}
-                    cars={this.state.cars ?? []} users={this.state.users} />
+                  <CarDamagePanel cars={this.state.cars ?? []} users={this.state.users} />
               </SlidePanel>
             </SlidePanelStack>
             {

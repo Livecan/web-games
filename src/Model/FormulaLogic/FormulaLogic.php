@@ -14,6 +14,7 @@ use App\Model\Entity\FoCar;
 use App\Model\Entity\FoLog;
 use App\Model\Entity\FoMoveOption;
 use App\Model\Entity\FoDebri;
+use Cake\Database\Expression\QueryExpression;
 
 /**
  * Description of FormulaLogic
@@ -178,7 +179,13 @@ class FormulaLogic {
         $actions->max_points =
             collection($this->getTableLocator()->get('FoLogs')->find('all')->
                 where(['fo_car_id' => $car->id, 'type' => FoLog::TYPE_INITIAL])->
-                contain(['FoDamages'])->first()->fo_damages)->map(
+                contain(['FoDamages'  => function(Query $q) {
+                    return $q->where(
+                        function(QueryExpression $exp, Query $q) {
+                            return $exp->notEq('type', FoDamage::TYPE_TIRES);
+                        }
+                    );
+                }])->first()->fo_damages)->map(
                     function(FoDamage $foDamage) {
                         return new Entity(['damage_type' => $foDamage->type,
                             'wear_points' => $foDamage->wear_points]);
