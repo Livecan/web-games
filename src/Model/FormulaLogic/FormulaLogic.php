@@ -98,27 +98,12 @@ class FormulaLogic {
         if ($currentCar["user_id"] != $user_id) {
             return;
         }
-
-        $actions = new Entity();
         if ($currentCar->isEnteringPits()) {
             if ($currentCar->tech_pitstops_left <= 0) {
-                //TODO: non-technical pitstop
+                $currentCar->fixCar();
             } else {
-                $actions->type = "choose_pits";
-                $actions->car_id = $currentCar->id;
-                $actions->available_points = 2;    //TODO: use const instead of magic number
-                $actions->max_points = [   //TODO: load Initial damage from logs for the car
-                    new Entity(['damage_type' => 1, 'wear_points' => 6]),
-                    new Entity(['damage_type' => 2, 'wear_points' => 4]),
-                    new Entity(['damage_type' => 3, 'wear_points' => 3]),
-                    new Entity(['damage_type' => 4, 'wear_points' => 4]),
-                    new Entity(['damage_type' => 5, 'wear_points' => 3]),
-                    new Entity(['damage_type' => 6, 'wear_points' => 3])
-                ];
-                return $actions;
+                return $this->getTechnicalPitstopAction($currentCar);
             }
-            //TODO: move the following somewhere in choosePits as appropriate
-            $currentCar->fixCar();
         }
 
         if ($currentCar->pits_state != null) {
@@ -139,6 +124,8 @@ class FormulaLogic {
                     'type' => FoLog::TYPE_MOVE])->
                 order(['FoLogs.id' => 'DESC'])->
                 first();
+
+        $actions = new Entity();
         if ($lastCarTurn == null || $lastCarTurn['fo_position_id'] == null) {
             if ($lastCarTurn != null) {
                 $movesLeft = $lastCarTurn['roll'];
@@ -180,6 +167,23 @@ class FormulaLogic {
                 $actions->available_gears[] = $availableGear;
             }
         }
+        return $actions;
+    }
+
+    private function getTechnicalPitstopAction(FoCar $car) {
+        $actions = new Entity();
+        $actions->type = "choose_pits";
+        $actions->car_id = $car->id;
+        $actions->available_points = 2;    //TODO: use const instead of magic number
+        $actions->max_points =
+            collection($this->getTableLocator()->get('FoLogs')->find('all')->
+                where(['fo_car_id' => $car->id, 'type' => FoLog::TYPE_INITIAL])->
+                contain(['FoDamages'])->first()->fo_damages)->map(
+                    function(FoDamage $foDamage) {
+                        return new Entity(['damage_type' => $foDamage->type,
+                            'wear_points' => $foDamage->wear_points]);
+                    }
+                );
         return $actions;
     }
 
