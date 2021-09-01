@@ -5,24 +5,29 @@ export class SetupGameParamsPanel extends React.Component {
         this.handleCarsPerPlayerChange = this.handleCarsPerPlayerChange.bind(this);
         this.handleWPAvailableChange = this.handleWPAvailableChange.bind(this);
         this.handleLapsChange = this.handleLapsChange.bind(this);
+        this.handleTechnicalPitStopsChange = this.handleTechnicalPitStopsChange.bind(this);
     }
-    
+
     handleTrackChoiceChange(event) {
         this.props.onUpdate({fo_track_id: event.target.value});
     }
-    
+
     handleCarsPerPlayerChange(event) {
         this.props.onUpdate({cars_per_player: event.target.value});
     }
-    
+
     handleWPAvailableChange(event) {
         this.props.onUpdate({wear_points: event.target.value});
     }
-    
+
     handleLapsChange(event) {
         this.props.onUpdate({laps: event.target.value});
     }
-    
+
+    handleTechnicalPitStopsChange(event) {
+        this.props.onUpdate({technical_pit_stops: event.target.value});
+    }
+
     render() {
         return (
             <table>
@@ -119,6 +124,30 @@ export class SetupGameParamsPanel extends React.Component {
                           )
                         }
                     />
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <label htmlFor="technical-pit-stops">Technical pit stops</label>
+                  </td>
+                  <td>
+                    {
+                      this.props.editable ?
+                      <select name="track-choice" id="technical-pit-stops" name="technical-pit-stops"
+                        defaultValue={this.props.game.technical_pit_stops}
+                        onChange={this.handleTechnicalPitStopsChange} >
+                        <option value="0">0</option>
+                        <option value="1">1</option>
+                        <option value="99999">Unlimited</option>
+                      </select> :
+                      <input type="number" id="technical-pit-stops" name="technical-pit-stops" min="1"
+                        value={
+                          this.props.game.technical_pit_stops == 99999 ?
+                            "Unlimited" :
+                            this.props.game.technical_pit_stops
+                        }
+                        readOnly />
+                    }
                   </td>
                 </tr>
                 {

@@ -7,6 +7,7 @@ export class SetupGameParamsPanel extends React.Component {
     this.handleCarsPerPlayerChange = this.handleCarsPerPlayerChange.bind(this);
     this.handleWPAvailableChange = this.handleWPAvailableChange.bind(this);
     this.handleLapsChange = this.handleLapsChange.bind(this);
+    this.handleTechnicalPitStopsChange = this.handleTechnicalPitStopsChange.bind(this);
   }
 
   handleTrackChoiceChange(event) {
@@ -30,6 +31,12 @@ export class SetupGameParamsPanel extends React.Component {
   handleLapsChange(event) {
     this.props.onUpdate({
       laps: event.target.value
+    });
+  }
+
+  handleTechnicalPitStopsChange(event) {
+    this.props.onUpdate({
+      technical_pit_stops: event.target.value
     });
   }
 
@@ -93,7 +100,28 @@ export class SetupGameParamsPanel extends React.Component {
     } : {
       value: this.props.game.laps,
       readOnly: true
-    })))), this.props.editable && /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
+    })))), /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", null, /*#__PURE__*/React.createElement("label", {
+      htmlFor: "technical-pit-stops"
+    }, "Technical pit stops")), /*#__PURE__*/React.createElement("td", null, this.props.editable ? /*#__PURE__*/React.createElement("select", {
+      name: "track-choice",
+      id: "technical-pit-stops",
+      name: "technical-pit-stops",
+      defaultValue: this.props.game.technical_pit_stops,
+      onChange: this.handleTechnicalPitStopsChange
+    }, /*#__PURE__*/React.createElement("option", {
+      value: "0"
+    }, "0"), /*#__PURE__*/React.createElement("option", {
+      value: "1"
+    }, "1"), /*#__PURE__*/React.createElement("option", {
+      value: "99999"
+    }, "Unlimited")) : /*#__PURE__*/React.createElement("input", {
+      type: "number",
+      id: "technical-pit-stops",
+      name: "technical-pit-stops",
+      min: "1",
+      value: this.props.game.technical_pit_stops == 99999 ? "Unlimited" : this.props.game.technical_pit_stops,
+      readOnly: true
+    }))), this.props.editable && /*#__PURE__*/React.createElement("tr", null, /*#__PURE__*/React.createElement("td", {
       colSpan: "2"
     }, /*#__PURE__*/React.createElement("button", {
       disabled: !this.props.playersReady,

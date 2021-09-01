@@ -1,4 +1,4 @@
-/* 
+/*
  * Formula Game Setup React App
  */
 import { Tooltip } from './module/tooltip.js';
@@ -17,10 +17,10 @@ class Setup extends React.Component {
     this.update = this.update.bind(this);
     this.updateData = this.updateData.bind(this);
     this.updateGameParams = this.updateGameParams.bind(this);
-    this.sendGameParams = this.sendGameParams.bind(this);
-    this.sendUpdateDamage = this.sendUpdateDamage.bind(this);
-    this.sendUpdatePlayerReady = this.sendUpdatePlayerReady.bind(this);
-    this.startGame = this.startGame.bind(this);
+    this.postGameParams = this.postGameParams.bind(this);
+    this.postUpdateDamage = this.postUpdateDamage.bind(this);
+    this.postPlayerReady = this.postPlayerReady.bind(this);
+    this.postStartGame = this.postStartGame.bind(this);
     this.update();
     setInterval(this.update, this.refreshIntervalMiliseconds);
   }
@@ -63,14 +63,14 @@ class Setup extends React.Component {
     });
 
     if (this.gameParamsTimeout == null) {
-      this.gameParamsTimeout = setTimeout(this.sendGameParams, this.gameParamsTimeoutMiliseconds);
+      this.gameParamsTimeout = setTimeout(this.postGameParams, this.gameParamsTimeoutMiliseconds);
     }
 
     console.log("new params: " + JSON.stringify(gameParams));
     console.log(JSON.stringify(this.gameParams));
   }
 
-  sendUpdateDamage(damageId, wearPoints) {
+  postUpdateDamage(damageId, wearPoints) {
     let url = 'formula/editDamage/' + this.props.id;
     let payload = {
       _csrfToken: csrfToken,
@@ -80,7 +80,7 @@ class Setup extends React.Component {
     $.post(url, payload, null, 'json');
   }
 
-  sendGameParams() {
+  postGameParams() {
     let url = 'formula/editSetup/' + this.props.id;
     let payload = this.gameParams;
     this.gameParamsTimeout = null;
@@ -88,7 +88,7 @@ class Setup extends React.Component {
     $.post(url, payload, null, 'json').fail(() => this.updateGameParams({}));
   }
 
-  sendUpdatePlayerReady(ready) {
+  postPlayerReady(ready) {
     let url = 'formula/setUserReady/' + this.props.id;
     let payload = {
       gameId: this.props.id,
@@ -102,7 +102,7 @@ class Setup extends React.Component {
     });
   }
 
-  startGame() {
+  postStartGame() {
     let url = 'formula/start/' + this.props.id;
     let payload = {
       _csrfToken: csrfToken
@@ -125,8 +125,8 @@ class Setup extends React.Component {
       }, /*#__PURE__*/React.createElement(SetupPlayersCarsPanel, {
         users: this.state.users,
         totalWP: this.state.game.wear_points,
-        onDamageChange: this.sendUpdateDamage,
-        onPlayerReadyChange: this.sendUpdatePlayerReady
+        onDamageChange: this.postUpdateDamage,
+        onPlayerReadyChange: this.postPlayerReady
       })), /*#__PURE__*/React.createElement("div", {
         id: "setup-column"
       }, /*#__PURE__*/React.createElement(SetupGameParamsPanel, {
@@ -134,7 +134,7 @@ class Setup extends React.Component {
         onUpdate: this.updateGameParams,
         editable: this.state.game.editable,
         playersReady: this.state.users.every(user => user.ready_state),
-        onStart: this.startGame
+        onStart: this.postStartGame
       }))));
     }
   }

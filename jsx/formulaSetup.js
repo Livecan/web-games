@@ -1,4 +1,4 @@
-/* 
+/*
  * Formula Game Setup React App
  */
 
@@ -11,21 +11,21 @@ class Setup extends React.Component {
     gameParamsTimeout;
     gameParamsTimeoutMiliseconds = 2000;
     refreshIntervalMiliseconds = 2000;
-    
+
     constructor(props) {
         super(props);
         this.state = {};
         this.update = this.update.bind(this);
         this.updateData = this.updateData.bind(this);
         this.updateGameParams = this.updateGameParams.bind(this);
-        this.sendGameParams = this.sendGameParams.bind(this);
-        this.sendUpdateDamage = this.sendUpdateDamage.bind(this);
-        this.sendUpdatePlayerReady = this.sendUpdatePlayerReady.bind(this);
-        this.startGame = this.startGame.bind(this);
+        this.postGameParams = this.postGameParams.bind(this);
+        this.postUpdateDamage = this.postUpdateDamage.bind(this);
+        this.postPlayerReady = this.postPlayerReady.bind(this);
+        this.postStartGame = this.postStartGame.bind(this);
         this.update();
         setInterval(this.update, this.refreshIntervalMiliseconds);
     }
-    
+
     updateData(data) {
         console.log(JSON.stringify(Object.keys(data)));
         if (data["has_started"]) {
@@ -45,30 +45,30 @@ class Setup extends React.Component {
         }
         this.setState(state);
     }
-    
+
     update() {
         let url = 'formula/getSetupUpdateJson/' + this.props.id;
         $.getJSON(url, this.updateData);
     }
-    
+
     updateGameParams(gameParams) {
         Object.assign(this.gameParams, gameParams);
         Object.assign(this.state.game, gameParams);
         this.setState({game: this.state.game});
         if (this.gameParamsTimeout == null) {
-            this.gameParamsTimeout = setTimeout(this.sendGameParams, this.gameParamsTimeoutMiliseconds);
+            this.gameParamsTimeout = setTimeout(this.postGameParams, this.gameParamsTimeoutMiliseconds);
         }
         console.log("new params: " + JSON.stringify(gameParams));
         console.log(JSON.stringify(this.gameParams));
     }
-    
-    sendUpdateDamage(damageId, wearPoints) {
+
+    postUpdateDamage(damageId, wearPoints) {
         let url = 'formula/editDamage/' + this.props.id;
         let payload = { _csrfToken: csrfToken, damage_id: damageId, wear_points: wearPoints };
         $.post(url, payload, null, 'json');
     }
-    
-    sendGameParams() {
+
+    postGameParams() {
         let url = 'formula/editSetup/' + this.props.id;
         let payload = this.gameParams;
         this.gameParamsTimeout = null;
@@ -76,8 +76,8 @@ class Setup extends React.Component {
         $.post(url, payload, null, 'json')
             .fail(() => this.updateGameParams({}));
     }
-    
-    sendUpdatePlayerReady(ready) {
+
+    postPlayerReady(ready) {
         let url = 'formula/setUserReady/' + this.props.id;
         let payload = {
             gameId: this.props.id,
@@ -88,13 +88,13 @@ class Setup extends React.Component {
         this.state.users.find(user => user.editable).ready_state = ready;
         this.setState({users: this.state.users});
     }
-    
-    startGame() {
+
+    postStartGame() {
         let url = 'formula/start/' + this.props.id;
         let payload = { _csrfToken: csrfToken };
         $.post(url, payload, null, 'json');
     }
-    
+
     render() {
         if (this.state.game == null) {
             return null;
@@ -107,15 +107,15 @@ class Setup extends React.Component {
                     <div id="player-car-column">
                       <SetupPlayersCarsPanel users={this.state.users}
                           totalWP={this.state.game.wear_points}
-                          onDamageChange={this.sendUpdateDamage}
-                          onPlayerReadyChange={this.sendUpdatePlayerReady}/>
+                          onDamageChange={this.postUpdateDamage}
+                          onPlayerReadyChange={this.postPlayerReady}/>
                     </div>
                     <div id="setup-column">
                       <SetupGameParamsPanel game={this.state.game}
                           onUpdate={this.updateGameParams}
                           editable={this.state.game.editable}
                           playersReady={this.state.users.every(user => user.ready_state)}
-                          onStart={this.startGame}/>
+                          onStart={this.postStartGame}/>
                     </div>
                   </div>
                 </div>

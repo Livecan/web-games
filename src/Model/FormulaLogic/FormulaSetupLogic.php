@@ -22,7 +22,7 @@ use App\Model\Entity\GamesUser;
  */
 class FormulaSetupLogic {
     use LocatorAwareTrait;
-    
+
     public function __construct() {
         $this->FoCars = $this->getTableLocator()->get('FoCars');
         $this->FoDamages = $this->getTableLocator()->get('FoDamages');
@@ -34,15 +34,15 @@ class FormulaSetupLogic {
         $this->Users = $this->getTableLocator()->get('Users');
         $this->GamesUsers = $this->getTableLocator()->get('GamesUsers');
     }
-    
+
     public function createNewGame(User $user) {
         $foTrack = $this->FoTracks->find('all')->first();
-                
+
         $formulaGame = new FormulaGame([
             'name' => $user->name . "'s " . $foTrack->name . " GP",
             'creator_id' => $user->id,
             'game_type_id' => 2,   //for Formula Game
-            'fo_game' => 
+            'fo_game' =>
                 new FoGame([
                     'fo_track_id' => $foTrack->id, //for the first track - Monaco
                     'cars_per_player' => 2,
@@ -53,24 +53,24 @@ class FormulaSetupLogic {
         ]);
         $formulaGame = $this->FormulaGames->save($formulaGame, ['associated' => ['FoGames', 'Users']]);
         $this->addPlayer($formulaGame, $user);
-        
+
         return $formulaGame;
     }
-    
+
     public function addPlayer(FormulaGame $formulaGame, User $user) {
         $isUserAlreadyJoined = collection($formulaGame->users ?? [])->some(
             function($player) use ($user) { return $player->id == $user->id; });
-        
+
         if ($isUserAlreadyJoined) {
             return;
         }
-        
+
         $formulaGame->users[] = $user;
         $formulaGame->setDirty('users');
         $this->FormulaGames->save($formulaGame, ['associated' => ['Users']]);
         $this->addCars($formulaGame, $user->id);
     }
-    
+
     public function addCars(FormulaGame $formulaGame, int $user_id, int $carCount = null) {
         if ($carCount == null) {
             $carCount = $formulaGame->fo_game->cars_per_player;
@@ -81,7 +81,7 @@ class FormulaSetupLogic {
         }
         return $foCars;
     }
-    
+
     public function addCar(FormulaGame $formulaGame, int $user_id) {
         $wearPoints = $formulaGame->fo_game->wear_points;
         $foDamages = [];
@@ -130,27 +130,30 @@ class FormulaSetupLogic {
             $_user->ready_state = $_user->_joinData->ready_state == GamesUser::STATE_READY;
             $_user->unset('_joinData');
         });
+        $formulaGame->technical_pit_stops =
+            collection($formulaGame->fo_cars)->sortBy('id', SORT_ASC)->
+                first()->tech_pitstops_left;
         $formulaGame->unset('fo_cars');
         $formulaGame->editable = $user->id === $formulaGame->creator_id;
         $formulaGame->has_updated = true;
         return $formulaGame;
     }
-    
+
     public function editSetup(FormulaGame $formulaGame, array $data) {
         $this->FormulaGames->patchEntity($formulaGame, $data);
         $this->FoGames->patchEntity($formulaGame->fo_game, $data);
         $foTrack = $this->FoTracks->get($formulaGame->fo_game->fo_track_id);
         $formulaGame->setDirty('fo_game');
-        
+
         //TODO: check and fix loading of assiciations and rewrite the following
         $creator = $this->Users->get($formulaGame->creator_id);
         $formulaGame->name = $creator->name . "'s " . $foTrack->name . " GP";
-        
+
         foreach ($formulaGame->users as $user) {
             $user->_joinData->ready_state = GamesUser::STATE_NOT_READY;
         }
         $formulaGame->setDirty('users');
-        
+
         $carsMissing = false;
         if (array_key_exists('cars_per_player', $data)) {
             $foUsersCarCount = collection($this->FoCars->find('all')->
@@ -168,10 +171,16 @@ class FormulaSetupLogic {
                 $this->addCars($formulaGame, $user_id, $formulaGame->fo_game->cars_per_player - $foUserCarCount);
             }
         }
-        
+
+        if ($data['technical_pit_stops']) {
+            $firstCar = collection($formulaGame->fo_cars)->sortBy('id', SORT_ASC)->first();
+            $firstCar->tech_pitstops_left = intval($data['technical_pit_stops']);
+            $firstCar->save();
+        }
+
         return $this->FormulaGames->save($formulaGame);
     }
-    
+
     public function editDamage(FormulaGame $formulaGame, FoDamage $foDamage, int $wearPoints) {
         $foDamage->wear_points = $wearPoints;
         $foDamage = $this->FoDamages->save($foDamage);
@@ -181,24 +190,24 @@ class FormulaSetupLogic {
         $this->setUserReady($foCar->formula_game, $foCar->user, false);
         return $foDamage;
     }
-    
+
     public function joinGame(FormulaGame $formulaGame, User $user) {
         if ($formulaGame->max_players != null && count($formulaGame->users) >= $formulaGame->max_players) {
             return;
         }
-        
+
         $isUserJoined = collection($formulaGame->users)->firstMatch(['user_id' => $user->id]) != null;
         if ($isUserJoined) {
             return;
         }
-        
+
         $this->addCars($formulaGame, $user->id, $formulaGame->fo_game->cars_per_player);
-        
+
         $formulaGame->users[] = $user;
         $formulaGame->setDirty('users');
         $this->FormulaGames->save($formulaGame, ['associated' => ['Users']]);
     }
-    
+
     public function startGame(FormulaGame $formulaGame) {
         $gameUsers = $this->GamesUsers->find('all')->
             where(['game_id' => $formulaGame->id]);
@@ -221,9 +230,18 @@ class FormulaSetupLogic {
         $formulaGame->fo_cars = $this->FoCars->find('all')->
                 where(['game_id' => $formulaGame->id])->
                 toList();
-        
-        $formulaGame->fo_cars = collection($formulaGame->fo_cars)->shuffle();
-        
+
+        $foCarsCollection = collection($formulaGame->fo_cars);
+        $tech_pitstops =
+            $foCarsCollection->sortBy('id', SORT_ASC)->first()->tech_pitstops_left;
+        $foCarsCollection->each(
+            function(FoCar $foCar) use ($tech_pitstops) {
+                $foCar->tech_pitstops_left = $tech_pitstops;
+            }
+        );
+
+        $formulaGame->fo_cars = $foCarsCollection->shuffle();
+
         if ($formulaGame->fo_game->cars_per_player != 2) {
             $teamNumberIndexer = 0;
             foreach ($formulaGame->fo_cars as $foCar) {
@@ -243,7 +261,7 @@ class FormulaSetupLogic {
                 });
             }
         }
-        
+
         $startingPositions = $this->FoPositions->find('all')->
                 select('id')->
                 where(['fo_track_id' => $formulaGame->fo_game->fo_track_id])->
@@ -256,20 +274,20 @@ class FormulaSetupLogic {
                     $foCar->state = FoCar::STATE_RACING;
                     return $carPositionPair[0];
                 })->toList();
-        
+
         $formulaGame->game_state_id = 2;
-        
+
         $formulaGame->setDirty('fo_cars');
         $formulaGame = $this->FormulaGames->save($formulaGame,
                         ['associated' => ['FoCars']]);
 
         $formulaGame->generateCarOrder();
-        
+
         FoLog::logGameStart($formulaGame->fo_cars);
 
         return $formulaGame;
     }
-    
+
     public function setUserReady(FormulaGame $formulaGame, $user, bool $ready) {
         $gameUser = $this->GamesUsers->find()->
             where(['game_id' => $formulaGame->id, 'user_id' => $user->id])->
@@ -277,7 +295,7 @@ class FormulaSetupLogic {
         $gameUser->ready_state = $ready ? GamesUser::STATE_READY : GamesUser::STATE_NOT_READY;
         $this->GamesUsers->save($gameUser);
     }
-    
+
     public function setUserLastRequest(FormulaGame $formulaGame, $user) {
         $gameUser = $this->GamesUsers->find()->
             where(['game_id' => $formulaGame->id, 'user_id' => $user->id])->
@@ -285,6 +303,6 @@ class FormulaSetupLogic {
         $gameUser->last_request = new \Cake\I18n\Time('now');
         $this->GamesUsers->save($gameUser);
     }
-    
+
     //TODO: before game starts, check damage points add up
 }
