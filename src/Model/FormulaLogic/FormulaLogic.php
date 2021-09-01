@@ -288,4 +288,17 @@ class FormulaLogic {
             $formulaGame->assignEngineDamages();
         }
     }
+
+    public function choosePitsOptions(FormulaGame $formulaGame, array $data) {
+        $currentCar = $formulaGame->getNextCar($formulaGame->id);
+
+        $repairs = [];
+        if (is_array($data['fixes'])) {
+            foreach($data['fixes'] as $type => $wp) {
+                $repairs[intval($type)] = intval($wp);
+            }
+        }
+
+        $currentCar->fixCar($repairs);
+    }
 }

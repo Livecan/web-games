@@ -41,7 +41,7 @@ class FormulaGame extends Entity
     use EntitySaveTrait {
         EntitySaveTrait::_repository insteadof LazyLoadEntityTrait;
     }
-    
+
     /**
      * Fields that can be mass assigned using newEntity() or patchEntity().
      *
@@ -68,7 +68,7 @@ class FormulaGame extends Entity
         'fo_debris' => true,
         'fo_game' => true,
     ];
-    
+
     public function generateCarOrder() {
         $this->fo_cars = $this->getTableLocator()->get('FoCars')->
                 find('all')->
@@ -84,17 +84,14 @@ class FormulaGame extends Entity
         $this->save();
         return $this->fo_cars;
     }
-    
+
     public function getNextCar() : ?FoCar {
-        return $this->getTableLocator()->get('FoCars')->
-                find('all')->
-                contain(['FoDamages'])->
-                where(['game_id' => $this->id])->
-                whereNotNull('order')->
-                order(['order' => 'ASC'])->
-                first();
+        return collection($this->fo_cars)->
+            filter(function(FoCar $foCar) { return $foCar->order != null; })->
+            sortBy('order', SORT_ASC)->
+            first();
     }
-    
+
     public function getSavedMoveOptions() {
         return $this->getTableLocator()->get('FoMoveOptions')->find('all')->
             contain(['FoCars', 'FoPositions'])->
@@ -104,7 +101,7 @@ class FormulaGame extends Entity
             where(['FoCars.game_id' => $this->id])->
             toList();
     }
-    
+
     public function assignEngineDamages() {
         foreach ($this->fo_cars as $foCar) {
             if ($foCar->gear >= 5) {
@@ -112,7 +109,7 @@ class FormulaGame extends Entity
             }
         }
     }
-    
+
     public function getNextRanking() {
         $finishedCarsCount = $this->getTableLocator()->get('FoCars')->find('all')->
                 where(['game_id' => $this->id, 'state' => FoCar::STATE_FINISHED])->

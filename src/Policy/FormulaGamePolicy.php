@@ -23,10 +23,10 @@ class FormulaGamePolicy
     {
         return $user->id == $formulaGame->creator_id || $user->is_admin;
     }
-    
+
     /**
      * Check if $user can retrieve board info
-     * 
+     *
      * @param \Authorization\IdentityInterface $user The user.
      * @param \App\Model\Entity\Game $game
      * @return bool
@@ -35,10 +35,10 @@ class FormulaGamePolicy
     {
         return $this->isGamePlayer($user, $formulaGame);
     }
-    
+
     /**
      * Check if $user can retrieve board
-     * 
+     *
      * @param \Authorization\IdentityInterface $user The user.
      * @param \App\Model\Entity\Game $game
      * @return bool
@@ -47,7 +47,7 @@ class FormulaGamePolicy
     {
         return $this->isGamePlayer($user, $formulaGame);
     }
-    
+
     public function canChooseMoveOption(IdentityInterface $user, FormulaGame $formulaGame)
     {
         return $user->id == collection($formulaGame->fo_cars)->
@@ -55,7 +55,7 @@ class FormulaGamePolicy
                 sortBy('order', SORT_ASC)->
                 first()->user_id;
     }
-    
+
     public function canChooseGear(IdentityInterface $user, FormulaGame $formulaGame)
     {
         return $user->id == collection($formulaGame->fo_cars)->
@@ -63,25 +63,33 @@ class FormulaGamePolicy
                 sortBy('order', SORT_ASC)->
                 first()->user_id;
     }
-    
+
+    public function canChoosePitsOptions(IdentityInterface $user, FormulaGame $formulaGame)
+    {
+        return $user->id == collection($formulaGame->fo_cars)->
+                filter(function(FoCar $foCar) { return $foCar->order != null; })->
+                sortBy('order', SORT_ASC)->
+                first()->user_id;
+    }
+
     public function canGetWaitingRoom(IdentityInterface $user, FormulaGame $formulaGame)
     {
         return $this->isGamePlayer($user, $formulaGame);
     }
-    
+
     public function canGetSetupUpdateJson(IdentityInterface $user, FormulaGame $formulaGame)
     {
         return $this->isGamePlayer($user, $formulaGame);
     }
-    
+
     public function canEditSetup(IdentityInterface $user, FormulaGame $formulaGame) {
         return $user->id == $formulaGame->creator_id || $user->is_admin;
     }
-    
+
     public function canSetUserReady(IdentityInterface $user, FormulaGame $formulaGame) {
         return $this->isGamePlayer($user, $formulaGame);
     }
-    
+
     private function isGamePlayer(IdentityInterface $user, FormulaGame $formulaGame)
     {
         return collection($formulaGame->users)->some(

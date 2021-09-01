@@ -18,13 +18,13 @@ class FormulaController extends AppController
 {
     public function initialize(): void {
         parent::initialize();
-        
+
         $this->Formula = new FormulaLogic();
         $this->FormulaSetup = new FormulaSetupLogic();
         $this->FormulaGames = $this->loadModel('FormulaGames');
         $this->FoDamages = $this->loadModel('FoDamages');
     }
-    
+
     public function index()
     {
         $formulaGames = $this->FormulaGames->find('all')->
@@ -58,16 +58,16 @@ class FormulaController extends AppController
         $this->Flash->error(__('The game has already started. Please, try again.'));
         return $this->redirect(['action' => 'getBoard', $id]);
     }
-    
+
     public function getBoardUpdateJson($id)
     {
         $formulaGame = $this->FormulaGames->get($id, ['contain' => ['Users', 'FoCars']]);
         $this->Authorization->authorize($formulaGame);
         $formulaBoard;
         if ($this->request->is('get')) {
-            
+
             $modifiedDateQueryParam = $this->request->getQuery('modified');
-            $modifiedDate = $modifiedDateQueryParam == null ? null : 
+            $modifiedDate = $modifiedDateQueryParam == null ? null :
                     new Time($modifiedDateQueryParam);
             $formulaBoard = $this->Formula->getBoard($formulaGame,
                             $this->request->getAttribute("identity")->id,
@@ -79,12 +79,12 @@ class FormulaController extends AppController
         $this->set(compact('formulaBoard'));
         $this->viewBuilder()->setOption('serialize', 'formulaBoard');
     }
-    
+
     public function getBoard($id)
     {
         $formulaGame = $this->FormulaGames->get($id, ['contain' =>
             ['Users', 'FoGames.FoTracks', 'FoGames.FoTracks.FoPositions']]);
-        
+
         $this->Authorization->authorize($formulaGame);
         if ($this->request->is('get') && $formulaGame->game_state_id != Game::STATE_INITIAL) {
             $this->set(compact('formulaGame'));
@@ -94,11 +94,11 @@ class FormulaController extends AppController
         }
         $this->viewBuilder()->setTemplate('get_board_react');
     }
-    
+
     public function chooseMoveOption($id)
     {
         $formulaGame = $this->FormulaGames->get($id, ['contain' => ['FoCars']]);
-        
+
         $this->Authorization->authorize($formulaGame);
         if ($this->request->is('post') && $formulaGame->game_state_id == Game::STATE_IN_PROGRESS) {
             $data = $this->request->getData();
@@ -106,14 +106,14 @@ class FormulaController extends AppController
         } else {
             $this->Flash->error(__('Invalid operation.'));
         }
-        
+
         $this->viewBuilder()->setOption('serialize', '');
     }
-    
+
     public function chooseGear($id)
     {
         $formulaGame = $this->FormulaGames->get($id, ['contain' => ['FoCars']]);
-        
+
         $this->Authorization->authorize($formulaGame);
         if ($this->request->is('post') && $formulaGame->game_state_id == Game::STATE_IN_PROGRESS) {
             $data = $this->request->getData();
@@ -121,10 +121,23 @@ class FormulaController extends AppController
         } else {
             $this->Flash->error(__('Invalid operation.'));
         }
-        
+
         $this->viewBuilder()->setOption('serialize', '');
     }
-    
+
+    public function choosePitsOptions($id) {
+        $formulaGame = $this->FormulaGames->get($id, ['contain' => ['FoCars']]);
+
+        $this->Authorization->authorize($formulaGame);
+        if ($this->request->is('post') && $formulaGame->game_state_id == Game::STATE_IN_PROGRESS) {
+            $data = $this->request->getData();
+            $this->Formula->choosePitsOptions($formulaGame, $data);
+        } else {
+            $this->Flash->error(__('Invalid operation'));
+        }
+        $this->viewBuilder()->setOption('serialize', '');
+    }
+
     public function createNewGame() {
         $this->Authorization->skipAuthorization();
         if ($this->request->is('post')) {
@@ -135,7 +148,7 @@ class FormulaController extends AppController
             $this->Flash->error(__('The game could not be saved. Please, try again.'));
         }
     }
-    
+
     public function getWaitingRoom($id) {
         $formulaGame = $this->FormulaGames->get($id, ['contain' => ['Users']]);
         $this->Authorization->authorize($formulaGame);
@@ -145,22 +158,22 @@ class FormulaController extends AppController
             $this->Flash->error(__('Error occurred while retrieving board. Please, try again.'));
             $this->redirect(['controller' => 'Games', 'action' => 'newGames']);
         }
-        
+
         $this->set(compact('formulaGame'));
         $this->viewBuilder()->setOption('serialize', 'formulaGame');
-        
+
         $this->viewBuilder()->setTemplate('get_setup');
     }
-    
+
     public function getSetupUpdateJson($id) {
         $formulaGame = $this->FormulaGames->get($id,
                 ['contain' => ['Users']]);
         $this->Authorization->authorize($formulaGame);
-        
+
         if ($this->request->is('get')) {
-            
+
             $modifiedDateQueryParam = $this->request->getQuery('modified-setup');
-            $modifiedDate = $modifiedDateQueryParam == null ? null : 
+            $modifiedDate = $modifiedDateQueryParam == null ? null :
                     new Time($modifiedDateQueryParam);
             $formulaGame = $this->FormulaSetup->getSetupUpdateJson($formulaGame,
                     $this->request->getAttribute('identity')->getOriginalData(),
@@ -170,20 +183,20 @@ class FormulaController extends AppController
         } else {
             $this->Flash->error(__('Error occurred while retrieving board. Please, try again.'));
             $this->redirect(['controller' => 'Games', 'action' => 'newGames']);
-        }   
+        }
     }
-    
+
     public function editSetup($id) {
         $formulaGame = $this->FormulaGames->get($id,
                 ['contain' => ['Users', 'FoGames']]);
         $this->Authorization->authorize($formulaGame);
-        
+
         if ($this->request->is('post') && $formulaGame->game_state_id == Game::STATE_INITIAL) {
             $this->FormulaSetup->editSetup($formulaGame, $this->request->getData());
             $this->viewBuilder()->setOption('serialize', '');
         }
     }
-    
+
     public function editDamage($id) {
         $damageId = $this->request->getData('damage_id');
         $wearPoints = intval($this->request->getData('wear_points'));
@@ -205,7 +218,7 @@ class FormulaController extends AppController
             $this->redirect(['action' => 'getWaitingRoom', $id]);
         }
     }
-    
+
     public function setUserReady($id) {
         $ready = $this->request->getData('ready') == 'true';
         $formulaGame = $this->FormulaGames->get($id);

@@ -286,24 +286,39 @@ class FoCar extends Entity
         return $this->fo_position->team_pits == $this->team && $this->last_pit_lap != $this->lap;
     }
 
-    public function fixCar() {
-        $maxTireDamage = $this->getTableLocator()->get('FoLogs')->find('all')->
+    public function fixCar(?array $repairs) {
+        $maxWPs = collection($this->getTableLocator()->get('FoLogs')->find('all')->
             where(['fo_car_id' => $this->id, 'type' => FoLog::TYPE_INITIAL])->
-            contain(['FoDamages'  => function(Query $q) {
-                return $q->where(['type' => FoDamage::TYPE_TIRES]);
-            }])->
-            first()->
-            fo_damages[0];
+            contain(['FoDamages'])->
+            first()->fo_damages);
 
+        $maxTireWP = $maxWPs->firstMatch(['type' => FoDamage::TYPE_TIRES]);
         $tireDamage = $this->getDamageByType(FoDamage::TYPE_TIRES);
-        $tireDamage->wear_points = $maxTireDamage->wear_points;
-
+        $tireDamage->wear_points = $maxTireWP->wear_points;
         $tireDamage->save();
+
+        $fixedDamages = [$tireDamage];
+
+        $repairsCollection = collection($repairs);
+        if ($repairsCollection->some(function($value) { return $value > 0; })) {
+            $this->tech_pitstops_left--;
+            $repairsCollection->each(
+                function($value, $key) use ($maxWPs, $fixedDamages) {
+                    $wp = $value;
+                    $damageType = $key;
+                    $maxWP = $maxWPs->firstMatch(['type' => $damageType])->wear_points;
+                    $currentDamage = $this->getDamageByType($damageType);
+                    $currentDamage->wear_points = min($maxWP, $currentDamage->wear_points + $wp);
+                    $currentDamage->save();
+                    $fixedDamages[] = $currentDamage;
+                }
+            );
+        }
 
         (new FoLog([
             'fo_car_id' => $this->id,
             'type' => FoLog::TYPE_REPAIR,
-            'fo_damages' => [$tireDamage->getDamageCopy()],
+            'fo_damages' => FoDamage::getDamagesCopy($fixedDamages),
         ]))->save();
 
         $this->last_pit_lap = $this->lap;
