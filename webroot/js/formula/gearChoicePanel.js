@@ -76,18 +76,20 @@ export class GearChoicePanel extends React.Component {
   }
 
   gearRolls = [[1, 2], [2, 4], [4, 8], [7, 12], [11, 20], [21, 30]];
+  tooltipId = "gearChoice";
 
   mouseMoveHandler(evt) {
-    console.log(evt);
-    let tooltipId = "gearChoice";
-
     if (this.state.selected != null) {
-      this.props.onDisplayTooltip(tooltipId, evt.nativeEvent.clientX + 10, evt.nativeEvent.clientY + 10, `Rolls ${this.gearRolls[this.state.selected - 1][0]} - ${this.gearRolls[this.state.selected - 1][1]}`);
+      this.props.onDisplayTooltip(this.tooltipId, evt.nativeEvent.clientX + 10, evt.nativeEvent.clientY + 10, `Rolls ${this.gearRolls[this.state.selected - 1][0]} - ${this.gearRolls[this.state.selected - 1][1]}`);
     }
 
     if (this.state.selected == null) {
-      this.props.onHideTooltip(tooltipId);
+      this.props.onHideTooltip(this.tooltipId);
     }
+  }
+
+  componentWillUnmount() {
+    this.props.onHideTooltip(this.tooltipId);
   }
 
   render() {

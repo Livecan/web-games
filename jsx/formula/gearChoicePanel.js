@@ -6,22 +6,22 @@ class GearSelector extends React.Component {
         this.handleMouseClick = this.handleMouseClick.bind(this);
         this.state = {};
     }
-    
+
     gearPositions = [{x: 191, y: 144}, {x: 191, y: 457}, {x: 300, y: 144},
         {x: 300, y: 457}, {x: 412, y: 144}, {x: 412, y: 457}]
-    
+
     handleMouseEnter() {
         this.setState({hover: true});
     }
-    
+
     handleMouseLeave() {
         this.setState({hover: false});
     }
-    
+
     handleMouseClick() {
         typeof this.props.onClick == "function" && this.props.onClick();
     }
-    
+
     render() {
         return (
           <circle className="gear_select"
@@ -48,24 +48,27 @@ export class GearChoicePanel extends React.Component {
         this.state = {selected: null};
         this.mouseMoveHandler = this.mouseMoveHandler.bind(this);
     }
-    
+
     gearRolls = [[1, 2], [2, 4], [4, 8], [7, 12], [11, 20], [21, 30]];
-    
+    tooltipId = "gearChoice";
+
     mouseMoveHandler(evt) {
-        console.log(evt);
-        let tooltipId = "gearChoice";
         if (this.state.selected != null) {
             this.props.onDisplayTooltip(
-                tooltipId,
+                this.tooltipId,
                 evt.nativeEvent.clientX + 10,
                 evt.nativeEvent.clientY + 10,
                 `Rolls ${this.gearRolls[this.state.selected - 1][0]} - ${this.gearRolls[this.state.selected - 1][1]}`);
         }
         if (this.state.selected == null) {
-            this.props.onHideTooltip(tooltipId);
+            this.props.onHideTooltip(this.tooltipId);
         }
     }
-    
+
+    componentWillUnmount() {
+        this.props.onHideTooltip(this.tooltipId);
+    }
+
     render() {
         return (
             <div id="gear_choice" style={{position: "relative"}} onMouseMove={this.mouseMoveHandler}>
